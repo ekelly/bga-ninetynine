@@ -61,15 +61,48 @@ $machinestates = array(
                 "transitions" => array( "" => 20 )
         ),
         
+        // stGameSetup manages the state of the rubber (3 games)
         
-        /// New hand
-        20 => array(
+        // New Game
+        10 => array(
+                "name" => "newGame",
+                "description" => clienttranslate("Starting the game"),
+                "type" => "game",
+                "action" => "stNewGame",
+                "updateGameProgression" => true,
+                "transitions" => array( "" => 12 )
+        ),
+        
+        // New Hand (each game will have an arbitrary number of rounds / hands)
+        
+        12 => array(
                 "name" => "newHand",
-                "description" => "",
+                "description" => clienttranslate("Starting the round"),
                 "type" => "game",
                 "action" => "stNewHand",
                 "updateGameProgression" => true,
-                "transitions" => array( "" => 30 )
+                "transitions" => array( "" => 13 )
+        ),
+        
+        // Bidding
+        
+        13 => array(
+                "name" => "bidding",
+                "description" => clienttranslate("Bid the number of tricks you expect to win for this hand"),
+                "type" => "multipleactiveplayer",
+                "action" => "stBidding",
+                "possibleactions" => array( "submitBid" ),
+                "updateGameProgression" => false,
+                "transitions" => array( "submitBid" => 14 )
+        ),
+        14 => array(
+                "name" => "checkBids",
+                "description" => "",
+                "type" => "game",
+                "action" => "stCheckBids",
+                "possibleactions" => array( "playCard" ),
+                "updateGameProgression" => false,
+                "transitions" => array( "waitingForAllBids" => 13, "allBidsSubmitted" => 30 )
         ),
         
         // Trick
@@ -104,7 +137,15 @@ $machinestates = array(
                 "description" => "",
                 "type" => "game",
                 "action" => "stEndHand",
-                "transitions" => array( "nextHand" => 20, "endGame" => 99 )
+                "transitions" => array( "newHand" => 12, "endGame" => 50, )
+        ),
+
+        50 => array(
+                "name" => "endOfCurrentGame",
+                "description" => "",
+                "type" => "game",
+                "action" => "stEndOfCurrentGame",
+                "transitions" => array( "nextGame" => 10, "endRubber" => 99 )
         ),
         
         // Final state.

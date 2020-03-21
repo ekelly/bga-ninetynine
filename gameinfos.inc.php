@@ -14,13 +14,13 @@ $gameinfos = array(
 
 
 // Game designer (or game designers, separated by commas)
-'designer' => 'Unknown',       
+'designer' => 'Eric Kelly, Alex Greenberg',       
 
 // Game artist (or game artists, separated by commas)
 'artist' => 'Unknown',         
 
 // Year of FIRST publication of this game. Can be negative.
-'year' => 1850,                 
+'year' => 1967,                 
 
 // Game publisher
 'publisher' => 'Public Domain',                     
@@ -32,11 +32,10 @@ $gameinfos = array(
 'publisher_bgg_id' => 171,
 
 // Board game geek ID of the game
-'bgg_id' => 6887,
-
+'bgg_id' => 6688,
 
 // Players configuration that can be played (ex: 2 to 4 players)
-'players' => array( 4 ),    
+'players' => array( 3 ),    
 
 // Suggest players to play with this number of players. Must be null if there is no such advice, or if there is only one possible player configuration.
 'suggest_player_number' => null,
@@ -45,9 +44,8 @@ $gameinfos = array(
 'not_recommend_player_number' => null,
 // 'not_recommend_player_number' => array( 2, 3 ),      // <= example: this is not recommended to play this game with 2 or 3 players
 
-
 // Estimated game duration, in minutes (used only for the launch, afterward the real duration is computed)
-'estimated_duration' => 30,           
+'estimated_duration' => 60,           
 
 // Time in second add to a player when "giveExtraTime" is called (speed profile = fast)
 'fast_additional_time' => 30,           
@@ -72,7 +70,6 @@ $gameinfos = array(
 // Is this game cooperative (all players wins together or loose together)
 'is_coop' => 0, 
 
-
 // Complexity of the game, from 0 (extremely simple) to 5 (extremely complex)
 'complexity' => 3,    
 
@@ -83,7 +80,7 @@ $gameinfos = array(
 'strategy' => 3,    
 
 // Diplomacy of the game, from 0 (no interaction in this game) to 5 (totally based on interaction and discussion between players)
-'diplomacy' => 3,    
+'diplomacy' => 2,    
 
 // Colors attributed to players
 'player_colors' => array( "ff0000", "008000", "0000ff", "ffa500", "773300" ),
@@ -115,7 +112,7 @@ $gameinfos = array(
 //  http://en.doc.boardgamearena.com/Game_meta-information:_gameinfos.inc.php
 //  IMPORTANT: this list should be ORDERED, with the most important tag first.
 //  IMPORTANT: it is mandatory that the FIRST tag is 1, 2, 3 and 4 (= game category)
-'tags' => array( 1 ),
+'tags' => array( 1, 12, 200 ),
 
 
 //////// BGA SANDBOX ONLY PARAMETERS (DO NOT MODIFY)
