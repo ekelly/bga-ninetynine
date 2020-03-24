@@ -36,9 +36,9 @@ $stats_type = array(
 
     // Statistics global to table
     "table" => array(
-        "handNbr" => array(   "id"=> 10,
-                                "name" => totranslate("Number of hands"), 
-                                "type" => "int" ),
+        //"handNbr" => array(   "id"=> 10,
+        //                        "name" => totranslate("Number of hands"), 
+        //                        "type" => "int" ),
 
 
     ),
@@ -46,21 +46,21 @@ $stats_type = array(
     // Statistics existing for each player
     "player" => array(
     
-        "getQueenOfSpade" => array(   "id"=> 10,
-                                "name" => totranslate("Get the Queen of Spade during a hand"), 
-                                "type" => "int" ),
-                                
-        "getBgaNinetyNine" => array(   "id"=> 11,
-                                "name" => totranslate("Total heart cards collected"), 
-                                "type" => "int" ),
-
-        "getAllPointCards" => array(   "id"=> 12,
-                                "name" => totranslate("Get all bganinetynine + Queen of Spade"), 
-                                "type" => "int" ),
-
-        "getNoPointCards" => array(   "id"=> 13,
-                                "name" => totranslate("Get no cards with ponts during a hand"), 
-                                "type" => "int" )
+        //"getQueenOfSpade" => array(   "id"=> 10,
+        //                        "name" => totranslate("Get the Queen of Spade during a hand"), 
+        //                        "type" => "int" ),
+        //                        
+        //"getBgaNinetyNine" => array(   "id"=> 11,
+        //                        "name" => totranslate("Total heart cards collected"), 
+        //                        "type" => "int" ),
+        //
+        //"getAllPointCards" => array(   "id"=> 12,
+        //                        "name" => totranslate("Get all bganinetynine + Queen of Spade"), 
+        //                        "type" => "int" ),
+        //
+        //"getNoPointCards" => array(   "id"=> 13,
+        //                        "name" => totranslate("Get no cards with ponts during a hand"), 
+        //                        "type" => "int" )
 
   
     )

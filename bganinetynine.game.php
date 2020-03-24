@@ -33,9 +33,8 @@ class BgaNinetyNine extends Table
         //  the corresponding ID in gameoptions.inc.php.
         // Note: afterwards, you can get/set the global variables with getGameStateValue/setGameStateInitialValue/setGameStateValue
         parent::__construct();self::initGameStateLabels( array( 
-                         "currentHandType" => 10, 
+                         "currentHandTrump" => 10, 
                          "trickColor" => 11,
-                         "alreadyPlayedBgaNinetyNine" => 12,
                          "gameLength" => 100 ) );
 
         $this->cards = self::getNew( "module.common.deck" );
@@ -97,11 +96,11 @@ class BgaNinetyNine extends Table
 
         // Init game statistics
         // (note: statistics are defined in your stats.inc.php file)
-        self::initStat( "table", "handNbr", 0 );
+        s/*elf::initStat( "table", "handNbr", 0 );
         self::initStat( "player", "getQueenOfSpade", 0 );
         self::initStat( "player", "getBgaNinetyNine", 0 );
         self::initStat( "player", "getAllPointCards", 0 );
-        self::initStat( "player", "getNoPointCards", 0 );
+        self::initStat( "player", "getNoPointCards", 0 );*/
 
         // Create cards
         $cards = array();

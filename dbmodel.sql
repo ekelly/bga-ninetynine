@@ -33,7 +33,13 @@
 
 -- add info about first player
 ALTER TABLE `player` ADD `player_first` BOOLEAN NOT NULL DEFAULT '0';
-
+-- Keep track of how many tricks the player has taken so far this hand
+ALTER TABLE `player` ADD `tricks_taken` int(11) NOT NULL DEFAULT '0';
+-- Keep track of a player's bid for this hand
+ALTER TABLE `player` ADD `bid` int(11);
+-- Keep track of whether or not the player has declared or revealed
+--     Valid options: none, declare, reveal
+ALTER TABLE `player` ADD `declare_reveal` varchar(16);
 
 CREATE TABLE IF NOT EXISTS `card` (
   `card_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -43,5 +49,10 @@ CREATE TABLE IF NOT EXISTS `card` (
   `card_location_arg` int(11) NOT NULL,
   PRIMARY KEY (`card_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- card locations:
+-- DECK, DISCARD, HAND, BID
+-- both bid and hand require player id as a card_location_arg
+
 
 
