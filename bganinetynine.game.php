@@ -38,7 +38,7 @@ class BgaNinetyNine extends Table
                          "gameLength" => 100 ) );
 
         $this->cards = self::getNew( "module.common.deck" );
-        $this->cards->init( "card" );
+        $this->cards->init( "cards" );
 	}
 	
     protected function getGameName( )
@@ -96,7 +96,7 @@ class BgaNinetyNine extends Table
 
         // Init game statistics
         // (note: statistics are defined in your stats.inc.php file)
-        s/*elf::initStat( "table", "handNbr", 0 );
+        /*self::initStat( "table", "handNbr", 0 );
         self::initStat( "player", "getQueenOfSpade", 0 );
         self::initStat( "player", "getBgaNinetyNine", 0 );
         self::initStat( "player", "getAllPointCards", 0 );
