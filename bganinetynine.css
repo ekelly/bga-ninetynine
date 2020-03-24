@@ -63,11 +63,11 @@
     height: 130px;
 }
 
-.playertable_N {
+/*.playertable_N {
     left: 50%;
     top: 0px;
-    margin-left: -90px; /* half of 180 */
-}
+    margin-left: -90px; /* half of 180 
+}*/
 .playertable_S {
     left: 50%;
     bottom: 0px;
@@ -76,12 +76,12 @@
 .playertable_W {
     left: 0px;
     top: 50%;
-    margin-top: -55px; /* half of 130 */
+    margin-top: -120px; /* half of 130 */
 }
 .playertable_E {
     right: 0px;
     top: 50%;
-    margin-top: -55px; /* half of 130 */
+    margin-top: -120px; /* half of 130 */
 }
 .playertablecard {
     display: inline-block;
@@ -100,3 +100,17 @@
     background-image: url('img/cards.jpg'); 
 }
 
+/*** hand layout ***/
+
+#myhand {
+    position: relative;
+    height: 101px;
+    display: inline-block;
+    width: 80%;
+}
+
+#mybid {
+    position: relative;
+    height: 101px;
+    display: inline-block;
+}

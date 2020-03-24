@@ -37,10 +37,13 @@
 
 </div>
 
-<div id="myhand_wrap" class="whiteblock">
-    <h3>{MY_HAND}</h3>
-    <div id="myhand">
-    </div>
+<div id="myhand_wrap" class="whiteblock" style="height: 130px;">
+    <h3>
+        <span class="to_translate" style="width: 80%;display: inline-block;">My Hand</span>
+        <span class="to_translate" style="/*! float: right; */display: inline-block;">My Bid</span>
+    </h3>
+    <div id="myhand"></div>
+    <div id="mybid"></div>
 </div>
 
 
