@@ -58,17 +58,17 @@ $machinestates = array(
                 "description" => clienttranslate("Game setup"),
                 "type" => "manager",
                 "action" => "stGameSetup",
-                "transitions" => array( "" => 20 )
+                "transitions" => array( "" => 10 )
         ),
         
-        // stGameSetup manages the state of the rubber (3 games)
+        // stGameSetup manages the state of the game
         
-        // New Game
+        // New Round
         10 => array(
-                "name" => "newGame",
-                "description" => clienttranslate("Starting the game"),
+                "name" => "newRound",
+                "description" => clienttranslate("Starting the round"),
                 "type" => "game",
-                "action" => "stNewGame",
+                "action" => "stNewRound",
                 "updateGameProgression" => true,
                 "transitions" => array( "" => 12 )
         ),
@@ -77,7 +77,7 @@ $machinestates = array(
         
         12 => array(
                 "name" => "newHand",
-                "description" => clienttranslate("Starting the round"),
+                "description" => clienttranslate("Starting the hand"),
                 "type" => "game",
                 "action" => "stNewHand",
                 "updateGameProgression" => true,
