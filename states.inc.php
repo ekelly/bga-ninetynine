@@ -137,15 +137,15 @@ $machinestates = array(
                 "description" => "",
                 "type" => "game",
                 "action" => "stEndHand",
-                "transitions" => array( "newHand" => 12, "endGame" => 50, )
+                "transitions" => array( "newHand" => 12, "endRound" => 50, )
         ),
 
         50 => array(
-                "name" => "endOfCurrentGame",
+                "name" => "endOfCurrentRound",
                 "description" => "",
                 "type" => "game",
-                "action" => "stEndOfCurrentGame",
-                "transitions" => array( "nextGame" => 10, "endRubber" => 99 )
+                "action" => "stEndOfCurrentRound",
+                "transitions" => array( "nextRound" => 10, "endGame" => 99 )
         ),
         
         // Final state.
