@@ -48,8 +48,9 @@
 
 #playertables {
     position: relative;
-    width: 710px;
+    width: 40%;
     height: 340px;
+    display: inline-block;
 }
 
 .playertablename {
@@ -71,17 +72,17 @@
 .playertable_S {
     left: 50%;
     bottom: 0px;
-    margin-left: -90px; /* half of 180 */
+    margin-left: -90px;
 }
 .playertable_W {
     left: 0px;
     top: 50%;
-    margin-top: -120px; /* half of 130 */
+    margin-top: -120px;
 }
 .playertable_E {
     right: 0px;
     top: 50%;
-    margin-top: -120px; /* half of 130 */
+    margin-top: -120px;
 }
 .playertablecard {
     display: inline-block;
@@ -89,6 +90,26 @@
     margin-top: 5px;
     width: 72px;
     height: 96px;
+}
+
+#declare_reveal_table {
+    position: absolute;
+    width: 55%;
+    height: 340px;
+    display: inline-block;
+    margin-left: 5%;
+}
+
+#declare_table {
+    height: 115px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#reveal_table {
+    height: 115px;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 /*** cards on table ***/

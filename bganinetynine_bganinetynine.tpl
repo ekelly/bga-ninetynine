@@ -22,19 +22,32 @@
     
     See your "view" PHP file to check how to set variables and control blocks
 -->
+<div id="table">
+    <div id="playertables">
 
-<div id="playertables">
-
-    <!-- BEGIN player -->
-    <div class="playertable whiteblock playertable_{DIR}">
-        <div class="playertablename" style="color:#{PLAYER_COLOR}">
-            {PLAYER_NAME}
+        <!-- BEGIN player -->
+        <div class="playertable whiteblock playertable_{DIR}">
+            <div class="playertablename" style="color:#{PLAYER_COLOR}">
+                {PLAYER_NAME}
+            </div>
+            <div class="playertablecard" id="playertablecard_{PLAYER_ID}">
+            </div>
         </div>
-        <div class="playertablecard" id="playertablecard_{PLAYER_ID}">
+        <!-- END player -->
+
+    </div>
+    <div id="declare_reveal_table">
+        <h3>
+            <span class="to_translate">Revealing/Declaring Player: </span> 
+            <span class="to_translate" style="color:#{PLAYER_COLOR}">{PLAYER_NAME}</span> <!-- PLAYER_NAME should say none for rounds with no declaring/revealing player -->
+        </h3>
+        <div id="declare_table" class="whiteblock">
+            <span>Declared Bid:</span>
+        </div>
+        <div id="reveal_table" class="whiteblock">
+            <span>Revealed Hand:</span>
         </div>
     </div>
-    <!-- END player -->
-
 </div>
 
 <div id="myhand_wrap" class="whiteblock" style="height: 130px;">
