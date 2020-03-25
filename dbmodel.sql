@@ -42,9 +42,6 @@
 -- player_ai: 1 if player is ai, 0 if live
 -- player_enter_game: Whether or not the player has actually loaded the game
 
-
--- add info about first player
-ALTER TABLE `player` ADD `player_first` BOOLEAN NOT NULL DEFAULT '0';
 -- Keep track of how many tricks the player has taken so far this hand
 ALTER TABLE `player` ADD `tricks_taken` int(11) NOT NULL DEFAULT 0;
 -- Keep track of a player's bid for this hand
