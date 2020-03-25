@@ -34,8 +34,11 @@ class BgaNinetyNine extends Table
         // Note: afterwards, you can get/set the global variables with getGameStateValue/setGameStateInitialValue/setGameStateValue
         parent::__construct();self::initGameStateLabels( array( 
                          "currentHandTrump" => 10, 
-                         "trickColor" => 11,
+                         "trickSuit" => 11,
 						 "previousHandWinnerCount" => 12,
+                         "currentRound" => 13,
+                         "firstDealer" => 14,
+                         "firstPlayer" => 15,
                          "gameLength" => 100 ) );
 
         $this->cards = self::getNew( "module.common.deck" );
@@ -89,10 +92,20 @@ class BgaNinetyNine extends Table
         self::setGameStateInitialValue( 'currentHandTrump', 0 );
         
         // Set current trick color to zero (= no trick color)
-        self::setGameStateInitialValue( 'trickColor', 0 );
+        self::setGameStateInitialValue( 'trickSuit', 0 );
         
         // Previous Hand Winner Count
 		self::setGameStateInitialValue( 'previousHandWinnerCount', 0 );
+        
+        // Current Round
+        self::setGameStateInitialValue( 'currentRound', 0 );
+        
+        // First dealer
+        $dealer = bga_rand( 1, self::getPlayersNumber() );
+        self::setGameStateInitialValue( 'firstDealer', $dealer );
+        
+        // Player with the first action (starts left of dealer, then winner of trick)
+        self::setGameStateInitialValue( 'currentRound', 0 );
 
         // Init game statistics
         // (note: statistics are defined in your stats.inc.php file)
@@ -104,6 +117,7 @@ class BgaNinetyNine extends Table
 
         // Create cards
         $cards = array();
+        self::dump("this->colors", $this->colors);
         foreach( $this->colors as  $color_id => $color ) // spade, heart, diamond, club
         {
             for( $value=6; $value<=14; $value++ )   //  2, 3, 4, ... K, A
@@ -150,6 +164,8 @@ class BgaNinetyNine extends Table
         // Cards played on the table
         $result['cardsontable'] = $this->cards->getCardsInLocation( 'cardsontable' );
   
+        self::dump("result for player $player_id", $result);
+        
         return $result;
     }
 
@@ -180,6 +196,80 @@ class BgaNinetyNine extends Table
     /*
         At this place, you can put any utility methods useful for your game logic
     */
+    
+    /**
+		Gets the current dealer
+	**/
+	function getDealer() {
+		$dealer = self::getGameStateValue( "firstDealer" );
+        $round = self::getGameStateValue( "currentRound" );
+        // Stupidly, player # is 1 indexed. So I have to do this weird logic.
+        $actualDealer = 1 + (($round + ($dealer - 1)) % 3);
+        self::trace("Current dealer: $actualDealer");
+		return $dealer;
+	}
+	
+	/**
+		Gets the first player to play a card
+	**/
+	function getFirstPlayer() {
+		self::getGameStateValue( "firstPlayer" );
+	}
+	
+	/**
+		Sets the first player to play a card
+	**/
+	function setFirstPlayer( $playerID ) {
+		self::setGameStateValue( "firstPlayer", $playerID );
+	}
+
+    /**
+        Gets whether or not the current hand has a trump
+    **/
+    function getCurrentHandTrump() {
+        self::getGameStateValue( "currentHandTrump" ) == 1;
+    }
+    
+    /**
+        Clears whether or not the current hand has trump.
+    **/
+    function clearCurrentHandTrump() {
+        self::setGameStateValue( "currentHandTrump" , 0 );
+    }
+    
+    /**
+        Gets whether or not the current hand has a trump
+    **/
+    function setHandWinnerCount( $winnerCountOfPreviousHand ) {
+        self::setGameStateValue( "currentHandTrump", 1 );
+        self::setGameStateValue( "previousHandWinnerCount", $winnerCountOfPreviousHand );
+    }
+    
+    /**
+        Set the trick suit.
+        1 = spades
+        2 = hearts
+        3 = diamond
+        4 = club
+        
+    **/
+    function setTrickSuit( $trickSuit ) {
+        self::setGameStateValue( "trickSuit", $trickColor );
+    }
+    
+    /**
+        Get the current round number. 0 indexed.
+    **/
+    function getCurrentRound() {
+        self::getGameStateValue( "currentRound" );
+    }
+    
+    /**
+        Set the current round number. 0 indexed.
+    **/
+    function setCurrentRound( $roundNum ) {
+        self::setGameStateValue( "currentRound", $roundNum );
+    }
 
     // Return players => direction (N/S/E/W) from the point of view
     //  of current player (current player must be on south)
@@ -224,6 +314,38 @@ class BgaNinetyNine extends Table
         (note: each method below correspond to an input method in bganinetynine.action.php)
     */
 
+    function submitBid( $card_ids ) {
+        self::trace("submitBid");
+        self::checkAction( "submitBid" );
+        
+        // Check that the cards are actually in the current user's hands.
+        $player_id = self::getCurrentPlayerId();
+        
+        if( count( $card_ids ) != 3 ) {
+            throw new feException( self::_("You must bid exactly 3 cards") );
+        }
+        
+        $cards = $this->cards->getCards( $card_ids );
+        
+        if( count( $cards ) != 3 )
+            throw new feException( self::_("Some of these cards don't exist") );
+        
+        // When a player plays a card in front of him on the table:
+        foreach ($bid as $bidCard) {
+            
+            if( $card['location'] != 'hand' || $card['location_arg'] != $player_id )
+                throw new feException( self::_("Some of these cards are not in your hand" ) );
+            
+            $this->cards->moveCard( $bidCard, 'bid', $player_id );
+        }
+        
+        // Notify the player so we can make these cards disapear
+        self::notifyPlayer( $player_id, "bidCards", "", array(
+            "cards" => $card_ids
+        ) );
+        
+        $this->gamestate->setPlayerNonMultiactive( $player_id, "submitBid" );
+    }
 
     // Play a card from player hand
     function playCard( $card_id )
@@ -437,17 +559,6 @@ class BgaNinetyNine extends Table
 
     function stGameSetup() {
 		self::trace("stGameSetup");
-		// Take back all cards (from any location => null) to deck
-        $this->cards->moveAllCardsInLocation(null, "deck");
-        $this->cards->shuffle('deck');
-        // Deal 12 cards to each players
-        // Create deck, shuffle it and give 13 initial cards
-        $players = self::loadPlayersBasicInfos();
-        foreach ( $players as $player_id => $player ) {
-            $cards = $this->cards->pickCards(12, 'deck', $player_id);
-            // Notify player about his cards
-            self::notifyPlayer($player_id, 'newHand', '', array ('cards' => $cards ));
-        }
 		$this->gamestate->nextState("");
 	}
 	
@@ -458,18 +569,19 @@ class BgaNinetyNine extends Table
 	
 	function stNewHand() {
 		self::trace("stNewHand");
+
         // Take back all cards (from any location => null) to deck
         $this->cards->moveAllCardsInLocation(null, "deck");
         $this->cards->shuffle('deck');
         // Deal 12 cards to each players
-        // Create deck, shuffle it and give 13 initial cards
+        // Create deck, shuffle it and give 12 initial cards
         $players = self::loadPlayersBasicInfos();
         foreach ( $players as $player_id => $player ) {
             $cards = $this->cards->pickCards(13, 'deck', $player_id);
             // Notify player about his cards
             self::notifyPlayer($player_id, 'newHand', '', array ('cards' => $cards ));
         }
-        $this->gamestate->nextState("");
+        $this->gamestate->setAllPlayersMultiactive();
     }
 	
 	function stBidding() {
@@ -478,6 +590,12 @@ class BgaNinetyNine extends Table
 	
 	function stCheckBids() {
 		self::trace("stCheckBids");
+        
+        // TODO: Figure out who wants to declare / reveal
+        
+        // TODO: Update everyone with current cards & visibility
+        
+        $this->gamestate->nextState("startTrickTaking");
 	}
 
     function stNewTrick() {

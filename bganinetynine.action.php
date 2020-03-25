@@ -59,7 +59,7 @@
         else
             $cards = explode( ';', $cards_raw );
 
-        $this->game->giveCards( $cards );
+        $this->game->submitBid( $cards );
         self::ajaxResponse( );    
     }
   

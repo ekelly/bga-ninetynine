@@ -102,7 +102,7 @@ $machinestates = array(
                 "action" => "stCheckBids",
                 "possibleactions" => array( "playCard" ),
                 "updateGameProgression" => false,
-                "transitions" => array( "waitingForAllBids" => 13, "allBidsSubmitted" => 30 )
+                "transitions" => array( "" => 30 )
         ),
         
         // Trick
