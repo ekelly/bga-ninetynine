@@ -361,7 +361,7 @@ class BgaNinetyNine extends Table
 
         $bFirstCard = ( count( $playerhands ) == 13 );
                 
-        $currentTrickColor = self::getGameStateValue( 'trickColor' ) ;
+        $currentTrickColor = self::getGameStateValue( 'trickSuit' ) ;
                 
         // Check that the card is in this hand
         $bIsInHand = false;
@@ -581,11 +581,12 @@ class BgaNinetyNine extends Table
             // Notify player about his cards
             self::notifyPlayer($player_id, 'newHand', '', array ('cards' => $cards ));
         }
-        $this->gamestate->setAllPlayersMultiactive();
+        $this->gamestate->nextState("");
     }
 	
 	function stBidding() {
 		self::trace("stBidding");
+        $this->gamestate->setAllPlayersMultiactive();
 	}
 	
 	function stCheckBids() {

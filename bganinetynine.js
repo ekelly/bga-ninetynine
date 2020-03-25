@@ -125,7 +125,7 @@ function (dojo, declare) {
                 this.addTooltip( 'myhand', _('Cards in my hand'), _('Play a card') );
                 break;
 
-            case 'giveCards':
+            case 'bidding':
                 this.addTooltip( 'myhand', _('Cards in my hand'), _('Select a card') );
                 break;
 
