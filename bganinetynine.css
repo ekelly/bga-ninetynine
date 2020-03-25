@@ -92,7 +92,7 @@
     height: 96px;
 }
 
-#declare_reveal_table {
+#declarerevealtable {
     position: absolute;
     width: 55%;
     height: 340px;
@@ -100,13 +100,13 @@
     margin-left: 5%;
 }
 
-#declare_table {
+#declaretable {
     height: 115px;
     font-size: 14px;
     font-weight: bold;
 }
 
-#reveal_table {
+#revealtable {
     height: 115px;
     font-size: 14px;
     font-weight: bold;

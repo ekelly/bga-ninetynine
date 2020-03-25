@@ -36,15 +36,15 @@
         <!-- END player -->
 
     </div>
-    <div id="declare_reveal_table">
+    <div id="declarerevealtable">
         <h3>
             <span class="to_translate">Revealing/Declaring Player: </span> 
             <span class="to_translate" style="color:#{PLAYER_COLOR}">{PLAYER_NAME}</span> <!-- PLAYER_NAME should say none for rounds with no declaring/revealing player -->
         </h3>
-        <div id="declare_table" class="whiteblock">
+        <div id="declaretable" class="whiteblock">
             <span>Declared Bid:</span>
         </div>
-        <div id="reveal_table" class="whiteblock">
+        <div id="revealtable" class="whiteblock">
             <span>Revealed Hand:</span>
         </div>
     </div>
