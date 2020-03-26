@@ -163,7 +163,7 @@ function (dojo, declare) {
             if( this.isCurrentPlayerActive() ) {
                 console.log("Current player is active");
                 switch( stateName ) {
-                    case 'bidCards':
+                    case 'bidding':
                         this.addActionButton( 'bidCards_button', _('Bid selected cards'), 'onBidCards' ); 
                         break;
                 }
@@ -318,9 +318,7 @@ function (dojo, declare) {
             dojo.subscribe( 'giveAllCardsToPlayer', this, "notif_giveAllCardsToPlayer" );
             dojo.subscribe( 'newScores', this, "notif_newScores" );
             dojo.subscribe( 'bidCards', this, "notif_bidCards" );
-            dojo.subscribe( 'takeCards', this, "notif_takeCards" );
-
-            
+            dojo.subscribe( 'takeCards', this, "notif_takeCards" );  
         },
         
         // TODO: from this point and below, you can write your game notifications handling methods
@@ -376,7 +374,7 @@ function (dojo, declare) {
         },
         notif_bidCards: function( notif )
         {
-            console.log('notif_bidCards');
+            console.log("Bid cards: " + notif.args.bidCardCount);
             // Remove cards from the hand (they have been given)
             for( var i in notif.args.cards )
             {

@@ -88,7 +88,7 @@ $machinestates = array(
         
         13 => array(
                 "name" => "bidding",
-                "description" => clienttranslate("Bidding"),
+                "description" => clienttranslate("Waiting for other players to bid"),
                 "descriptionmyturn" => clienttranslate("You must choose 3 cards to bid"),
                 "type" => "multipleactiveplayer",
                 "action" => "stBidding",
@@ -101,7 +101,6 @@ $machinestates = array(
                 "description" => "",
                 "type" => "game",
                 "action" => "stCheckBids",
-                "possibleactions" => array( "playCard" ),
                 "updateGameProgression" => false,
                 "transitions" => array( "startTrickTaking" => 30 )
         ),

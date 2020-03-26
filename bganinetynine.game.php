@@ -255,7 +255,7 @@ class BgaNinetyNine extends Table
         
     **/
     function setTrickSuit( $trickSuit ) {
-        self::setGameStateValue( "trickSuit", $trickColor );
+        self::setGameStateValue( "trickSuit", $trickSuit );
     }
     
     /**
@@ -332,17 +332,20 @@ class BgaNinetyNine extends Table
             throw new feException( self::_("Some of these cards don't exist") );
         
         // When a player plays a card in front of him on the table:
-        foreach ($bid as $bidCard) {
+        foreach ( $cards as $bidCard ) {
             
-            if( $card['location'] != 'hand' || $card['location_arg'] != $player_id )
+            if( $bidCard['location'] != 'hand' || $bidCard['location_arg'] != $player_id )
                 throw new feException( self::_("Some of these cards are not in your hand" ) );
             
             $this->cards->moveCard( $bidCard, 'bid', $player_id );
         }
         
+        $bidCards = $playerhands = $this->cards->getCardsInLocation( 'bid', $player_id );
+        
         // Notify the player so we can make these cards disapear
         self::notifyPlayer( $player_id, "bidCards", "", array(
-            "cards" => $card_ids
+            "cards" => $card_ids,
+            "bidCardCount" => count($bidCards)
         ) );
         
         $this->gamestate->setPlayerNonMultiactive( $player_id, "submitBid" );
@@ -362,12 +365,12 @@ class BgaNinetyNine extends Table
 
         $bFirstCard = ( count( $playerhands ) == 13 );
                 
-        $currentTrickColor = self::getGameStateValue( 'trickSuit' ) ;
+        $currentTrickSuit = self::getGameStateValue( 'trickSuit' ) ;
                 
         // Check that the card is in this hand
         $bIsInHand = false;
         $currentCard = null;
-        $bAtLeastOneCardOfCurrentTrickColor = false;
+        $bAtLeastOneCardOfCurrentTrickSuit = false;
         $bAtLeastOneCardWithoutPoints = false;
         $bAtLeastOneCardNotHeart = false;
         foreach( $playerhands as $card )
@@ -378,8 +381,8 @@ class BgaNinetyNine extends Table
                 $currentCard = $card;
             }
             
-            if( $card['type'] == $currentTrickColor )
-                $bAtLeastOneCardOfCurrentTrickColor = true;
+            if( $card['type'] == $currentTrickSuit )
+                $bAtLeastOneCardOfCurrentTrickSuit = true;
 
             if( $card['type'] != 2 )
                 $bAtLeastOneCardNotHeart = true;
@@ -604,7 +607,7 @@ class BgaNinetyNine extends Table
 		self::warn("stNewTrick");
         // New trick: active the player who wins the last trick, or the player who own the club-2 card
         // Reset trick color to 0 (= no color)
-        self::setGameStateInitialValue('trickColor', 0);
+        self::setGameStateInitialValue('trickSuit', 0);
         $this->gamestate->nextState();
     }
 
@@ -616,7 +619,7 @@ class BgaNinetyNine extends Table
             $cards_on_table = $this->cards->getCardsInLocation('cardsontable');
             $best_value = 0;
             $best_value_player_id = null;
-            $currentTrickColor = self::getGameStateValue('trickColor');
+            $currentTrickColor = self::getGameStateValue('trickSuit');
             foreach ( $cards_on_table as $card ) {
                 // Note: type = card color
                 if ($card ['type'] == $currentTrickColor) {
