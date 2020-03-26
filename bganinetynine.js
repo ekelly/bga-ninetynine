@@ -103,6 +103,8 @@ function (dojo, declare) {
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
             
+            console.log('Done setting up notifications');
+            
             this.ensureSpecificImageLoading( ['../common/point.png'] );
   
         },
@@ -127,6 +129,7 @@ function (dojo, declare) {
 
             case 'bidding':
                 this.addTooltip( 'myhand', _('Cards in my hand'), _('Select a card') );
+                console.log('Added bidding tooltip');
                 break;
 
                 
@@ -188,6 +191,7 @@ function (dojo, declare) {
         
         playCardOnTable: function( player_id, color, value, card_id )
         {
+            console.log('playCardOnTable');
             // player_id => direction
             dojo.place(
                 this.format_block( 'jstpl_cardontable', {
@@ -237,6 +241,7 @@ function (dojo, declare) {
         
         onPlayerHandSelectionChanged: function(  )
         {
+            console.log('onPlayerHandSelectionChanged');
             var items = this.playerHand.getSelectedItems();
 
             if( items.length > 0 )
@@ -267,6 +272,7 @@ function (dojo, declare) {
         
         onBidCards: function()
         {
+            console.log('onBidCards');
             if( this.checkAction( 'submitBid' ) )
             {
                 var items = this.playerHand.getSelectedItems();
@@ -321,6 +327,7 @@ function (dojo, declare) {
                 
         notif_newHand: function( notif )
         {
+            console.log('notif_newHand');
             // We received a new full hand of 13 cards.
             this.playerHand.removeAll();
 
@@ -335,17 +342,20 @@ function (dojo, declare) {
         
         notif_playCard: function( notif )
         {
+            console.log('notif_playCard');
             // Play a card on the table
             this.playCardOnTable( notif.args.player_id, notif.args.color, notif.args.value, notif.args.card_id );
         },
         
         notif_trickWin: function( notif )
         {
+            console.log('notif_trickWin');
             // We do nothing here (just wait in order players can view the 4 cards played before they're gone.
         },
         
         notif_giveAllCardsToPlayer: function( notif )
         {
+            console.log('notif_giveAllCardsToPlayer');
             // Move all cards on table to given table, then destroy them
             var winner_id = notif.args.player_id;
             for( var player_id in this.gamedatas.players )
@@ -357,6 +367,7 @@ function (dojo, declare) {
         },
         notif_newScores: function( notif )
         {
+            console.log('notif_newScores');
             // Update players' scores
             for( var player_id in notif.args.newScores )
             {
@@ -365,6 +376,7 @@ function (dojo, declare) {
         },
         notif_bidCards: function( notif )
         {
+            console.log('notif_bidCards');
             // Remove cards from the hand (they have been given)
             for( var i in notif.args.cards )
             {
@@ -374,6 +386,7 @@ function (dojo, declare) {
         },
         notif_takeCards: function( notif )
         {
+            console.log('notif_takeCards');
             // Cards taken from some opponent
             for( var i in notif.args.cards )
             {

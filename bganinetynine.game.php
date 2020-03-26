@@ -60,7 +60,7 @@ class BgaNinetyNine extends Table
     */
     protected function setupNewGame( $players, $options = array() )
     {
-		self::trace("setupNewGame");
+		self::warn("setupNewGame");
         $sql = "DELETE FROM player WHERE 1 ";
         self::DbQuery( $sql ); 
  
@@ -142,7 +142,7 @@ class BgaNinetyNine extends Table
     */
     protected function getAllDatas()
     {
-		self::trace("getAllDatas");
+		self::warn("getAllDatas");
         $result = array( 'players' => array() );
 
         $player_id = self::getCurrentPlayerId();    // !! We must only return informations visible by this player !!
@@ -158,14 +158,15 @@ class BgaNinetyNine extends Table
             $result['players'][ $player['id'] ] = $player;
         }
   
-        // Cards in player hand      
+        // Cards in player hand
         $result['hand'] = $this->cards->getCardsInLocation( 'hand', $player_id );
   
         // Cards played on the table
         $result['cardsontable'] = $this->cards->getCardsInLocation( 'cardsontable' );
-  
-        self::dump("result for player $player_id", $result);
         
+        // Result should be the following:
+        // result = { 'players': [[id, score], ...], 'hand': [{card}, ...], 'cardsontable': [...]}
+
         return $result;
     }
 
@@ -205,7 +206,7 @@ class BgaNinetyNine extends Table
         $round = self::getGameStateValue( "currentRound" );
         // Stupidly, player # is 1 indexed. So I have to do this weird logic.
         $actualDealer = 1 + (($round + ($dealer - 1)) % 3);
-        self::trace("Current dealer: $actualDealer");
+        self::warn("Current dealer: $actualDealer");
 		return $dealer;
 	}
 	
@@ -315,7 +316,7 @@ class BgaNinetyNine extends Table
     */
 
     function submitBid( $card_ids ) {
-        self::trace("submitBid");
+        self::warn("submitBid");
         self::checkAction( "submitBid" );
         
         // Check that the cards are actually in the current user's hands.
@@ -558,17 +559,17 @@ class BgaNinetyNine extends Table
     */
 
     function stGameSetup() {
-		self::trace("stGameSetup");
+		self::warn("stGameSetup");
 		$this->gamestate->nextState("");
 	}
 	
 	function stNewRound() {
-		self::trace("stNewRound");
+		self::warn("stNewRound");
 		$this->gamestate->nextState("");
 	}
 	
 	function stNewHand() {
-		self::trace("stNewHand");
+		self::warn("stNewHand");
 
         // Take back all cards (from any location => null) to deck
         $this->cards->moveAllCardsInLocation(null, "deck");
@@ -577,7 +578,7 @@ class BgaNinetyNine extends Table
         // Create deck, shuffle it and give 12 initial cards
         $players = self::loadPlayersBasicInfos();
         foreach ( $players as $player_id => $player ) {
-            $cards = $this->cards->pickCards(13, 'deck', $player_id);
+            $cards = $this->cards->pickCards(12, 'deck', $player_id);
             // Notify player about his cards
             self::notifyPlayer($player_id, 'newHand', '', array ('cards' => $cards ));
         }
@@ -585,12 +586,12 @@ class BgaNinetyNine extends Table
     }
 	
 	function stBidding() {
-		self::trace("stBidding");
+		self::warn("stBidding");
         $this->gamestate->setAllPlayersMultiactive();
 	}
 	
 	function stCheckBids() {
-		self::trace("stCheckBids");
+		self::warn("stCheckBids");
         
         // TODO: Figure out who wants to declare / reveal
         
@@ -600,7 +601,7 @@ class BgaNinetyNine extends Table
 	}
 
     function stNewTrick() {
-		self::trace("stNewTrick");
+		self::warn("stNewTrick");
         // New trick: active the player who wins the last trick, or the player who own the club-2 card
         // Reset trick color to 0 (= no color)
         self::setGameStateInitialValue('trickColor', 0);
@@ -608,7 +609,7 @@ class BgaNinetyNine extends Table
     }
 
     function stNextPlayer() {
-		self::trace("stNextPlayer");
+		self::warn("stNextPlayer");
         // Active next player OR end the trick and go to the next trick OR end the hand
         if ($this->cards->countCardInLocation('cardsontable') == 4) {
             // This is the end of the trick
@@ -661,7 +662,7 @@ class BgaNinetyNine extends Table
     }
 
     function stEndHand() {
-		self::trace("stEndHand");
+		self::warn("stEndHand");
             // Count and score points, then end the game or go to the next hand.
         $players = self::loadPlayersBasicInfos();
         // Gets all "hearts" + queen of spades
@@ -710,11 +711,11 @@ class BgaNinetyNine extends Table
     }
     
 	function stEndOfCurrentRound() {
-		self::trace("stEndOfCurrentRound");
+		self::warn("stEndOfCurrentRound");
 	}
 	
 	function stGameEnd() {
-		self::trace("stGameEnd");
+		self::warn("stGameEnd");
 	}
 
 
