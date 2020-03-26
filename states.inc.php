@@ -88,7 +88,7 @@ $machinestates = array(
         
         13 => array(
                 "name" => "bidding",
-                "description" => clienttranslate("Bid the number of tricks you expect to win for this hand"),
+                "description" => clienttranslate("Bidding"),
                 "type" => "multipleactiveplayer",
                 "action" => "stBidding",
                 "possibleactions" => array( "submitBid" ),

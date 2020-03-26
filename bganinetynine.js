@@ -157,15 +157,15 @@ function (dojo, declare) {
         {
             console.log( 'onUpdateActionButtons: '+stateName );
                       
-            if( this.isCurrentPlayerActive() )
-            {            
-                switch( stateName )
-                {
-                case 'giveCards':
-                    this.addActionButton( 'giveCards_button', _('Give selected cards'), 'onGiveCards' ); 
-                    break;
-
+            if( this.isCurrentPlayerActive() ) {
+                console.log("Current player is active");
+                switch( stateName ) {
+                    case 'bidCards':
+                        this.addActionButton( 'bidCards_button', _('Bid selected cards'), 'onBidCards' ); 
+                        break;
                 }
+            } else {
+                console.log("Current player is not active");
             }
         },        
         
@@ -254,7 +254,7 @@ function (dojo, declare) {
 
                     this.playerHand.unselectAll();
                 }
-                else if( this.checkAction( 'giveCards' ) )
+                else if( this.checkAction( 'submitBid' ) )
                 {
                     // Can give cards => let the player select some cards
                 }
@@ -265,9 +265,9 @@ function (dojo, declare) {
             }
         },
         
-        onGiveCards: function()
+        onBidCards: function()
         {
-            if( this.checkAction( 'giveCards' ) )
+            if( this.checkAction( 'submitBid' ) )
             {
                 var items = this.playerHand.getSelectedItems();
 
@@ -283,7 +283,7 @@ function (dojo, declare) {
                 {
                     to_give += items[i].id+';';
                 }
-                this.ajaxcall( "/bganinetynine/bganinetynine/giveCards.html", { cards: to_give, lock: true }, this, function( result ) {
+                this.ajaxcall( "/bganinetynine/bganinetynine/submitBid.html", { cards: to_give, lock: true }, this, function( result ) {
                 }, function( is_error) { } );                
             }        
         },
@@ -311,7 +311,7 @@ function (dojo, declare) {
             this.notifqueue.setSynchronous( 'trickWin', 1000 );
             dojo.subscribe( 'giveAllCardsToPlayer', this, "notif_giveAllCardsToPlayer" );
             dojo.subscribe( 'newScores', this, "notif_newScores" );
-            dojo.subscribe( 'giveCards', this, "notif_giveCards" );
+            dojo.subscribe( 'bidCards', this, "notif_bidCards" );
             dojo.subscribe( 'takeCards', this, "notif_takeCards" );
 
             
@@ -338,10 +338,12 @@ function (dojo, declare) {
             // Play a card on the table
             this.playCardOnTable( notif.args.player_id, notif.args.color, notif.args.value, notif.args.card_id );
         },
+        
         notif_trickWin: function( notif )
         {
             // We do nothing here (just wait in order players can view the 4 cards played before they're gone.
         },
+        
         notif_giveAllCardsToPlayer: function( notif )
         {
             // Move all cards on table to given table, then destroy them
@@ -356,13 +358,12 @@ function (dojo, declare) {
         notif_newScores: function( notif )
         {
             // Update players' scores
-            
             for( var player_id in notif.args.newScores )
             {
                 this.scoreCtrl[ player_id ].toValue( notif.args.newScores[ player_id ] );
             }
         },
-        notif_giveCards: function( notif )
+        notif_bidCards: function( notif )
         {
             // Remove cards from the hand (they have been given)
             for( var i in notif.args.cards )

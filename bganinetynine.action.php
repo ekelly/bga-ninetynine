@@ -46,7 +46,7 @@
         self::ajaxResponse( );
     }
     
-    public function giveCards()
+    public function submitBid()
     {
         self::setAjaxMode();     
         $cards_raw = self::getArg( "cards", AT_numberlist, true );
