@@ -101,8 +101,13 @@ class BgaNinetyNine extends Table
         self::setGameStateInitialValue( 'currentRound', 0 );
         
         // First dealer
-        $dealer = bga_rand( 1, self::getPlayersNumber() );
+        
+        // TODO: Figure out a better way to select the dealer
+        $dealer = array_keys($players)[0];
+        $firstPlayer = self::getPlayerAfter($dealer);
+        
         self::setGameStateInitialValue( 'firstDealer', $dealer );
+        self::setGameStateInitialValue( 'firstPlayer', $firstPlayer );
         
         // Player with the first action (starts left of dealer, then winner of trick)
         self::setGameStateInitialValue( 'currentRound', 0 );
@@ -258,6 +263,21 @@ class BgaNinetyNine extends Table
         self::setGameStateValue( "trickSuit", $trickSuit );
     }
     
+    function getCardBidValue( $card ) {
+        switch ($card['type']) {
+            case 1:
+                return 1;
+            case 2:
+                return 2;
+            case 3:
+                return 0;
+            case 4:
+                return 3;
+            default:
+                throw new feException("Unknown suit: " + $card['type']);
+        }
+    }
+    
     /**
         Get the current round number. 0 indexed.
     **/
@@ -271,7 +291,23 @@ class BgaNinetyNine extends Table
     function setCurrentRound( $roundNum ) {
         self::setGameStateValue( "currentRound", $roundNum );
     }
+    
+    /**
+        Persist the player's bid to the players table
+    **/
+    function persistPlayerBid( $playerId, $bid ) {
+        $sql = "UPDATE player SET bid=$bid WHERE player_id='$player_id' " ;
+        self::DbQuery( $sql );
+    }
 
+    /**
+        Persist the player's bid to the players table
+    **/
+    function getPlayerBid( $playerId ) {
+        $sql = "SELECT player, bid SET bid=$bid WHERE player_id='$player_id' " ;
+        self::DbQuery( $sql );
+    }
+    
     // Return players => direction (N/S/E/W) from the point of view
     //  of current player (current player must be on south)
     function getPlayersToDirection()
@@ -332,12 +368,15 @@ class BgaNinetyNine extends Table
             throw new feException( self::_("Some of these cards don't exist") );
         
         // When a player plays a card in front of him on the table:
+        $bidValue = 0;
         foreach ( $cards as $bidCard ) {
             
             if( $bidCard['location'] != 'hand' || $bidCard['location_arg'] != $player_id )
                 throw new feException( self::_("Some of these cards are not in your hand" ) );
             
             $this->cards->moveCard( $bidCard['id'], 'bid', $player_id );
+            
+            $bidValue += $this->getCardBidValue($bidCard);
         }
         
         $bidCards = $playerhands = $this->cards->getCardsInLocation( 'bid', $player_id );
@@ -345,7 +384,7 @@ class BgaNinetyNine extends Table
         // Notify the player so we can make these cards disapear
         self::notifyPlayer( $player_id, "bidCards", "", array(
             "cards" => $card_ids,
-            "bidCardCount" => count($bidCards)
+            "bidValue" => $bidValue
         ) );
         
         $this->gamestate->setPlayerNonMultiactive( $player_id, "biddingDone" );
@@ -599,6 +638,19 @@ class BgaNinetyNine extends Table
         // TODO: Figure out who wants to declare / reveal
         
         // TODO: Update everyone with current cards & visibility
+        // Notify the player so we can make these cards disapear
+        self::notifyPlayer( $playerId, "biddingComplete", "", array(
+            "cards" => $cardIds, // TODO
+            "bid" => array (
+                "cards" => $bidCardIds, // TODO
+                "declare" => $declaring,
+                "reveal" => $revealing
+            ),
+            "players" => $otherPlayers
+        ) );
+        
+        // TODO: Inform people who goes first
+        $this->gamestate->changeActivePlayer(getFirstPlayer());
         
         $this->gamestate->nextState("startTrickTaking");
 	}

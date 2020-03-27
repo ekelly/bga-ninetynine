@@ -335,7 +335,8 @@ function (dojo, declare) {
             dojo.subscribe( 'giveAllCardsToPlayer', this, "notif_giveAllCardsToPlayer" );
             dojo.subscribe( 'newScores', this, "notif_newScores" );
             dojo.subscribe( 'bidCards', this, "notif_bidCards" );
-            dojo.subscribe( 'takeCards', this, "notif_takeCards" );  
+            dojo.subscribe( 'biddingComplete' , this, "notif_biddingComplete" );
+            dojo.subscribe( 'takeCards', this, "notif_takeCards" );
         },
         
         // TODO: from this point and below, you can write your game notifications handling methods
@@ -391,12 +392,31 @@ function (dojo, declare) {
         },
         notif_bidCards: function( notif )
         {
+            console.log("Bid value: " + notif.args.bidValue);
             // Remove cards from the hand (they have been given)
             for( var i in notif.args.cards )
             {
                 var card_id = notif.args.cards[i];
                 this.playerHand.removeFromStockById( card_id );
             }
+        },
+        notif_biddingComplete: function( notif )
+        {
+            // My cards
+            for( var i in notif.args.cards )
+            {
+                var card_id = notif.args.cards[i];
+            }
+            // My bid
+            for( var i in notif.args.bid.cards )
+            {
+                var card_id = notif.args.bid.cards[i];
+            }
+            console.log("Declare? " + notif.args.bid.declare);
+            console.log("Reveal? " + notif.args.bid.reveal);
+            
+            // Other Player bidding information
+            console.log("Other players: " + notif.args.players);
         },
         notif_takeCards: function( notif )
         {
