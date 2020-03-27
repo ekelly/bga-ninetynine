@@ -128,11 +128,13 @@
     position: relative;
     height: 101px;
     display: inline-block;
-    width: 80%;
+    width: 60%;
 }
 
 #mybid {
     position: relative;
     height: 101px;
     display: inline-block;
+    width: 20%;
+    margin-left: 19%
 }

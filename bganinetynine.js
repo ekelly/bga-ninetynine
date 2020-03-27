@@ -36,6 +36,7 @@ function (dojo, declare) {
             // this.myGlobalValue = 0;            
               
             this.playerHand = null;
+            this.playerBid = null;
             this.cardwidth = 72;
             this.cardheight = 96;
 
@@ -65,8 +66,14 @@ function (dojo, declare) {
             // Player hand
             this.playerHand = new ebg.stock();
             this.playerHand.create( this, $('myhand'), this.cardwidth, this.cardheight );
-            this.playerHand.image_items_per_row = 13;
+            this.playerHand.image_items_per_row = 12;
             dojo.connect( this.playerHand, 'onChangeSelection', this, 'onPlayerHandSelectionChanged' );
+            
+            // Player bid
+            this.playerBid = new ebg.stock();
+            this.playerBid.create( this, $('mybid'), this.cardwidth, this.cardheight );
+            this.playerBid.image_items_per_row = 3;
+            dojo.connect( this.playerBid, 'onChangeSelection', this, 'onPlayerHandSelectionChanged' );            
             
             // Create cards types:
             for( var color=1;color<=4;color++ )
@@ -261,7 +268,15 @@ function (dojo, declare) {
                 }
                 else if( this.checkAction( 'submitBid' ) )
                 {
-                    // Can give cards => let the player select some cards
+                    var card_id = items[0].id;
+                    
+                    if( $('myhand_item_'+card_id) )
+                    {
+                        this.placeOnObject( 'myhand_item_'+card_id, 'mybid' );
+                        //this.slideToObject();
+                        this.playerBid.addToStockWithId('myhand_item_'+card_id, card_id);
+                        this.playerHand.removeFromStockById( card_id );
+                    }
                 }
                 else
                 {
