@@ -389,7 +389,6 @@ function (dojo, declare) {
         },
         notif_bidCards: function( notif )
         {
-            console.log("Bid cards: " + notif.args.bidCardCount);
             // Remove cards from the hand (they have been given)
             for( var i in notif.args.cards )
             {

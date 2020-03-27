@@ -337,7 +337,7 @@ class BgaNinetyNine extends Table
             if( $bidCard['location'] != 'hand' || $bidCard['location_arg'] != $player_id )
                 throw new feException( self::_("Some of these cards are not in your hand" ) );
             
-            $this->cards->moveCard( $bidCard, 'bid', $player_id );
+            $this->cards->moveCard( $bidCard['id'], 'bid', $player_id );
         }
         
         $bidCards = $playerhands = $this->cards->getCardsInLocation( 'bid', $player_id );
@@ -348,7 +348,7 @@ class BgaNinetyNine extends Table
             "bidCardCount" => count($bidCards)
         ) );
         
-        $this->gamestate->setPlayerNonMultiactive( $player_id, "submitBid" );
+        $this->gamestate->setPlayerNonMultiactive( $player_id, "biddingDone" );
     }
 
     // Play a card from player hand
@@ -450,7 +450,7 @@ class BgaNinetyNine extends Table
         
         // Set the trick color if it hasn't been set yet
         if( $currentTrickColor == 0 )
-            self::setGameStateValue( 'trickColor', $currentCard['type'] );
+            self::setGameStateValue( 'trickSuit', $currentCard['type'] );
         
         // And notify
         self::notifyAllPlayers( 'playCard', clienttranslate('${player_name} plays ${value_displayed} ${color_displayed}'), array(
