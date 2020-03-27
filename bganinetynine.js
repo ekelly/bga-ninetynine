@@ -36,7 +36,7 @@ function (dojo, declare) {
             // this.myGlobalValue = 0;            
               
             this.playerHand = null;
-            this.playerBid = null;
+            //this.playerBid = null;
             this.cardwidth = 72;
             this.cardheight = 96;
 
@@ -70,10 +70,10 @@ function (dojo, declare) {
             dojo.connect( this.playerHand, 'onChangeSelection', this, 'onPlayerHandSelectionChanged' );
             
             // Player bid
-            this.playerBid = new ebg.stock();
-            this.playerBid.create( this, $('mybid'), this.cardwidth, this.cardheight );
-            this.playerBid.image_items_per_row = 3;
-            dojo.connect( this.playerBid, 'onChangeSelection', this, 'onPlayerHandSelectionChanged' );            
+            //this.playerBid = new ebg.stock();
+            //this.playerBid.create( this, $('mybid'), this.cardwidth, this.cardheight );
+            //this.playerBid.image_items_per_row = 3;
+            //dojo.connect( this.playerBid, 'onChangeSelection', this, 'onPlayerHandSelectionChanged' );            
             
             // Create cards types:
             for( var color=1;color<=4;color++ )
@@ -83,7 +83,7 @@ function (dojo, declare) {
                     // Build card type id
                     var card_type_id = this.getCardUniqueId( color, value );
                     this.playerHand.addItemType( card_type_id, card_type_id, g_gamethemeurl+'img/cards.jpg', card_type_id );
-                    this.playerBid.addItemType( card_type_id, card_type_id, g_gamethemeurl+'img/cards.jpg', card_type_id );
+                    //this.playerBid.addItemType( card_type_id, card_type_id, g_gamethemeurl+'img/cards.jpg', card_type_id );
                 }
             }
             
@@ -269,17 +269,16 @@ function (dojo, declare) {
                 }
                 else if( this.checkAction( 'submitBid' ) )
                 {
-                    var card = items[0];
-                    var card_id = card.id;
+                    /*var card = items[0];
                     
                     if( $('myhand_item_'+card_id) )
                     {
                         this.placeOnObject( 'myhand_item_'+card_id, 'mybid' );
                         //this.slideToObject();
                         //console.log("ID: "+card_id+", color: "+color+", value: "+value);
-                        this.playerBid.addToStockWithId(card.type, card_id, 'myhand_item_'+card_id);
+                        this.playerBid.addToStockWithId(card.type, card.id, 'myhand_item_'+card_id);
                         this.playerHand.removeFromStockById( card_id );
-                    }
+                    }*/
                 }
                 else
                 {
