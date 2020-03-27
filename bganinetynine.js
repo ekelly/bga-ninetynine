@@ -83,6 +83,7 @@ function (dojo, declare) {
                     // Build card type id
                     var card_type_id = this.getCardUniqueId( color, value );
                     this.playerHand.addItemType( card_type_id, card_type_id, g_gamethemeurl+'img/cards.jpg', card_type_id );
+                    this.playerBid.addItemType( card_type_id, card_type_id, g_gamethemeurl+'img/cards.jpg', card_type_id );
                 }
             }
             
@@ -268,13 +269,15 @@ function (dojo, declare) {
                 }
                 else if( this.checkAction( 'submitBid' ) )
                 {
-                    var card_id = items[0].id;
+                    var card = items[0];
+                    var card_id = card.id;
                     
                     if( $('myhand_item_'+card_id) )
                     {
                         this.placeOnObject( 'myhand_item_'+card_id, 'mybid' );
                         //this.slideToObject();
-                        this.playerBid.addToStockWithId('myhand_item_'+card_id, card_id);
+                        //console.log("ID: "+card_id+", color: "+color+", value: "+value);
+                        this.playerBid.addToStockWithId(card.type, card_id, 'myhand_item_'+card_id);
                         this.playerHand.removeFromStockById( card_id );
                     }
                 }
