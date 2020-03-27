@@ -94,7 +94,7 @@ $machinestates = array(
                 "action" => "stBidding",
                 "possibleactions" => array( "submitBid" ),
                 "updateGameProgression" => false,
-                "transitions" => array( "submitBid" => 14 )
+                "transitions" => array( "biddingDone" => 14 )
         ),
         14 => array(
                 "name" => "checkBids",
