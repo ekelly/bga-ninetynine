@@ -297,7 +297,7 @@ class BgaNinetyNine extends Table
     **/
     function persistPlayerBid( $playerId, $bid ) {
         $sql = "UPDATE player SET bid=$bid WHERE player_id='$player_id' " ;
-        self::DbQuery( $sql );
+        $this->DbQuery( $sql );
     }
 
     /**
@@ -305,7 +305,27 @@ class BgaNinetyNine extends Table
     **/
     function getPlayerBid( $playerId ) {
         $sql = "SELECT player, bid SET bid=$bid WHERE player_id='$player_id' " ;
-        self::DbQuery( $sql );
+        return $this->DbQuery( $sql );
+    }
+    
+    // set score
+    function dbSetScore($player_id, $count) {
+        $this->DbQuery("UPDATE player SET player_score='$count' WHERE player_id='$player_id'");
+    }
+    
+    // get score
+    function dbGetScore($player_id) {
+        return $this->getUniqueValueFromDB("SELECT player_score FROM player WHERE player_id='$player_id'");
+    }
+    
+    // increment score (can be negative too)
+    function dbIncScore($player_id, $inc) {
+        $count = $this->dbGetScore($player_id);
+        if ($inc != 0) {
+            $count += $inc;
+            $this->dbSetScore($player_id, $count);
+        }
+        return $count;
     }
     
     // Return players => direction (N/S/E/W) from the point of view

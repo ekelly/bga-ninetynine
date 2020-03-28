@@ -26,12 +26,25 @@
 $game_options = array(
 
 		100 => array(
-				'name' => totranslate('Game length'),
-				'values' => array(
-						1 => array( 'name' => totranslate( 'Quick game (75 points)' ) ),
-						2 => array( 'name' => totranslate( 'Standard game (100 points)' ) ),
-				),
-				'default' => 1
+            'name' => totranslate('Game style'),
+            'values' => array(
+                    1 => array( 'name' => totranslate( 'Standard game (3 rounds)' ) ),
+            ),
+            'default' => 1,
+            'startcondition' => array(
+                1 => array(
+                    array(
+                        'type' => 'maxplayers',
+                        'value' => 3,
+                        'message' => totranslate('This game is only available for 3 players.')
+                    ),
+                    array(
+                        'type' => 'minplayers',
+                        'value' => 3,
+                        'message' => totranslate('This game is only available for 3 players.')
+                    )
+                ),
+            ),
 		)
 
 );
