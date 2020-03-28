@@ -78,7 +78,7 @@ function (dojo, declare) {
             // Create cards types:
             for( var color=1;color<=4;color++ )
             {
-                for( var value=2;value<=14;value++ )
+                for( var value=6;value<=14;value++ )
                 {
                     // Build card type id
                     var card_type_id = this.getCardUniqueId( color, value );
@@ -402,12 +402,15 @@ function (dojo, declare) {
         },
         notif_biddingComplete: function( notif )
         {
+            console.log("Bidding complete");
+            console.log(notif.args);
             // My cards
             for( var i in notif.args.cards )
             {
                 var card_id = notif.args.cards[i];
             }
             // My bid
+            console.log("My bid? " + parseInt(notif.args.bid.bid);
             for( var i in notif.args.bid.cards )
             {
                 var card_id = notif.args.bid.cards[i];
@@ -416,7 +419,7 @@ function (dojo, declare) {
             console.log("Reveal? " + notif.args.bid.reveal);
             
             // Other Player bidding information
-            console.log("Other players: " + notif.args.players);
+            console.log("Other players declare/reveal: " + notif.args.declareReveal);
         },
         notif_takeCards: function( notif )
         {

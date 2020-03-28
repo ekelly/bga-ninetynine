@@ -39,7 +39,7 @@ class BgaNinetyNine extends Table
                          "currentRound" => 13,
                          "firstDealer" => 14,
                          "firstPlayer" => 15,
-                         "gameLength" => 100 ) );
+                         "gameStyle" => 100 ) );
 
         $this->cards = self::getNew( "module.common.deck" );
         $this->cards->init( "card" );
@@ -69,7 +69,7 @@ class BgaNinetyNine extends Table
         // The number of colors defined here must correspond to the maximum number of players allowed for the gams
         $default_color = array( "ff0000", "008000", "0000ff", "ffa500" );
 
-        $start_points = self::getGameStateValue( 'gameLength' ) == 1 ? 75 : 100;
+        $start_points = self::getGameStateValue( 'gameStyle' ) == 1 ? 75 : 100;
 
         // Create players
         // Note: if you added some extra field on "player" table in the database (dbmodel.sql), you can initialized it there.
@@ -107,10 +107,9 @@ class BgaNinetyNine extends Table
         $firstPlayer = self::getPlayerAfter($dealer);
         
         self::setGameStateInitialValue( 'firstDealer', $dealer );
-        self::setGameStateInitialValue( 'firstPlayer', $firstPlayer );
         
         // Player with the first action (starts left of dealer, then winner of trick)
-        self::setGameStateInitialValue( 'currentRound', 0 );
+        self::setGameStateInitialValue( 'firstPlayer', $firstPlayer );
 
         // Init game statistics
         // (note: statistics are defined in your stats.inc.php file)
@@ -122,7 +121,6 @@ class BgaNinetyNine extends Table
 
         // Create cards
         $cards = array();
-        self::dump("this->colors", $this->colors);
         foreach( $this->colors as  $color_id => $color ) // spade, heart, diamond, club
         {
             for( $value=6; $value<=14; $value++ )   //  2, 3, 4, ... K, A
@@ -209,10 +207,21 @@ class BgaNinetyNine extends Table
 	function getDealer() {
 		$dealer = self::getGameStateValue( "firstDealer" );
         $round = self::getGameStateValue( "currentRound" );
-        // Stupidly, player # is 1 indexed. So I have to do this weird logic.
-        $actualDealer = 1 + (($round + ($dealer - 1)) % 3);
-        self::warn("Current dealer: $actualDealer");
-		return $dealer;
+        $basicPlayerInfo = self::loadPlayersBasicInfos();
+        
+        $firstDealerPosition = $basicPlayerInfo[$dealer]['player_no'];
+        
+        // Stupidly, player position is 1 indexed. So I have to do this weird logic.
+        $actualDealerPosition = 1 + 
+            (($round + ($firstDealerPosition - 1)) % count($basicPlayerInfo));
+        
+        foreach ( $basicPlayerInfo as $playerId => $player ) {
+            if ( $player['player_no'] == $actualDealerPosition ) {
+                return $playerId;
+            }
+        }
+        
+		throw new feException("Incorrect calculation of dealer: $actualDealerPosition");
 	}
 	
 	/**
@@ -295,37 +304,82 @@ class BgaNinetyNine extends Table
     /**
         Persist the player's bid to the players table
     **/
-    function persistPlayerBid( $playerId, $bid ) {
-        $sql = "UPDATE player SET bid=$bid WHERE player_id='$player_id' " ;
+    function persistPlayerBid( $playerId, $bid, $decRev ) {
+        $sql = "UPDATE player SET player_bid=$bid, player_declare_reveal=$decRev WHERE player_id='$playerId'";
         $this->DbQuery( $sql );
     }
 
     /**
-        Persist the player's bid to the players table
+        Get the player's bid from the players table
     **/
     function getPlayerBid( $playerId ) {
-        $sql = "SELECT player, bid SET bid=$bid WHERE player_id='$player_id' " ;
-        return $this->DbQuery( $sql );
+        return $this->getUniqueValueFromDB("SELECT player_bid FROM player WHERE player_id='$playerId'");
+    }
+    
+    function clearAllDeclareReveal() {
+        $sql = "UPDATE player SET player_declare_reveal=0 WHERE 1";
+        $this->DbQuery( $sql );
+    }
+    
+    function setDeclareReveal( $playerId, $decRev ) {
+        $this->clearAllDeclareReveal();
+        $sql = "UPDATE player SET player_declare_reveal=$decRev WHERE player_id='$playerId'";
+        $this->DbQuery( $sql );
     }
     
     // set score
-    function dbSetScore($player_id, $count) {
-        $this->DbQuery("UPDATE player SET player_score='$count' WHERE player_id='$player_id'");
+    function dbSetScore($playerId, $count) {
+        $this->DbQuery("UPDATE player SET player_score='$count' WHERE player_id='$playerId'");
     }
     
     // get score
-    function dbGetScore($player_id) {
-        return $this->getUniqueValueFromDB("SELECT player_score FROM player WHERE player_id='$player_id'");
+    function dbGetScore($playerId) {
+        return $this->getUniqueValueFromDB("SELECT player_score FROM player WHERE player_id='$playerId'");
     }
     
     // increment score (can be negative too)
-    function dbIncScore($player_id, $inc) {
-        $count = $this->dbGetScore($player_id);
+    function dbIncScore($playerId, $inc) {
+        $count = $this->dbGetScore($playerId);
         if ($inc != 0) {
             $count += $inc;
-            $this->dbSetScore($player_id, $count);
+            $this->dbSetScore($playerId, $count);
         }
         return $count;
+    }
+    
+    function getPlayerDeclareRevealPreferences() {
+        $result = $this->getNonEmptyCollectionFromDB("SELECT player_id id, player_declare_reveal decrev FROM player");
+        
+        $dealer = $this->getDealer();
+        $firstPlayer = $this->getPlayerAfter($dealer);
+        
+        // This returns a table with an extra key at 0, which is the first
+        // player to play
+        $nextPlayerTable = $this->getNextPlayerTable();
+        
+        $firstPlayerToDeclare = 0;
+        $firstPlayerToReveal = 0;
+        
+        $checkPlayer = $firstPlayer;
+        for ($i = 0; $i < count($nextPlayerTable) - 1; $i++) {
+            if ($result[$checkPlayer]['decrev'] == 2) {
+                $firstPlayerToReveal = $checkPlayer;
+                break;
+            } else if ($firstPlayerToDeclare == 0 && 
+                       $firstPlayerToReveal == 0 &&
+                       $result[$checkPlayer]['decrev'] == 1) {
+                $firstPlayerToDeclare = $checkPlayer;
+            }
+            $checkPlayer = $this->getPlayerAfter($checkPlayer);
+        }
+        
+        if ($firstPlayerToReveal != 0) {
+            setDeclareReveal($firstPlayerToReveal, 2);
+        } else if ($firstPlayerToDeclare != 0) {
+            setDeclareReveal($firstPlayerToDeclare, 1);
+        }
+        
+        return $this->getCollectionFromDB("SELECT player_id id, player_declare_reveal decrev FROM player WHERE player_declare_reveal != 0");
     }
     
     // Return players => direction (N/S/E/W) from the point of view
@@ -399,13 +453,17 @@ class BgaNinetyNine extends Table
             $bidValue += $this->getCardBidValue($bidCard);
         }
         
-        $bidCards = $playerhands = $this->cards->getCardsInLocation( 'bid', $player_id );
+        $bidCards = $this->cards->getCardsInLocation( 'bid', $player_id );
         
         // Notify the player so we can make these cards disapear
         self::notifyPlayer( $player_id, "bidCards", "", array(
             "cards" => $card_ids,
             "bidValue" => $bidValue
         ) );
+        
+        $declareReveal = 0; // 0 = none, 1 = declare, 2 = reveal;
+        
+        $this->persistPlayerBid($player_id, $bidValue, $declareReveal);
         
         $this->gamestate->setPlayerNonMultiactive( $player_id, "biddingDone" );
     }
@@ -644,6 +702,7 @@ class BgaNinetyNine extends Table
             // Notify player about his cards
             self::notifyPlayer($player_id, 'newHand', '', array ('cards' => $cards ));
         }
+        
         $this->gamestate->nextState("");
     }
 	
@@ -655,22 +714,57 @@ class BgaNinetyNine extends Table
 	function stCheckBids() {
 		self::warn("stCheckBids");
         
-        // TODO: Figure out who wants to declare / reveal
+        // Figure out who wants to declare or reveal
+        $declareReveal = array(
+            "playerId" => 0, // Player declaring or revealing
+            "cards" => array(), // If the player is revealing, this will have cards
+            "bid" => array() // If the player is only declaring, this will have cards
+        );
+        $result = $this->getPlayerDeclareRevealPreferences();
+        $declaringOrRevealingPlayer = 0;
+        if (count($result) > 0) {
+            $declaringOrRevealingPlayer = array_keys($result)[0];
+            $declareReveal['playerId'] = $declaringOrRevealingPlayer;
+            if ($result[$declaringOrRevealingPlayer] >= 1) {
+                $declareReveal['bid'] = 
+                    $this->cards->getCardsInLocation( 'bid', $declaringOrRevealingPlayer);
+            }
+            if ($result[$declaringOrRevealingPlayer] == 2) {
+                $declareReveal['cards'] = 
+                    $this->cards->getPlayerHand($declaringOrRevealingPlayer);
+            }   
+        }
         
-        // TODO: Update everyone with current cards & visibility
-        // Notify the player so we can make these cards disapear
-        self::notifyPlayer( $playerId, "biddingComplete", "", array(
-            "cards" => $cardIds, // TODO
-            "bid" => array (
-                "cards" => $bidCardIds, // TODO
-                "declare" => $declaring,
-                "reveal" => $revealing
-            ),
-            "players" => $otherPlayers
-        ) );
+        $players = self::loadPlayersBasicInfos();
+        foreach ( $players as $playerId => $player ) {
+            
+            $declaring = $playerId == $declaringOrRevealingPlayer && $result[$playerId] == 1;
+            $revealing = $playerId == $declaringOrRevealingPlayer && $result[$playerId] == 2;
+
+            $bidCardIds = $this->cards->getCardsInLocation( 'bid', $playerId );
+            $cardIds = $this->cards->getPlayerHand($playerId);
+            $bid = $this->getPlayerBid($playerId);
+
+            // Update everyone with current cards & visibility
+            // Notify the player so we can make these cards disapear
+            self::notifyPlayer( $playerId, "biddingComplete", "", array(
+                "cards" => $cardIds, // TODO
+                "bid" => array (
+                    "cards" => $bidCardIds, // TODO
+                    "bid" => $bid,
+                    "declare" => $declaring,
+                    "reveal" => $revealing
+                ),
+                "declareReveal" => $declareReveal
+            ) );
+        }
         
-        // TODO: Inform people who goes first
-        $this->gamestate->changeActivePlayer(getFirstPlayer());
+        // Inform people who goes first
+        $dealerId = $this->getDealer();
+        $firstPlayer = $this->getPlayerAfter($dealerId);
+        $this->setFirstPlayer($firstPlayer);
+
+        $this->gamestate->changeActivePlayer($firstPlayer);
         
         $this->gamestate->nextState("startTrickTaking");
 	}
@@ -680,7 +774,7 @@ class BgaNinetyNine extends Table
         // New trick: active the player who wins the last trick, or the player who own the club-2 card
         // Reset trick color to 0 (= no color)
         self::setGameStateInitialValue('trickSuit', 0);
-        $this->gamestate->nextState();
+        $this->gamestate->nextState("");
     }
 
     function stNextPlayer() {
@@ -781,6 +875,8 @@ class BgaNinetyNine extends Table
             }
         }
         
+        // Clear the player's bid
+        // Clear the player's declare/reveal preference
         
         $this->gamestate->nextState("nextHand");
     }
