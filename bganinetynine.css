@@ -122,6 +122,74 @@
     background-image: url('img/cards.jpg'); 
 }
 
+.suit_club {
+    background-position-y: -200%;
+}
+
+.suit_diamond {
+    background-position-y: -300%;
+}
+
+.suit_spade {
+    background-position-y: 0%;
+}
+
+.suit_heart {
+    background-position-y: -100%;
+}
+
+.rank_2 {
+    background-position-x: 0%;
+}
+
+.rank_3 {
+    background-position-x: -100%;
+}
+
+.rank_4 {
+    background-position-x: -200%;
+}
+
+.rank_5 {
+    background-position-x: -300%;
+}
+
+.rank_6 {
+    background-position-x: -400%;
+}
+
+.rank_7 {
+    background-position-x: -500%;
+}
+
+.rank_8 {
+    background-position-x: -600%;
+}
+
+.rank_9 {
+    background-position-x: -700%;
+}
+
+.rank_10 {
+    background-position-x: -800%;
+}
+
+.rank_11 {
+    background-position-x: -900%;
+}
+
+.rank_12 {
+    background-position-x: -1000%;
+}
+
+.rank_13 {
+    background-position-x: -1100%;
+}
+
+.rank_14 {
+    background-position-x: -1200%;
+}
+
 /*** hand layout ***/
 
 #myhand {

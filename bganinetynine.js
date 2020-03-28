@@ -66,7 +66,7 @@ function (dojo, declare) {
             // Player hand
             this.playerHand = new ebg.stock();
             this.playerHand.create( this, $('myhand'), this.cardwidth, this.cardheight );
-            this.playerHand.image_items_per_row = 12;
+            this.playerHand.image_items_per_row = 13;
             dojo.connect( this.playerHand, 'onChangeSelection', this, 'onPlayerHandSelectionChanged' );
             
             // Player bid
@@ -76,9 +76,11 @@ function (dojo, declare) {
             //dojo.connect( this.playerBid, 'onChangeSelection', this, 'onPlayerHandSelectionChanged' );            
             
             // Create cards types:
-            for( var color=1;color<=4;color++ )
+            
+            // Order of id: ["club", "diamond", "spade", "heart"];
+            for( var color=0;color<4;color++ )
             {
-                for( var value=6;value<=14;value++ )
+                for( var value=2;value<=14;value++ )
                 {
                     // Build card type id
                     var card_type_id = this.getCardUniqueId( color, value );
@@ -86,6 +88,9 @@ function (dojo, declare) {
                     //this.playerBid.addItemType( card_type_id, card_type_id, g_gamethemeurl+'img/cards.jpg', card_type_id );
                 }
             }
+            
+            console.log("Initial hand: " + this.gamedatas.hand);
+            console.log(this.gamedatas.hand);
             
             // Cards in player's hand
             for( var i in this.gamedatas.hand )
@@ -193,18 +198,41 @@ function (dojo, declare) {
         // Get card unique identifier based on its color and value
         getCardUniqueId: function( color, value )
         {
-            return (color-1)*13+(value-2);
+            return parseInt(color)*13+(parseInt(value)-2);
         },
-
+        
+        getCardXCoord: function( value ) {
+            return this.cardwidth*(value-2);
+        },
+        
+        getCardYCoord: function( color ) {
+            return this.cardheight*((parseInt(color) + 2) % 4);
+        },
+        
+        getCardSuit: function ( suit ) {
+            switch (suit) {
+                case 0:
+                    return "club";
+                case 1:
+                    return "diamond";
+                case 2:
+                    return "spade";
+                case 3:
+                default:
+                    return "heart";
+            }
+        },
         
         playCardOnTable: function( player_id, color, value, card_id )
         {
             console.log('playCardOnTable');
             // player_id => direction
             dojo.place(
+                //x: this.cardwidth*(value-2),
+                    //y: this.cardheight*(color-1),
                 this.format_block( 'jstpl_cardontable', {
-                    x: this.cardwidth*(value-2),
-                    y: this.cardheight*(color-1),
+                    suit: this.getCardSuit(color),
+                    rank: value,
                     player_id: player_id                
                 } ), 'playertablecard_'+player_id );
                 
@@ -410,7 +438,7 @@ function (dojo, declare) {
                 var card_id = notif.args.cards[i];
             }
             // My bid
-            console.log("My bid? " + parseInt(notif.args.bid.bid);
+            console.log("My bid? " + parseInt(notif.args.bid.bid));
             for( var i in notif.args.bid.cards )
             {
                 var card_id = notif.args.bid.cards[i];

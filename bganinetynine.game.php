@@ -87,12 +87,12 @@ class BgaNinetyNine extends Table
         /************ Start the game initialization *****/
         // Init global values with their initial values
 
-        // Note: hand types: 0 = starting type (no trump)
+        // Note: hand types: 4 = starting type (no trump)
 	    //                   
-        self::setGameStateInitialValue( 'currentHandTrump', 0 );
+        self::setGameStateInitialValue( 'currentHandTrump', 4 );
         
-        // Set current trick color to zero (= no trick color)
-        self::setGameStateInitialValue( 'trickSuit', 0 );
+        // Set current trick suit to 4 (= no trick color)
+        self::setGameStateInitialValue( 'trickSuit', 4 );
         
         // Previous Hand Winner Count
 		self::setGameStateInitialValue( 'previousHandWinnerCount', 0 );
@@ -121,11 +121,12 @@ class BgaNinetyNine extends Table
 
         // Create cards
         $cards = array();
-        foreach( $this->colors as  $color_id => $color ) // spade, heart, diamond, club
+        // $suits = array( "club", "diamond", "spade", "heart" );
+        for( $suit_id = 0; $suit_id < 4; $suit_id++ )
         {
             for( $value=6; $value<=14; $value++ )   //  2, 3, 4, ... K, A
             {
-                $cards[] = array( 'type' => $color_id, 'type_arg' => $value, 'nbr' => 1);
+                $cards[] = array( 'type' => $suit_id, 'type_arg' => $value, 'nbr' => 1);
             }
         }
 
@@ -162,7 +163,7 @@ class BgaNinetyNine extends Table
         }
   
         // Cards in player hand
-        $result['hand'] = $this->cards->getCardsInLocation( 'hand', $player_id );
+        $result['hand'] = $this->cards->getPlayerHand( $player_id );
   
         // Cards played on the table
         $result['cardsontable'] = $this->cards->getCardsInLocation( 'cardsontable' );
@@ -272,16 +273,32 @@ class BgaNinetyNine extends Table
         self::setGameStateValue( "trickSuit", $trickSuit );
     }
     
+    // Order of id: array( "club", "diamond", "spade", "heart" );
     function getCardBidValue( $card ) {
         switch ($card['type']) {
-            case 1:
-                return 1;
-            case 2:
-                return 2;
-            case 3:
-                return 0;
-            case 4:
+            case 0:
                 return 3;
+            case 1:
+                return 0;
+            case 2:
+                return 1;
+            case 3:
+                return 2;
+            default:
+                throw new feException("Unknown suit: " + $card['type']);
+        }
+    }
+    
+    function getCardSuit( $card ) {
+        switch ($card['type']) {
+            case 0:
+                return "club";
+            case 1:
+                return "diamond";
+            case 2:
+                return "spade";
+            case 3:
+                return "heart";
             default:
                 throw new feException("Unknown suit: " + $card['type']);
         }
@@ -771,9 +788,11 @@ class BgaNinetyNine extends Table
 
     function stNewTrick() {
 		self::warn("stNewTrick");
+        
         // New trick: active the player who wins the last trick, or the player who own the club-2 card
-        // Reset trick color to 0 (= no color)
+        
         self::setGameStateInitialValue('trickSuit', 0);
+
         $this->gamestate->nextState("");
     }
 
