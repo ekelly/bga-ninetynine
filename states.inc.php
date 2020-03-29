@@ -102,6 +102,24 @@ $machinestates = array(
                 "type" => "game",
                 "action" => "stCheckBids",
                 "updateGameProgression" => false,
+                "transitions" => array( "declareOrReveal" => 15 )
+        ),
+        15 => array(
+                "name" => "declareOrReveal",
+                "description" => clienttranslate("Waiting for players to declare or reveal"),
+                "descriptionmyturn" => clienttranslate("Would you like to declare or reveal?"),
+                "type" => "multipleactiveplayer",
+                "action" => "stDeclareOrReveal",
+                "possibleactions" => array( "submitDeclareOrReveal" ),
+                "updateGameProgression" => false,
+                "transitions" => array( "declaringOrRevealingDone" => 16 )
+        ),
+        16 => array(
+                "name" => "checkDeclareOrReveal",
+                "description" => "",
+                "type" => "game",
+                "action" => "stCheckDeclareOrReveal",
+                "updateGameProgression" => false,
                 "transitions" => array( "startTrickTaking" => 30 )
         ),
         

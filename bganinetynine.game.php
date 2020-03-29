@@ -321,8 +321,8 @@ class BgaNinetyNine extends Table
     /**
         Persist the player's bid to the players table
     **/
-    function persistPlayerBid( $playerId, $bid, $decRev ) {
-        $sql = "UPDATE player SET player_bid=$bid, player_declare_reveal=$decRev WHERE player_id='$playerId'";
+    function persistPlayerBid( $playerId, $bid ) {
+        $sql = "UPDATE player SET player_bid=$bid WHERE player_id='$playerId'";
         $this->DbQuery( $sql );
     }
 
@@ -331,6 +331,11 @@ class BgaNinetyNine extends Table
     **/
     function getPlayerBid( $playerId ) {
         return $this->getUniqueValueFromDB("SELECT player_bid FROM player WHERE player_id='$playerId'");
+    }
+    
+    function persistPlayerDeclareReveal( $playerId, $decRev ) {
+        $sql = "UPDATE player SET player_declare_reveal=$decRev WHERE player_id='$playerId'";
+        $this->DbQuery( $sql );
     }
     
     function clearAllDeclareReveal() {
@@ -391,9 +396,9 @@ class BgaNinetyNine extends Table
         }
         
         if ($firstPlayerToReveal != 0) {
-            setDeclareReveal($firstPlayerToReveal, 2);
+            $this->setDeclareReveal($firstPlayerToReveal, 2);
         } else if ($firstPlayerToDeclare != 0) {
-            setDeclareReveal($firstPlayerToDeclare, 1);
+            $this->setDeclareReveal($firstPlayerToDeclare, 1);
         }
         
         return $this->getCollectionFromDB("SELECT player_id id, player_declare_reveal decrev FROM player WHERE player_declare_reveal != 0");
@@ -478,11 +483,31 @@ class BgaNinetyNine extends Table
             "bidValue" => $bidValue
         ) );
         
-        $declareReveal = 0; // 0 = none, 1 = declare, 2 = reveal;
-        
-        $this->persistPlayerBid($player_id, $bidValue, $declareReveal);
+        $this->persistPlayerBid($player_id, $bidValue );
         
         $this->gamestate->setPlayerNonMultiactive( $player_id, "biddingDone" );
+    }
+    
+    function declareOrReveal( $declareOrReveal ) {
+        self::warn("declareOrReveal");
+        self::checkAction( "submitDeclareOrReveal" );
+        
+        if ($declareOrReveal < 0 || $declareOrReveal > 2) {
+            throw new feException(self::_("Invalid declare or reveal: $declareOrReveal"));
+        }
+        
+        // Check that the cards are actually in the current user's hands.
+        $playerId = self::getCurrentPlayerId();
+        
+        // For now assume that if they are QuasarDukeDev2,
+        // they want to reveal. That user is 2315810
+//        if ($playerId == 2315810) {
+//            $declareOrReveal = 2;
+//        }
+        
+        $this->persistPlayerDeclareReveal($playerId, $declareOrReveal);
+        
+        $this->gamestate->setPlayerNonMultiactive($playerId, "declaringOrRevealingDone");
     }
 
     // Play a card from player hand
@@ -730,7 +755,17 @@ class BgaNinetyNine extends Table
 	
 	function stCheckBids() {
 		self::warn("stCheckBids");
-        
+        $this->gamestate->nextState("declareOrReveal");
+	}
+    
+    function stDeclareOrReveal() {
+        self::warn("stDeclareOrReveal");
+        $this->gamestate->setAllPlayersMultiactive();
+    }
+    
+    function stCheckDeclareOrReveal() {
+        self::warn("stCheckDeclareOrReveal");
+
         // Figure out who wants to declare or reveal
         $declareReveal = array(
             "playerId" => 0, // Player declaring or revealing
@@ -784,7 +819,7 @@ class BgaNinetyNine extends Table
         $this->gamestate->changeActivePlayer($firstPlayer);
         
         $this->gamestate->nextState("startTrickTaking");
-	}
+    }
 
     function stNewTrick() {
 		self::warn("stNewTrick");

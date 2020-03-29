@@ -163,9 +163,9 @@ function (dojo, declare) {
                 this.addTooltip( 'myhand', _('Cards in my hand'), _('Select a card') );
                 console.log('Added bidding tooltip');
                 break;
-
-                
-            case 'dummmy':
+                    
+            case 'declareOrReveal':
+                console.log('TODO: Show the declare/reveal option');
                 break;
             }
         },
@@ -197,6 +197,11 @@ function (dojo, declare) {
                 switch( stateName ) {
                     case 'bidding':
                         this.addActionButton( 'bidCards_button', _('Bid selected cards'), 'onBidCards' ); 
+                        break;
+                    case 'declareOrReveal':
+                        this.addActionButton( 'reveal_button', _('Reveal'), 'onReveal' ); 
+                        this.addActionButton( 'declare_button', _('Declare'), 'onDeclare' ); 
+                        this.addActionButton( 'none_button', _('Neither'), 'onNoDeclare' );
                         break;
                 }
             } else {
@@ -380,6 +385,29 @@ function (dojo, declare) {
                 this.ajaxcall( "/bganinetynine/bganinetynine/submitBid.html", { cards: to_give, lock: true }, this, function( result ) {
                 }, function( is_error) { } );                
             }        
+        },
+        
+        onNoDeclare: function() {
+            console.log('onNoDeclare');
+            this.submitDeclareOrReveal(0);
+        },
+        
+        onDeclare: function() {
+            console.log('onDeclare');
+            this.submitDeclareOrReveal(1);
+        },
+        
+        onReveal: function() {
+            console.log('onReveal');
+            this.submitDeclareOrReveal(2);
+        },
+        
+        // decrev should be 0 = none, 1 = declare, 2 = reveal
+        submitDeclareOrReveal: function(decrev) {
+            if( this.checkAction( 'submitDeclareOrReveal' ) ) {
+                this.ajaxcall( "/bganinetynine/bganinetynine/submitDeclareOrReveal.html", { declareOrReveal: decrev, lock: true }, this, function( result ) {
+                }, function( is_error) { } );                
+            }
         },
         
         ///////////////////////////////////////////////////

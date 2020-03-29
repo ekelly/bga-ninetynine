@@ -63,7 +63,12 @@
         self::ajaxResponse( );    
     }
   
-
+    public function submitDeclareOrReveal() {
+        self::setAjaxMode();     
+        $decrev = self::getArg( "declareOrReveal", AT_posint, true );
+        $this->game->declareOrReveal($decrev);
+        self::ajaxResponse( );
+    }
   }
   
 
