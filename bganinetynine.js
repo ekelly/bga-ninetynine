@@ -139,7 +139,7 @@ function (dojo, declare) {
         },
 
         getBidValueFromSuit: function(suit) {
-            return {"club": 3, "diamond": 0, "spade": 1, "heart": 2}[suit];
+            return {club: 3, diamond: 0, spade: 1, heart: 2}[suit];
         },
 
         ///////////////////////////////////////////////////
