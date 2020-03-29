@@ -21,12 +21,14 @@
 */
 
 define([
-    "dojo","dojo/_base/declare",
+    "dojo",
+    "dojo/_base/declare",
+    "dojo/dom-style",
     "ebg/core/gamegui",
     "ebg/counter",
     "ebg/stock"
 ],
-function (dojo, declare) {
+function (dojo, declare, domStyle) {
     return declare("bgagame.bganinetynine", ebg.core.gamegui, {
         constructor: function(){
             console.log('bganinetynine constructor');
@@ -517,8 +519,23 @@ function (dojo, declare) {
             console.log("Declare? " + notif.args.bid.declare);
             console.log("Reveal? " + notif.args.bid.reveal);
             
-            // Other Player bidding information
-            console.log("Other players declare/reveal: " + notif.args.declareReveal);
+            var playerNameSpan = dojo.byId("decrev_player_name");
+            if (notif.args.declareReveal.playerId != 0) {
+                playerNameSpan.textContent = notif.args.declareReveal.playerName;
+                var playerColor = notif.args.declareReveal.playerColor;
+                domStyle.set(playerNameSpan, "color", "#" + playerColor);
+                for( var i in notif.args.declareReveal.cards ) {
+                    // These cards are from a revealing player's hand
+                    var card_id = notif.args.declareReveal.cards[i];
+                }
+                for( var i in notif.args.declareReveal.bid ) {
+                    // These cards are from a declaring/revealing player's bid
+                    var card_id = notif.args.declareReveal.bid[i];
+                }
+            } else {
+                playerNameSpan.textContent = "None";
+                domStyle.set(playerNameSpan, "color", "#000000");
+            }
         },
         notif_takeCards: function( notif )
         {

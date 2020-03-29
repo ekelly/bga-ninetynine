@@ -325,6 +325,10 @@ class BgaNinetyNine extends Table
         $sql = "UPDATE player SET player_bid=$bid WHERE player_id='$playerId'";
         $this->DbQuery( $sql );
     }
+    
+    function getPlayerColor($playerId) {
+        return $this->getUniqueValueFromDB("SELECT player_color FROM player WHERE player_id='$playerId'");
+    }
 
     /**
         Get the player's bid from the players table
@@ -401,7 +405,7 @@ class BgaNinetyNine extends Table
             $this->setDeclareReveal($firstPlayerToDeclare, 1);
         }
         
-        return $this->getCollectionFromDB("SELECT player_id id, player_declare_reveal decrev FROM player WHERE player_declare_reveal != 0");
+        return $this->getCollectionFromDB("SELECT player_id id, player_name name, player_declare_reveal decrev FROM player WHERE player_declare_reveal != 0");
     }
     
     // Return players => direction (N/S/E/W) from the point of view
@@ -769,6 +773,8 @@ class BgaNinetyNine extends Table
         // Figure out who wants to declare or reveal
         $declareReveal = array(
             "playerId" => 0, // Player declaring or revealing
+            "playerName" => "",
+            "playerColor" => "",
             "cards" => array(), // If the player is revealing, this will have cards
             "bid" => array() // If the player is only declaring, this will have cards
         );
@@ -777,11 +783,13 @@ class BgaNinetyNine extends Table
         if (count($result) > 0) {
             $declaringOrRevealingPlayer = array_keys($result)[0];
             $declareReveal['playerId'] = $declaringOrRevealingPlayer;
-            if ($result[$declaringOrRevealingPlayer] >= 1) {
+            $declareReveal['playerName'] = $result[$declaringOrRevealingPlayer]['name'];
+            $declareReveal['playerColor'] = $this->getPlayerColor($declaringOrRevealingPlayer);
+            if ($result[$declaringOrRevealingPlayer]['decrev'] >= 1) {
                 $declareReveal['bid'] = 
                     $this->cards->getCardsInLocation( 'bid', $declaringOrRevealingPlayer);
             }
-            if ($result[$declaringOrRevealingPlayer] == 2) {
+            if ($result[$declaringOrRevealingPlayer]['decrev'] == 2) {
                 $declareReveal['cards'] = 
                     $this->cards->getPlayerHand($declaringOrRevealingPlayer);
             }   

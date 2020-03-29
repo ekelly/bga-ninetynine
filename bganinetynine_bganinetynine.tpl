@@ -39,7 +39,7 @@
     <div id="declarerevealtable">
         <h3 class="whiteblock">
             <span class="to_translate">Revealing/Declaring Player: </span> 
-            <span class="to_translate" style="color:#{PLAYER_COLOR}">{PLAYER_NAME}</span> <!-- PLAYER_NAME should say none for rounds with no declaring/revealing player -->
+            <span class="to_translate" id="decrev_player_name">None</span> <!-- PLAYER_NAME should say none for rounds with no declaring/revealing player -->
         </h3>
         <div id="declaretable" class="whiteblock">
             <span>Declared Bid:</span>
