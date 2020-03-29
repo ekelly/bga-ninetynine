@@ -30,7 +30,8 @@ define([
 ],
 function (dojo, declare, domStyle) {
     return declare("bgagame.bganinetynine", ebg.core.gamegui, {
-        constructor: function(){
+        
+        constructor: function() {
             console.log('bganinetynine constructor');
 
             // Here, you can init the global variables of your user interface
@@ -56,70 +57,44 @@ function (dojo, declare, domStyle) {
             
             "gamedatas" argument contains all datas retrieved by your "getAllDatas" PHP method.
         */        
-        setup: function( gamedatas )
-        {
+        setup: function(gamedatas) {
             console.log( "start creating player boards" );
-            for( var player_id in gamedatas.players )
-            {
+            for (var player_id in gamedatas.players) {
                 var player = gamedatas.players[player_id];
-            
             }
 
             // Player hand
-            this.playerHand = new ebg.stock();
-            this.playerHand.create( this, $('myhand'), this.cardwidth, this.cardheight );
-            this.playerHand.image_items_per_row = 13;
-            // During "setup" phase, we associate our method "setupNewCard" with the creation of a new stock item:
-            this.playerHand.setSelectionMode(1);
-            this.playerHand.setSelectionAppearance('disappear');
-            dojo.connect( this.playerHand, 'onChangeSelection', this, 'onPlayerHandSelectionChanged' );
-            
+            this.playerHand = this.setupCardStocks('myhand', 'onPlayerHandSelectionChanged');
+
             // Player bid
-            this.playerBid = new ebg.stock();
-            this.playerBid.create( this, $('mybid'), this.cardwidth, this.cardheight );
-            this.playerBid.image_items_per_row = 13;
-            this.playerBid.setSelectionMode(1);
-            this.playerBid.setSelectionAppearance('disappear');
-            dojo.connect( this.playerBid, 'onChangeSelection', this, 'onBidSelectionChanged' );
+            this.playerBid = this.setupCardStocks('mybid', 'onBidSelectionChanged');
             
-            // Create cards types:
+            // Declared Bid
+            this.declaredBid = this.setupCardStocks('declaredBid');
             
-            // Order of id: ["club", "diamond", "spade", "heart"];
-            for( var color=0;color<4;color++ )
-            {
-                for( var value=2;value<=14;value++ )
-                {
-                    // Build card type id
-                    var card_type_id = this.getCardUniqueId( color, value );
-                    console.log("" + value + " " + ["club", "diamond", "spade", "heart"][color] + " id is " + card_type_id);
-                    this.playerHand.addItemType( card_type_id, card_type_id, g_gamethemeurl+'img/cards.jpg', card_type_id );
-                    this.playerBid.addItemType( card_type_id, card_type_id, g_gamethemeurl+'img/cards.jpg', card_type_id );
-                }
-            }
-            
+            // Revealed Hand
+            this.revealedHand = this.setupCardStocks('revealedHand');
+
             console.log("Initial hand: " + this.gamedatas.hand);
             console.log(this.gamedatas.hand);
             
             // Cards in player's hand
-            for( var i in this.gamedatas.hand )
-            {
-                var card = this.gamedatas.hand[i];
-                var color = card.type;
-                var rank = card.type_arg;
-                // card.id is the SERVER's id of the card
-                // getCardUniqueId is the ID composed of the rank and suit
-                this.playerHand.addToStockWithId( this.getCardUniqueId( color, rank ), card.id );
-            }
+            this.addCardsToStock(this.playerHand, this.gamedatas.hand);
             
             // Cards played on table
-            for( i in this.gamedatas.cardsontable )
-            {
+            for (i in this.gamedatas.cardsontable) {
                 var card = this.gamedatas.cardsontable[i];
                 var color = card.type;
                 var value = card.type_arg;
                 var player_id = card.location_arg;
-                this.playCardOnTable( player_id, color, value, card.id );
+                this.playCardOnTable(player_id, color, value, card.id);
             }
+            
+            // Cards in a declared player's bid
+            // TODO
+            
+            // Cards in a revealed player's bid
+            // TODO
             
             this.addTooltipToClass( "playertablecard", _("Card played on the table"), '' );
 
@@ -128,8 +103,40 @@ function (dojo, declare, domStyle) {
             
             console.log('Done setting up notifications');
             
-            this.ensureSpecificImageLoading( ['../common/point.png'] );
-  
+            this.ensureSpecificImageLoading(['../common/point.png']);
+        },
+        
+        addCardsToStock: function(stock, cards) {
+            for (var i in cards) {
+                var card = cards[i];
+                var color = card.type;
+                var rank = card.type_arg;
+                // card.id is the SERVER's id of the card
+                // getCardUniqueId is the ID composed of the rank and suit
+                stock.addToStockWithId(this.getCardUniqueId(color, rank), card.id);
+            }
+        },
+        
+        setupCardStocks: function(id, selectionChangeFunctionName) {
+            var stock = new ebg.stock();
+            stock.create(this, $(id), this.cardwidth, this.cardheight);
+            stock.image_items_per_row = 13;
+            if (selectionChangeFunctionName != undefined && selectionChangeFunctionName.length > 0) {
+                stock.setSelectionMode(1);
+                stock.setSelectionAppearance('disappear');
+                dojo.connect( stock, 'onChangeSelection', this, selectionChangeFunctionName );    
+            } else {
+                stock.setSelectionMode(0);
+            }
+            // Order of id: ["club", "diamond", "spade", "heart"];
+            for (var color = 0; color < 4; color++) {
+                for (var rank=2; rank <= 14; rank++) {
+                    // Build card type id
+                    var card_type_id = this.getCardUniqueId(color, rank);
+                    stock.addItemType(card_type_id, card_type_id, g_gamethemeurl+'img/cards.jpg', card_type_id);
+                }
+            }
+            return stock;
         },
       
         getCardSuitFromId: function(card_id) {
@@ -151,7 +158,7 @@ function (dojo, declare, domStyle) {
         updateCurrentBidFromBidStock: function(bidStock, divId) {
             var bid = 0;
             var cardList = bidStock.getAllItems();
-            for(let x=0; x<cardList.length; x++){
+            for (var x = 0; x < cardList.length; x++) {
                 var card = cardList[x];
                 var id = card.type;
                 var suit = this.getCardSuitFromId(id);
@@ -182,6 +189,7 @@ function (dojo, declare, domStyle) {
             case 'bidding':
                 this.addTooltip( 'myhand', _('Cards in my hand'), _('Select a card') );
                 console.log('Added bidding tooltip');
+                this.playerBid.setSelectionMode(1);
                 break;
                     
             case 'declareOrReveal':
@@ -193,23 +201,20 @@ function (dojo, declare, domStyle) {
         // onLeavingState: this method is called each time we are leaving a game state.
         //                 You can use this method to perform some user interface changes at this moment.
         //        
-        onLeavingState: function( stateName )
-        {
-            console.log( 'Leaving state: '+stateName );
+        onLeavingState: function(stateName) {
+            console.log('Leaving state: '+stateName);
              
-          //  switch( stateName )
-          //  {
-          //  case 'playerTurn':
-              
-          //      break;
-          //  }                
+            switch (stateName) {
+                case 'bidding':
+                    this.playerBid.setSelectionMode(0);
+                    break;
+            }         
         }, 
         
         // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
         //                        action status bar (ie: the HTML links in the status bar).
         //                
-        onUpdateActionButtons: function( stateName, args )
-        {
+        onUpdateActionButtons: function(stateName, args) {
             console.log( 'onUpdateActionButtons: '+stateName );
                       
             if( this.isCurrentPlayerActive() ) {
@@ -240,67 +245,39 @@ function (dojo, declare, domStyle) {
         */
         
         // Get card unique identifier based on its color and value
-        getCardUniqueId: function( color, value )
-        {
+        getCardUniqueId: function(color, value) {
             return parseInt(color)*13+(parseInt(value)-2);
         },
         
-        getCardXCoord: function( value ) {
-            return this.cardwidth*(value-2);
+        getCardSuit: function (suit) {
+            return ["club", "diamond", "spade", "heart"][suit];
         },
         
-        getCardYCoord: function( color ) {
-            return this.cardheight*((parseInt(color) + 2) % 4);
-        },
-        
-        getCardSuit: function ( suit ) {
-            switch (suit) {
-                case 0:
-                    return "club";
-                case 1:
-                    return "diamond";
-                case 2:
-                    return "spade";
-                case 3:
-                default:
-                    return "heart";
-            }
-        },
-        
-        playCardOnTable: function( player_id, color, value, card_id )
-        {
+        playCardOnTable: function(player_id, color, value, card_id) {
             console.log('playCardOnTable');
             // player_id => direction
             dojo.place(
-                //x: this.cardwidth*(value-2),
-                    //y: this.cardheight*(color-1),
-                this.format_block( 'jstpl_cardontable', {
+                this.format_block('jstpl_cardontable', {
                     suit: this.getCardSuit(color),
                     rank: value,
                     player_id: player_id                
-                } ), 'playertablecard_'+player_id );
+                }), 'playertablecard_'+player_id);
                 
-            if( player_id != this.player_id )
-            {
+            if (player_id != this.player_id) {
                 // Some opponent played a card
                 // Move card from player panel
-                this.placeOnObject( 'cardontable_'+player_id, 'overall_player_board_'+player_id );
-            }
-            else
-            {
+                this.placeOnObject('cardontable_'+player_id, 'overall_player_board_'+player_id);
+            } else {
                 // You played a card. If it exists in your hand, move card from there and remove
                 // corresponding item
-                
-                if( $('myhand_item_'+card_id) )
-                {
-                    this.placeOnObject( 'cardontable_'+player_id, 'myhand_item_'+card_id );
+                if ($('myhand_item_'+card_id)) {
+                    this.placeOnObject('cardontable_'+player_id, 'myhand_item_'+card_id);
                     this.playerHand.removeFromStockById( card_id );
                 }
             }
 
             // In any case: move it to its final destination
-            this.slideToObject( 'cardontable_'+player_id, 'playertablecard_'+player_id ).play();
-
+            this.slideToObject('cardontable_'+player_id, 'playertablecard_'+player_id).play();
         },
 
 
@@ -317,30 +294,22 @@ function (dojo, declare, domStyle) {
             _ make a call to the game server
         
         */
-
         
-        onPlayerHandSelectionChanged: function(  )
-        {
+        onPlayerHandSelectionChanged: function() {
             console.log('onPlayerHandSelectionChanged');
             var items = this.playerHand.getSelectedItems();
 
-            if( items.length > 0 )
-            {
-                if( this.checkAction( 'playCard', true ) )
-                {
+            if (items.length > 0) {
+                if (this.checkAction( 'playCard', true )) {
                     // Can play a card
-                    
                     var card_id = items[0].id;
-                    
-                    this.ajaxcall( "/bganinetynine/bganinetynine/playCard.html", { 
-                            id: card_id,
-                            lock: true 
-                            }, this, function( result ) {  }, function( is_error) { } );                        
+                    this.ajaxcall("/bganinetynine/bganinetynine/playCard.html", { 
+                        id: card_id,
+                        lock: true 
+                    }, this, function(result) {}, function(is_error) {});                        
 
                     this.playerHand.unselectAll();
-                }
-                else if( this.checkAction( 'submitBid' ) )
-                {
+                } else if (this.checkAction('submitBid')) {
                     var divId = this.playerHand.getItemDivId(items[0].id);
 
                     // Remove that card from the bid and return it to the hand
@@ -349,11 +318,9 @@ function (dojo, declare, domStyle) {
 
                     this.playerHand.unselectAll();
                     
-                    this.updateCurrentBidFromBidStock(this.playerBid, "bidValueSpan");
+                    this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
                     
-                }
-                else
-                {
+                } else {
                     this.playerHand.unselectAll();
                 }                
             }
@@ -375,33 +342,33 @@ function (dojo, declare, domStyle) {
             
             this.playerBid.unselectAll();
             
-            this.updateCurrentBidFromBidStock(this.playerBid, "bidValueSpan");
+            this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
         },
         
-        onBidCards: function()
-        {
+        onBidCards: function() {
             console.log('onBidCards');
-            if( this.checkAction( 'submitBid' ) )
-            {
+            if (this.checkAction('submitBid')) {
                 var items = this.playerBid.getAllItems();
 
-                if( items.length != 3 )
-                {
-                    this.showMessage( _("You must select exactly 3 cards"), 'error' );
+                if (items.length != 3) {
+                    this.showMessage(_("You must select exactly 3 cards"), 'error');
                     return;
                 }
-                
+
                 // Give these 3 cards
                 var to_give = '';
-                for( var i in items )
-                {
+                for (var i in items) {
                     to_give += items[i].id+';';
                 }
-                this.ajaxcall( "/bganinetynine/bganinetynine/submitBid.html", { cards: to_give, lock: true }, this, function( result ) {
-                }, function( is_error) { } );                
-            }        
+                this.ajaxcall( "/bganinetynine/bganinetynine/submitBid.html", { 
+                    cards: to_give, 
+                    lock: true 
+                }, this, function (result) {
+                }, function(is_error) {
+                });
+            }
         },
-        
+
         onNoDeclare: function() {
             console.log('onNoDeclare');
             this.submitDeclareOrReveal(0);
@@ -411,17 +378,21 @@ function (dojo, declare, domStyle) {
             console.log('onDeclare');
             this.submitDeclareOrReveal(1);
         },
-        
+
         onReveal: function() {
             console.log('onReveal');
             this.submitDeclareOrReveal(2);
         },
-        
+
         // decrev should be 0 = none, 1 = declare, 2 = reveal
         submitDeclareOrReveal: function(decrev) {
-            if( this.checkAction( 'submitDeclareOrReveal' ) ) {
-                this.ajaxcall( "/bganinetynine/bganinetynine/submitDeclareOrReveal.html", { declareOrReveal: decrev, lock: true }, this, function( result ) {
-                }, function( is_error) { } );                
+            if (this.checkAction('submitDeclareOrReveal')) {
+                this.ajaxcall( "/bganinetynine/bganinetynine/submitDeclareOrReveal.html", { 
+                    declareOrReveal: decrev, 
+                    lock: true
+                }, this, function(result) {
+                }, function(is_error) {
+                });                
             }
         },
         
@@ -438,95 +409,84 @@ function (dojo, declare, domStyle) {
         
         */
 
-        setupNotifications: function()
-        {
-            console.log( 'notifications subscriptions setup' );
+        setupNotifications: function() {
+            console.log( 'notifications subscriptions setup');
             
-            dojo.subscribe( 'newHand', this, "notif_newHand" );
-            dojo.subscribe( 'playCard', this, "notif_playCard" );
-            dojo.subscribe( 'trickWin', this, "notif_trickWin" );
-            this.notifqueue.setSynchronous( 'trickWin', 1000 );
-            dojo.subscribe( 'giveAllCardsToPlayer', this, "notif_giveAllCardsToPlayer" );
-            dojo.subscribe( 'newScores', this, "notif_newScores" );
-            dojo.subscribe( 'bidCards', this, "notif_bidCards" );
-            dojo.subscribe( 'biddingComplete' , this, "notif_biddingComplete" );
-            dojo.subscribe( 'takeCards', this, "notif_takeCards" );
+            dojo.subscribe('newHand', this, "notif_newHand");
+            dojo.subscribe('playCard', this, "notif_playCard");
+            dojo.subscribe('trickWin', this, "notif_trickWin");
+            this.notifqueue.setSynchronous('trickWin', 1000);
+            dojo.subscribe('giveAllCardsToPlayer', this, "notif_giveAllCardsToPlayer");
+            dojo.subscribe('newScores', this, "notif_newScores");
+            dojo.subscribe('bidCards', this, "notif_bidCards");
+            dojo.subscribe('biddingComplete' , this, "notif_biddingComplete");
         },
         
         // TODO: from this point and below, you can write your game notifications handling methods
                 
-        notif_newHand: function( notif )
-        {
+        notif_newHand: function(notif) {
             console.log('notif_newHand');
             // We received a new full hand of 13 cards.
             this.playerHand.removeAll();
 
-            for( var i in notif.args.cards )
-            {
+            for (var i in notif.args.cards) {
                 var card = notif.args.cards[i];
                 var color = card.type;
                 var value = card.type_arg;
-                this.playerHand.addToStockWithId( this.getCardUniqueId( color, value ), card.id );
+                this.playerHand.addToStockWithId(this.getCardUniqueId(color, value), card.id);
             }            
         },
         
-        notif_playCard: function( notif )
-        {
+        notif_playCard: function(notif) {
             console.log('notif_playCard');
             // Play a card on the table
-            this.playCardOnTable( notif.args.player_id, notif.args.color, notif.args.value, notif.args.card_id );
+            this.playCardOnTable(notif.args.player_id, notif.args.color, 
+                                 notif.args.value, notif.args.card_id);
         },
         
-        notif_trickWin: function( notif )
-        {
+        notif_trickWin: function(notif) {
             console.log('notif_trickWin');
             // We do nothing here (just wait in order players can view the 4 cards played before they're gone.
         },
         
-        notif_giveAllCardsToPlayer: function( notif )
-        {
+        notif_giveAllCardsToPlayer: function(notif) {
             console.log('notif_giveAllCardsToPlayer');
             // Move all cards on table to given table, then destroy them
             var winner_id = notif.args.player_id;
-            for( var player_id in this.gamedatas.players )
-            {
-                var anim = this.slideToObject( 'cardontable_'+player_id, 'overall_player_board_'+winner_id );
-                dojo.connect( anim, 'onEnd', function( node ) { dojo.destroy(node);  } );
+            for (var player_id in this.gamedatas.players) {
+                var anim = this.slideToObject('cardontable_'+player_id, 'overall_player_board_'+winner_id);
+                dojo.connect(anim, 'onEnd', function(node) { dojo.destroy(node); });
                 anim.play();
             }
         },
-        notif_newScores: function( notif )
-        {
+
+        notif_newScores: function(notif) {
             console.log('notif_newScores');
             // Update players' scores
-            for( var player_id in notif.args.newScores )
-            {
-                this.scoreCtrl[ player_id ].toValue( notif.args.newScores[ player_id ] );
+            for (var player_id in notif.args.newScores) {
+                this.scoreCtrl[player_id].toValue(notif.args.newScores[player_id]);
             }
         },
-        notif_bidCards: function( notif )
-        {
+
+        notif_bidCards: function(notif) {
             console.log("Bid value: " + notif.args.bidValue);
             // Remove cards from the hand (they have been given)
-            for( var i in notif.args.cards )
-            {
+            for (var i in notif.args.cards) {
                 var card_id = notif.args.cards[i];
-                this.playerHand.removeFromStockById( card_id );
+                this.playerHand.removeFromStockById(card_id);
             }
         },
-        notif_biddingComplete: function( notif )
-        {
+
+        notif_biddingComplete: function(notif) {
             console.log("Bidding complete");
             console.log(notif.args);
             // My cards
-            for( var i in notif.args.cards )
-            {
+            for (var i in notif.args.cards) {
                 var card_id = notif.args.cards[i];
             }
             // My bid
             console.log("My bid? " + parseInt(notif.args.bid.bid));
-            for( var i in notif.args.bid.cards )
-            {
+            for (var i in notif.args.bid.cards) {
                 var card_id = notif.args.bid.cards[i];
             }
             console.log("Declare? " + notif.args.bid.declare);
@@ -537,33 +497,17 @@ function (dojo, declare, domStyle) {
                 playerNameSpan.textContent = notif.args.declareReveal.playerName;
                 var playerColor = notif.args.declareReveal.playerColor;
                 domStyle.set(playerNameSpan, "color", "#" + playerColor);
-                for( var i in notif.args.declareReveal.cards ) {
-                    // These cards are from a revealing player's hand
-                    var card_id = notif.args.declareReveal.cards[i];
-                }
-                for( var i in notif.args.declareReveal.bid ) {
-                    // These cards are from a declaring/revealing player's bid
-                    var card_id = notif.args.declareReveal.bid[i];
-                }
+
+                // Show Revealed cards
+                this.addCardsToStock(this.revealedHand, notif.args.declareReveal.cards);
+                // Show Declared bid
+                this.addCardsToStock(this.declaredBid, notif.args.declareReveal.bid);
+
             } else {
                 playerNameSpan.textContent = "None";
                 domStyle.set(playerNameSpan, "color", "#000000");
             }
-        },
-        notif_takeCards: function( notif )
-        {
-            console.log('notif_takeCards');
-            // Cards taken from some opponent
-            for( var i in notif.args.cards )
-            {
-                var card = notif.args.cards[i];
-                var color = card.type;
-                var value = card.type_arg;
-                this.playerHand.addToStockWithId( this.getCardUniqueId( color, value ), card.id );
-            }
-        }
-        
-           
+        } 
    });             
 });
 
