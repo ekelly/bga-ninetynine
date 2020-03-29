@@ -43,6 +43,7 @@
         </h3>
         <div id="declaretable" class="whiteblock">
             <span>Declared Bid:</span>
+            <span id="declaredBidValueSpan"></span>
         </div>
         <div id="revealtable" class="whiteblock">
             <span>Revealed Hand:</span>
@@ -53,7 +54,8 @@
 <div id="myhand_wrap" class="whiteblock" style="height: 130px;">
     <h3>
         <span class="to_translate" style="width: 80%;display: inline-block;">My Hand</span>
-        <span class="to_translate" style="/*! float: right; */display: inline-block;">My Bid</span>
+        <span class="to_translate" style="/*! float: right; */display: inline-block;">My Bid: </span>
+        <span id="bidValueSpan"></span> 
     </h3>
     <div id="myhand"></div>
     <div id="mybid"></div>

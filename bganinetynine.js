@@ -143,6 +143,24 @@ function (dojo, declare, domStyle) {
         getBidValueFromSuit: function(suit) {
             return {club: 3, diamond: 0, spade: 1, heart: 2}[suit];
         },
+        
+        //getBidValueFromId: function(card_id) {
+        //    return this.getBidValueFromSuit(this.getCardSuitFromId(card_id));
+        //},
+        
+        updateCurrentBidFromBidStock: function(bidStock, divId) {
+            var bid = 0;
+            var cardList = bidStock.getAllItems();
+            for(let x=0; x<cardList.length; x++){
+                var card = cardList[x];
+                var id = card.type;
+                var suit = this.getCardSuitFromId(id);
+                var bidValue = this.getBidValueFromSuit(suit);
+                bid += bidValue;
+            }
+            var bidValueSpan = dojo.byId(divId);
+            bidValueSpan.textContent = bid;
+        },
 
         ///////////////////////////////////////////////////
         //// Game & client states
@@ -330,16 +348,9 @@ function (dojo, declare, domStyle) {
                     this.playerHand.removeFromStockById(items[0].id);
 
                     this.playerHand.unselectAll();
-                    /*var card = items[0];
                     
-                    if( $('myhand_item_'+card_id) )
-                    {
-                        this.placeOnObject( 'myhand_item_'+card_id, 'mybid' );
-                        //this.slideToObject();
-                        //console.log("ID: "+card_id+", color: "+color+", value: "+value);
-                        this.playerBid.addToStockWithId(card.type, card.id, 'myhand_item_'+card_id);
-                        this.playerHand.removeFromStockById( card_id );
-                    }*/
+                    this.updateCurrentBidFromBidStock(this.playerBid, "bidValueSpan");
+                    
                 }
                 else
                 {
@@ -363,6 +374,8 @@ function (dojo, declare, domStyle) {
             this.playerBid.removeFromStockById(items[0].id);
             
             this.playerBid.unselectAll();
+            
+            this.updateCurrentBidFromBidStock(this.playerBid, "bidValueSpan");
         },
         
         onBidCards: function()
