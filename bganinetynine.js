@@ -68,15 +68,17 @@ function (dojo, declare) {
             this.playerHand.create( this, $('myhand'), this.cardwidth, this.cardheight );
             this.playerHand.image_items_per_row = 13;
             // During "setup" phase, we associate our method "setupNewCard" with the creation of a new stock item:
-            this.playerHand.onItemCreate = dojo.hitch( this, 'setupNewCard' );
-            // this.playerHand.setSelectionMode(0)
+            this.playerHand.setSelectionMode(1);
+            this.playerHand.setSelectionAppearance('disappear');
             dojo.connect( this.playerHand, 'onChangeSelection', this, 'onPlayerHandSelectionChanged' );
             
             // Player bid
-//            this.playerBid = new ebg.stock();
-//            this.playerBid.create( this, $('mybid'), this.cardwidth, this.cardheight );
-//            this.playerBid.image_items_per_row = 13;
-//            dojo.connect( this.playerBid, 'onChangeSelection', this, 'onBidSelectionChanged' );            
+            this.playerBid = new ebg.stock();
+            this.playerBid.create( this, $('mybid'), this.cardwidth, this.cardheight );
+            this.playerBid.image_items_per_row = 13;
+            this.playerBid.setSelectionMode(1);
+            this.playerBid.setSelectionAppearance('disappear');
+            dojo.connect( this.playerBid, 'onChangeSelection', this, 'onBidSelectionChanged' );
             
             // Create cards types:
             
@@ -87,8 +89,9 @@ function (dojo, declare) {
                 {
                     // Build card type id
                     var card_type_id = this.getCardUniqueId( color, value );
+                    console.log("" + value + " " + ["club", "diamond", "spade", "heart"][color] + " id is " + card_type_id);
                     this.playerHand.addItemType( card_type_id, card_type_id, g_gamethemeurl+'img/cards.jpg', card_type_id );
-                    //this.playerBid.addItemType( card_type_id, card_type_id, g_gamethemeurl+'img/cards.jpg', card_type_id );
+                    this.playerBid.addItemType( card_type_id, card_type_id, g_gamethemeurl+'img/cards.jpg', card_type_id );
                 }
             }
             
@@ -100,8 +103,10 @@ function (dojo, declare) {
             {
                 var card = this.gamedatas.hand[i];
                 var color = card.type;
-                var value = card.type_arg;
-                this.playerHand.addToStockWithId( this.getCardUniqueId( color, value ), card.id );
+                var rank = card.type_arg;
+                // card.id is the SERVER's id of the card
+                // getCardUniqueId is the ID composed of the rank and suit
+                this.playerHand.addToStockWithId( this.getCardUniqueId( color, rank ), card.id );
             }
             
             // Cards played on table
@@ -123,18 +128,6 @@ function (dojo, declare) {
             
             this.ensureSpecificImageLoading( ['../common/point.png'] );
   
-        },
-        
-        setupNewCard: function( card_div, card_type_id, card_id ) {
-            // Note that "card_type_id" contains the type of the item, 
-            // so you can do special actions depending on the item type
-            console.log(jstpl_card);
-            dojo.place(
-                this.format_block( 'jstpl_card', {
-                    suit: this.getCardSuitFromId(card_type_id),
-                    rank: this.getCardRankFromId(card_type_id),
-                    card_id: card_id,
-                } ), card_div.id );
         },
       
         getCardSuitFromId: function(card_id) {
@@ -319,6 +312,13 @@ function (dojo, declare) {
                 }
                 else if( this.checkAction( 'submitBid' ) )
                 {
+                    var divId = this.playerHand.getItemDivId(items[0].id);
+
+                    // Remove that card from the bid and return it to the hand
+                    this.playerBid.addToStockWithId(items[0].type, items[0].id, divId);
+                    this.playerHand.removeFromStockById(items[0].id);
+
+                    this.playerHand.unselectAll();
                     /*var card = items[0];
                     
                     if( $('myhand_item_'+card_id) )
@@ -337,12 +337,29 @@ function (dojo, declare) {
             }
         },
         
+        onBidSelectionChanged: function() {
+            console.log('onBidSelectionChanged');
+            if (!this.checkAction('submitBid')) {
+                console.log("Cannot make changes to bid now");
+                this.playerBid.unselectAll();
+                return;
+            }
+            var items = this.playerBid.getSelectedItems();
+            var divId = this.playerBid.getItemDivId(items[0].id);
+            
+            // Remove that card from the bid and return it to the hand
+            this.playerHand.addToStockWithId(items[0].type, items[0].id, divId);
+            this.playerBid.removeFromStockById(items[0].id);
+            
+            this.playerBid.unselectAll();
+        },
+        
         onBidCards: function()
         {
             console.log('onBidCards');
             if( this.checkAction( 'submitBid' ) )
             {
-                var items = this.playerHand.getSelectedItems();
+                var items = this.playerBid.getAllItems();
 
                 if( items.length != 3 )
                 {
