@@ -67,13 +67,16 @@ function (dojo, declare) {
             this.playerHand = new ebg.stock();
             this.playerHand.create( this, $('myhand'), this.cardwidth, this.cardheight );
             this.playerHand.image_items_per_row = 13;
+            // During "setup" phase, we associate our method "setupNewCard" with the creation of a new stock item:
+            this.playerHand.onItemCreate = dojo.hitch( this, 'setupNewCard' );
+            // this.playerHand.setSelectionMode(0)
             dojo.connect( this.playerHand, 'onChangeSelection', this, 'onPlayerHandSelectionChanged' );
             
             // Player bid
-            //this.playerBid = new ebg.stock();
-            //this.playerBid.create( this, $('mybid'), this.cardwidth, this.cardheight );
-            //this.playerBid.image_items_per_row = 3;
-            //dojo.connect( this.playerBid, 'onChangeSelection', this, 'onPlayerHandSelectionChanged' );            
+//            this.playerBid = new ebg.stock();
+//            this.playerBid.create( this, $('mybid'), this.cardwidth, this.cardheight );
+//            this.playerBid.image_items_per_row = 13;
+//            dojo.connect( this.playerBid, 'onChangeSelection', this, 'onBidSelectionChanged' );            
             
             // Create cards types:
             
@@ -121,7 +124,26 @@ function (dojo, declare) {
             this.ensureSpecificImageLoading( ['../common/point.png'] );
   
         },
+        
+        setupNewCard: function( card_div, card_type_id, card_id ) {
+            // Note that "card_type_id" contains the type of the item, 
+            // so you can do special actions depending on the item type
+            console.log(jstpl_card);
+            dojo.place(
+                this.format_block( 'jstpl_card', {
+                    suit: this.getCardSuitFromId(card_type_id),
+                    rank: this.getCardRankFromId(card_type_id),
+                    card_id: card_id,
+                } ), card_div.id );
+        },
       
+        getCardSuitFromId: function(card_id) {
+            return ["club", "diamond", "spade", "heart"][Math.floor(card_id / 13)];
+        },
+        
+        getCardRankFromId: function(card_id) {
+            return (card_id % 13) + 2;
+        },
 
         ///////////////////////////////////////////////////
         //// Game & client states
