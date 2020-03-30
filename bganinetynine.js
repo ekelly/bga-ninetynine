@@ -58,7 +58,7 @@ function (dojo, declare, domStyle) {
             "gamedatas" argument contains all datas retrieved by your "getAllDatas" PHP method.
         */        
         setup: function(gamedatas) {
-            console.log( "start creating player boards" );
+            console.log("start creating player boards");
             for (var player_id in gamedatas.players) {
                 var player = gamedatas.players[player_id];
             }
@@ -68,6 +68,9 @@ function (dojo, declare, domStyle) {
 
             // Player bid
             this.playerBid = this.setupCardStocks('mybid', 'onBidSelectionChanged');
+            // The selection mode should start as 0 and only become
+            // selectable during bidding
+            this.playerBid.setSelectionMode(0);
             
             // Declared Bid
             this.declaredBid = this.setupCardStocks('declaredBid');
@@ -95,7 +98,7 @@ function (dojo, declare, domStyle) {
             this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
             this.showActiveDeclareOrReveal(this.gamedatas.declareReveal);
             
-            this.addTooltipToClass( "playertablecard", _("Card played on the table"), '' );
+            this.addTooltipToClass("playertablecard", _("Card played on the table"), '');
 
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
@@ -175,25 +178,23 @@ function (dojo, declare, domStyle) {
         //                  You can use this method to perform some user interface changes at this moment.
         //
         
-        onEnteringState: function( stateName, args )
-        {
-           console.log( 'Entering state: '+stateName );
+        onEnteringState: function(stateName, args) {
+           console.log('Entering state: '+stateName);
             
-            switch( stateName )
-            {
-            case 'playerTurn':
-                this.addTooltip( 'myhand', _('Cards in my hand'), _('Play a card') );
-                break;
+            switch(stateName) {
+                case 'playerTurn':
+                    this.addTooltip( 'myhand', _('Cards in my hand'), _('Play a card') );
+                    break;
 
-            case 'bidding':
-                this.addTooltip( 'myhand', _('Cards in my hand'), _('Select a card') );
-                console.log('Added bidding tooltip');
-                this.playerBid.setSelectionMode(1);
-                break;
-                    
-            case 'declareOrReveal':
-                console.log('TODO: Show the declare/reveal option');
-                break;
+                case 'bidding':
+                    this.addTooltip( 'myhand', _('Cards in my hand'), _('Select a card') );
+                    console.log('Added bidding tooltip');
+                    this.playerBid.setSelectionMode(1);
+                    break;
+
+                case 'declareOrReveal':
+                    console.log('TODO: Show the declare/reveal option');
+                    break;
             }
         },
         
