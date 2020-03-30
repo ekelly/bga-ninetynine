@@ -194,15 +194,28 @@
 
 #myhand {
     position: relative;
-    height: 101px;
     display: inline-block;
-    width: 60%;
+    width: 100%;
 }
 
 #mybid {
     position: relative;
-    height: 101px;
     display: inline-block;
-    width: 20%;
-    margin-left: 19%
+    width: 100%;
+}
+
+.container {
+    height: auto;
+    display: flex;
+}
+
+.section {
+    flex-direction: row;
+    width: auto;
+    display: inline-block;
+}
+
+.bid_container {
+    width: 230px;
+    margin-left: 50px;
 }

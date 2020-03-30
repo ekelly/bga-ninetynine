@@ -53,14 +53,18 @@
     </div>
 </div>
 
-<div id="myhand_wrap" class="whiteblock" style="height: 130px;">
-    <h3>
-        <span class="to_translate" style="width: 80%;display: inline-block;">My Hand</span>
-        <span class="to_translate" style="/*! float: right; */display: inline-block;">My Bid: </span>
-        <span id="bidValue"></span> 
-    </h3>
-    <div id="myhand"></div>
-    <div id="mybid"></div>
+<div class="whiteblock container">
+    <div class="section" style="flex-grow: 1;">
+        <div class="to_translate" style="width: auto;"><h3>My Hand</h3></div>
+        <div id="myhand"></div>
+    </div>
+    <div class="section bid_container">
+        <h3>
+            <span class="to_translate" style="display: inline-block;">My Bid: <span id="bidValue"></span>
+            </span>
+        </h3>
+        <div id="mybid"></div>
+    </div>    
 </div>
 
 
