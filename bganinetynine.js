@@ -90,11 +90,10 @@ function (dojo, declare, domStyle) {
                 this.playCardOnTable(player_id, color, value, card.id);
             }
             
-            // Cards in a declared player's bid
-            // TODO
-            
-            // Cards in a revealed player's bid
-            // TODO
+            // Cards in the player's bid
+            this.addCardsToStock(this.playerBid, this.gamedatas.bid.cards);
+            this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
+            this.showActiveDeclareOrReveal(this.gamedatas.declareReveal);
             
             this.addTooltipToClass( "playertablecard", _("Card played on the table"), '' );
 
@@ -280,6 +279,25 @@ function (dojo, declare, domStyle) {
             this.slideToObject('cardontable_'+player_id, 'playertablecard_'+player_id).play();
         },
 
+        showActiveDeclareOrReveal: function (decRevInfo) {
+            var playerNameSpan = dojo.byId("decrev_player_name");
+            if (decRevInfo.playerId != 0) {
+                playerNameSpan.textContent = decRevInfo.playerName;
+                var playerColor = decRevInfo.playerColor;
+                domStyle.set(playerNameSpan, "color", "#" + playerColor);
+
+                // Show Revealed cards
+                this.revealedHand.removeAll();
+                this.addCardsToStock(this.revealedHand, decRevInfo.cards);
+                // Show Declared bid
+                this.declaredBid.removeAll();
+                this.addCardsToStock(this.declaredBid, decRevInfo.bid);
+
+            } else {
+                playerNameSpan.textContent = "None";
+                domStyle.set(playerNameSpan, "color", "#000000");
+            }
+        },
 
         ///////////////////////////////////////////////////
         //// Player's action
@@ -491,22 +509,8 @@ function (dojo, declare, domStyle) {
             }
             console.log("Declare? " + notif.args.bid.declare);
             console.log("Reveal? " + notif.args.bid.reveal);
-            
-            var playerNameSpan = dojo.byId("decrev_player_name");
-            if (notif.args.declareReveal.playerId != 0) {
-                playerNameSpan.textContent = notif.args.declareReveal.playerName;
-                var playerColor = notif.args.declareReveal.playerColor;
-                domStyle.set(playerNameSpan, "color", "#" + playerColor);
 
-                // Show Revealed cards
-                this.addCardsToStock(this.revealedHand, notif.args.declareReveal.cards);
-                // Show Declared bid
-                this.addCardsToStock(this.declaredBid, notif.args.declareReveal.bid);
-
-            } else {
-                playerNameSpan.textContent = "None";
-                domStyle.set(playerNameSpan, "color", "#000000");
-            }
+            this.showActiveDeclareOrReveal(notif.args.declareReveal);
         } 
    });             
 });

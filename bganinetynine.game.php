@@ -42,11 +42,10 @@ class BgaNinetyNine extends Table
                          "gameStyle" => 100 ) );
 
         $this->cards = self::getNew( "module.common.deck" );
-        $this->cards->init( "card" );
+        $this->cards->init("card");
 	}
 	
-    protected function getGameName( )
-    {
+    protected function getGameName() {
         return "bganinetynine";
     }	
 
@@ -58,8 +57,7 @@ class BgaNinetyNine extends Table
         the game is ready to be played.    
     
     */
-    protected function setupNewGame( $players, $options = array() )
-    {
+    protected function setupNewGame($players, $options = array()) {
 		self::warn("setupNewGame");
         $sql = "DELETE FROM player WHERE 1 ";
         self::DbQuery( $sql ); 
@@ -122,15 +120,14 @@ class BgaNinetyNine extends Table
         // Create cards
         $cards = array();
         // $suits = array( "club", "diamond", "spade", "heart" );
-        for( $suit_id = 0; $suit_id < 4; $suit_id++ )
-        {
-            for( $value=6; $value<=14; $value++ )   //  2, 3, 4, ... K, A
-            {
+        for ($suit_id = 0; $suit_id < 4; $suit_id++) {
+            //  2, 3, 4, ... K, A
+            for ($value=6; $value<=14; $value++) {
                 $cards[] = array( 'type' => $suit_id, 'type_arg' => $value, 'nbr' => 1);
             }
         }
 
-        $this->cards->createCards( $cards, 'deck' );
+        $this->cards->createCards($cards, 'deck');
 
         /************ End of the game initialization *****/
     }
@@ -144,8 +141,7 @@ class BgaNinetyNine extends Table
         _ when the game starts
         _ when a player refresh the game page (F5)
     */
-    protected function getAllDatas()
-    {
+    protected function getAllDatas() {
 		self::warn("getAllDatas");
         $result = array( 'players' => array() );
 
@@ -156,20 +152,30 @@ class BgaNinetyNine extends Table
         $sql = "SELECT player_id id, player_score score ";
         $sql .= "FROM player ";
         $sql .= "WHERE 1 ";
-        $dbres = self::DbQuery( $sql );
-        while( $player = mysql_fetch_assoc( $dbres ) )
-        {
-            $result['players'][ $player['id'] ] = $player;
+        $dbres = self::DbQuery($sql);
+        while ($player = mysql_fetch_assoc($dbres)) {
+            $result['players'][$player['id']] = $player;
         }
   
         // Cards in player hand
-        $result['hand'] = $this->cards->getPlayerHand( $player_id );
+        $result['hand'] = $this->cards->getPlayerHand($player_id);
   
         // Cards played on the table
-        $result['cardsontable'] = $this->cards->getCardsInLocation( 'cardsontable' );
+        $result['cardsontable'] = $this->cards->getCardsInLocation( 'cardsontable');
         
         // Result should be the following:
         // result = { 'players': [[id, score], ...], 'hand': [{card}, ...], 'cardsontable': [...]}
+        
+        $result['declareReveal'] = $this->getDeclareOrRevealInfo();
+        $declaringOrRevealingPlayer = $result['declareReveal']['playerId'];
+        
+        $bidCardIds = $this->cards->getCardsInLocation('bid', $player_id);
+        $bid = $this->getPlayerBid($player_id);
+        
+        $result['bid'] = array(
+            "cards" => $bidCardIds,
+            "bid" => $bid
+        );
 
         return $result;
     }
@@ -333,11 +339,11 @@ class BgaNinetyNine extends Table
     /**
         Get the player's bid from the players table
     **/
-    function getPlayerBid( $playerId ) {
+    function getPlayerBid($playerId) {
         return $this->getUniqueValueFromDB("SELECT player_bid FROM player WHERE player_id='$playerId'");
     }
     
-    function persistPlayerDeclareReveal( $playerId, $decRev ) {
+    function persistPlayerDeclareReveal($playerId, $decRev) {
         $sql = "UPDATE player SET player_declare_reveal=$decRev WHERE player_id='$playerId'";
         $this->DbQuery( $sql );
     }
@@ -347,7 +353,7 @@ class BgaNinetyNine extends Table
         $this->DbQuery( $sql );
     }
     
-    function setDeclareReveal( $playerId, $decRev ) {
+    function setDeclareReveal($playerId, $decRev) {
         $this->clearAllDeclareReveal();
         $sql = "UPDATE player SET player_declare_reveal=$decRev WHERE player_id='$playerId'";
         $this->DbQuery( $sql );
@@ -373,7 +379,7 @@ class BgaNinetyNine extends Table
         return $count;
     }
     
-    function getPlayerDeclareRevealPreferences() {
+    function assignDeclareRevealPlayer() {
         $result = $this->getNonEmptyCollectionFromDB("SELECT player_id id, player_declare_reveal decrev FROM player");
         
         $dealer = $this->getDealer();
@@ -404,8 +410,48 @@ class BgaNinetyNine extends Table
         } else if ($firstPlayerToDeclare != 0) {
             $this->setDeclareReveal($firstPlayerToDeclare, 1);
         }
+    }
+    
+    function getDeclareRevealPlayerInfo() {
+        $result = $this->getCollectionFromDB("SELECT player_id id, player_name name, player_declare_reveal decrev FROM player WHERE player_declare_reveal != 0");
+        if (count($result) > 1) {
+            throw new feException("Invalid game state - multiple declaring or revealing players");
+        }
+        return $result;
+    }
+    
+    function getDeclareOrRevealInfo() {
+        $result = $this->getDeclareRevealPlayerInfo();
         
-        return $this->getCollectionFromDB("SELECT player_id id, player_name name, player_declare_reveal decrev FROM player WHERE player_declare_reveal != 0");
+        // Figure out who wants to declare or reveal
+        $declareReveal = array(
+            "playerId" => 0, // Player declaring or revealing
+            "playerName" => "",
+            "playerColor" => "",
+            "cards" => array(), // If the player is revealing, this will have cards
+            "bid" => array(), // If the player is only declaring, this will have cards
+            "decRev" => 0
+        );
+        $declaringOrRevealingPlayer = 0;
+        if (count($result) > 0) {
+            $declaringOrRevealingPlayer = array_keys($result)[0];
+            $declareReveal['playerId'] = $declaringOrRevealingPlayer;
+            $declareReveal['playerName'] = $result[$declaringOrRevealingPlayer]['name'];
+            $declareReveal['playerColor'] = $this->getPlayerColor($declaringOrRevealingPlayer);
+            if ($result[$declaringOrRevealingPlayer]['decrev'] >= 1) {
+                $declareReveal['bid'] = 
+                    $this->cards->getCardsInLocation( 'bid', $declaringOrRevealingPlayer);
+                $decRev = 1;
+            }
+            if ($result[$declaringOrRevealingPlayer]['decrev'] == 2) {
+                $declareReveal['cards'] = 
+                    $this->cards->getPlayerHand($declaringOrRevealingPlayer);
+                $decRev = 2;
+            }
+            $declareReveal['decRev'] = $decRev;
+        }
+        
+        return $declareReveal;
     }
     
     // Return players => direction (N/S/E/W) from the point of view
@@ -769,54 +815,32 @@ class BgaNinetyNine extends Table
     
     function stCheckDeclareOrReveal() {
         self::warn("stCheckDeclareOrReveal");
-
-        // Figure out who wants to declare or reveal
-        $declareReveal = array(
-            "playerId" => 0, // Player declaring or revealing
-            "playerName" => "",
-            "playerColor" => "",
-            "cards" => array(), // If the player is revealing, this will have cards
-            "bid" => array() // If the player is only declaring, this will have cards
-        );
-        $result = $this->getPlayerDeclareRevealPreferences();
-        $declaringOrRevealingPlayer = 0;
-        if (count($result) > 0) {
-            $declaringOrRevealingPlayer = array_keys($result)[0];
-            $declareReveal['playerId'] = $declaringOrRevealingPlayer;
-            $declareReveal['playerName'] = $result[$declaringOrRevealingPlayer]['name'];
-            $declareReveal['playerColor'] = $this->getPlayerColor($declaringOrRevealingPlayer);
-            if ($result[$declaringOrRevealingPlayer]['decrev'] >= 1) {
-                $declareReveal['bid'] = 
-                    $this->cards->getCardsInLocation( 'bid', $declaringOrRevealingPlayer);
-            }
-            if ($result[$declaringOrRevealingPlayer]['decrev'] == 2) {
-                $declareReveal['cards'] = 
-                    $this->cards->getPlayerHand($declaringOrRevealingPlayer);
-            }   
-        }
+        
+        $this->assignDeclareRevealPlayer();
+        $declareReveal = $this->getDeclareOrRevealInfo();
+        $declaringOrRevealingPlayer = $declareReveal['playerId'];
         
         $players = self::loadPlayersBasicInfos();
-        foreach ( $players as $playerId => $player ) {
-            
-            $declaring = $playerId == $declaringOrRevealingPlayer && $result[$playerId] == 1;
-            $revealing = $playerId == $declaringOrRevealingPlayer && $result[$playerId] == 2;
+        foreach ($players as $playerId => $player) {
+            $declaring = $playerId == $declaringOrRevealingPlayer && $declareReveal['decRev'] == 1;
+            $revealing = $playerId == $declaringOrRevealingPlayer && $declareReveal['decRev'] == 2;
 
-            $bidCardIds = $this->cards->getCardsInLocation( 'bid', $playerId );
+            $bidCardIds = $this->cards->getCardsInLocation('bid', $playerId);
             $cardIds = $this->cards->getPlayerHand($playerId);
             $bid = $this->getPlayerBid($playerId);
 
             // Update everyone with current cards & visibility
             // Notify the player so we can make these cards disapear
-            self::notifyPlayer( $playerId, "biddingComplete", "", array(
-                "cards" => $cardIds, // TODO
+            self::notifyPlayer($playerId, "biddingComplete", "", array(
+                "cards" => $cardIds,
                 "bid" => array (
-                    "cards" => $bidCardIds, // TODO
+                    "cards" => $bidCardIds,
                     "bid" => $bid,
                     "declare" => $declaring,
                     "reveal" => $revealing
                 ),
                 "declareReveal" => $declareReveal
-            ) );
+            ));
         }
         
         // Inform people who goes first
