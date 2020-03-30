@@ -96,19 +96,16 @@
 #declarerevealtable {
     position: absolute;
     width: 55%;
-    height: 340px;
     display: inline-block;
     margin-left: 5%;
 }
 
 #declaretable {
-    height: 115px;
     font-size: 14px;
     font-weight: bold;
 }
 
 #revealtable {
-    height: 115px;
     font-size: 14px;
     font-weight: bold;
 }
