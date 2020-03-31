@@ -20,18 +20,18 @@
  */
 
 
-$this->colors = array(
-    1 => array( 'name' => clienttranslate('spade'),
-                'nametr' => self::_('spade') ),
-    2 => array( 'name' => clienttranslate('heart'),
-                'nametr' => self::_('heart') ),
-    3 => array( 'name' => clienttranslate('club'),
-                'nametr' => self::_('club') ),
-    4 => array( 'name' => clienttranslate('diamond'),
-                'nametr' => self::_('diamond') )
+$this->suits = array(
+    0 => array('name' => clienttranslate('club'),
+               'nametr' => self::_('club')),
+    1 => array('name' => clienttranslate('diamond'),
+               'nametr' => self::_('diamond')),
+    2 => array('name' => clienttranslate('spade'),
+               'nametr' => self::_('spade')),
+    3 => array('name' => clienttranslate('heart'),
+               'nametr' => self::_('heart'))
 );
 
-$this->values_label = array(
+$this->rank_label = array(
     2 =>'2',
     3 => '3',
     4 => '4',

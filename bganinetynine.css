@@ -64,21 +64,18 @@
     height: 130px;
 }
 
-/*.playertable_N {
-    left: 50%;
-    top: 0px;
-    margin-left: -90px; /* half of 180 
-}*/
 .playertable_S {
     left: 50%;
     bottom: 0px;
     margin-left: -90px;
 }
+
 .playertable_W {
     left: 0px;
     top: 50%;
     margin-top: -120px;
 }
+
 .playertable_E {
     left: 100%;
     top: 50%;
@@ -119,19 +116,19 @@
     background-image: url('img/cards.jpg'); 
 }
 
-.suit_club {
+.suit_spade {
     background-position-y: -200%;
 }
 
-.suit_diamond {
+.suit_heart {
     background-position-y: -300%;
 }
 
-.suit_spade {
+.suit_club {
     background-position-y: 0%;
 }
 
-.suit_heart {
+.suit_diamond {
     background-position-y: -100%;
 }
 
@@ -213,6 +210,6 @@
 }
 
 .bid_container {
-    width: 230px;
+    width: 240px;
     margin-left: 50px;
 }

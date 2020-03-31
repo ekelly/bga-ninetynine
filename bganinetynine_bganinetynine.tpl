@@ -72,8 +72,7 @@
 
 <script type="text/javascript">
 
-var jstpl_cardontable = '<div class="cardontable suit_${suit} value_${value}" id="cardontable_${card_id}"></div>';
-var jstpl_card = '<div class="cardontable suit_${suit} rank_${rank}" id="${card_id}"></div>';
+var jstpl_cardontable = '<div class="cardontable suit_${suit} rank_${rank}" id="cardontable_${player_id}"></div>';
 
 </script>  
 

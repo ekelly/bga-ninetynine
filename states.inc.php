@@ -58,7 +58,7 @@ $machinestates = array(
                 "description" => clienttranslate("Game setup"),
                 "type" => "manager",
                 "action" => "stGameSetup",
-                "transitions" => array( "" => 10 )
+                "transitions" => array("" => 10)
         ),
         
         // stGameSetup manages the state of the game
@@ -70,7 +70,7 @@ $machinestates = array(
                 "type" => "game",
                 "action" => "stNewRound",
                 "updateGameProgression" => true,
-                "transitions" => array( "" => 12 )
+                "transitions" => array("" => 12)
         ),
         
         // New Hand (each game will have an arbitrary number of rounds / hands)
@@ -81,7 +81,7 @@ $machinestates = array(
                 "type" => "game",
                 "action" => "stNewHand",
                 "updateGameProgression" => true,
-                "transitions" => array( "" => 13 )
+                "transitions" => array("" => 13)
         ),
         
         // Bidding
@@ -92,9 +92,9 @@ $machinestates = array(
                 "descriptionmyturn" => clienttranslate("You must choose 3 cards to bid"),
                 "type" => "multipleactiveplayer",
                 "action" => "stBidding",
-                "possibleactions" => array( "submitBid" ),
+                "possibleactions" => array("submitBid"),
                 "updateGameProgression" => false,
-                "transitions" => array( "biddingDone" => 14 )
+                "transitions" => array("biddingDone" => 14)
         ),
         14 => array(
                 "name" => "checkBids",
@@ -102,7 +102,7 @@ $machinestates = array(
                 "type" => "game",
                 "action" => "stCheckBids",
                 "updateGameProgression" => false,
-                "transitions" => array( "declareOrReveal" => 15 )
+                "transitions" => array("declareOrReveal" => 15)
         ),
         15 => array(
                 "name" => "declareOrReveal",
@@ -110,9 +110,9 @@ $machinestates = array(
                 "descriptionmyturn" => clienttranslate("Would you like to declare or reveal?"),
                 "type" => "multipleactiveplayer",
                 "action" => "stDeclareOrReveal",
-                "possibleactions" => array( "submitDeclareOrReveal" ),
+                "possibleactions" => array( "submitDeclareOrReveal"),
                 "updateGameProgression" => false,
-                "transitions" => array( "declaringOrRevealingDone" => 16 )
+                "transitions" => array("declaringOrRevealingDone" => 16)
         ),
         16 => array(
                 "name" => "checkDeclareOrReveal",
@@ -120,7 +120,7 @@ $machinestates = array(
                 "type" => "game",
                 "action" => "stCheckDeclareOrReveal",
                 "updateGameProgression" => false,
-                "transitions" => array( "startTrickTaking" => 30 )
+                "transitions" => array("startTrickTaking" => 30)
         ),
         
         // Trick
@@ -130,22 +130,22 @@ $machinestates = array(
                 "description" => "",
                 "type" => "game",
                 "action" => "stNewTrick",
-                "transitions" => array( "" => 31 )
+                "transitions" => array("" => 31)
         ),
         31 => array(
                 "name" => "playerTurn",
                 "description" => clienttranslate('${actplayer} must play a card'),
                 "descriptionmyturn" => clienttranslate('${you} must play a card'),
                 "type" => "activeplayer",
-                "possibleactions" => array( "playCard" ),
-                "transitions" => array( "playCard" => 32 )
+                "possibleactions" => array("playCard"),
+                "transitions" => array("playCard" => 32)
         ),
         32 => array(
                 "name" => "nextPlayer",
                 "description" => "",
                 "type" => "game",
                 "action" => "stNextPlayer",
-                "transitions" => array( "nextPlayer" => 31, "nextTrick" => 30, "endHand" => 40 )
+                "transitions" => array("nextPlayer" => 31, "nextTrick" => 30, "endHand" => 40)
         ),
         
         
@@ -155,7 +155,7 @@ $machinestates = array(
                 "description" => "",
                 "type" => "game",
                 "action" => "stEndHand",
-                "transitions" => array( "newHand" => 12, "endRound" => 50, )
+                "transitions" => array("newHand" => 12, "endRound" => 50)
         ),
 
         50 => array(
@@ -163,7 +163,7 @@ $machinestates = array(
                 "description" => "",
                 "type" => "game",
                 "action" => "stEndOfCurrentRound",
-                "transitions" => array( "nextRound" => 10, "endGame" => 99 )
+                "transitions" => array("nextRound" => 10, "endGame" => 99)
         ),
         
         // Final state.
@@ -175,7 +175,6 @@ $machinestates = array(
                 "action" => "stGameEnd",
                 "args" => "argGameEnd"
         )
-        
 );
 
 

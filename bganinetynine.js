@@ -191,10 +191,6 @@ function (dojo, declare, domStyle) {
                     console.log('Added bidding tooltip');
                     this.playerBid.setSelectionMode(1);
                     break;
-
-                case 'declareOrReveal':
-                    console.log('TODO: Show the declare/reveal option');
-                    break;
             }
         },
         
@@ -215,11 +211,11 @@ function (dojo, declare, domStyle) {
         //                        action status bar (ie: the HTML links in the status bar).
         //                
         onUpdateActionButtons: function(stateName, args) {
-            console.log( 'onUpdateActionButtons: '+stateName );
+            console.log('onUpdateActionButtons: ' + stateName);
                       
             if( this.isCurrentPlayerActive() ) {
                 console.log("Current player is active");
-                switch( stateName ) {
+                switch (stateName) {
                     case 'bidding':
                         this.addActionButton( 'bidCards_button', _('Bid selected cards'), 'onBidCards' ); 
                         break;
@@ -253,12 +249,13 @@ function (dojo, declare, domStyle) {
             return ["club", "diamond", "spade", "heart"][suit];
         },
         
-        playCardOnTable: function(player_id, color, value, card_id) {
+        playCardOnTable: function(player_id, suit, value, card_id) {
             console.log('playCardOnTable');
             // player_id => direction
             dojo.place(
                 this.format_block('jstpl_cardontable', {
-                    suit: this.getCardSuit(color),
+                    card_id: card_id,
+                    suit: this.getCardSuit(suit),
                     rank: value,
                     player_id: player_id                
                 }), 'playertablecard_'+player_id);
@@ -319,7 +316,7 @@ function (dojo, declare, domStyle) {
             var items = this.playerHand.getSelectedItems();
 
             if (items.length > 0) {
-                if (this.checkAction( 'playCard', true )) {
+                if (this.checkAction('playCard', true)) {
                     // Can play a card
                     var card_id = items[0].id;
                     this.ajaxcall("/bganinetynine/bganinetynine/playCard.html", { 
@@ -459,8 +456,8 @@ function (dojo, declare, domStyle) {
         notif_playCard: function(notif) {
             console.log('notif_playCard');
             // Play a card on the table
-            this.playCardOnTable(notif.args.player_id, notif.args.color, 
-                                 notif.args.value, notif.args.card_id);
+            this.playCardOnTable(notif.args.player_id, notif.args.suit, 
+                                 notif.args.rank, notif.args.card_id);
         },
         
         notif_trickWin: function(notif) {

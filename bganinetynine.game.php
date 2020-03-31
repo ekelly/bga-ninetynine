@@ -20,11 +20,8 @@
 require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
 
 
-class BgaNinetyNine extends Table
-{
-	function __construct( )
-	{
-        	
+class BgaNinetyNine extends Table {
+	function __construct() {
 
         // Your global variables labels:
         //  Here, you can assign labels to global variables you are using for this game.
@@ -32,16 +29,16 @@ class BgaNinetyNine extends Table
         //  If your game has options (variants), you also have to associate here a label to
         //  the corresponding ID in gameoptions.inc.php.
         // Note: afterwards, you can get/set the global variables with getGameStateValue/setGameStateInitialValue/setGameStateValue
-        parent::__construct();self::initGameStateLabels( array( 
+        parent::__construct();self::initGameStateLabels(array( 
                          "currentHandTrump" => 10, 
                          "trickSuit" => 11,
 						 "previousHandWinnerCount" => 12,
                          "currentRound" => 13,
                          "firstDealer" => 14,
                          "firstPlayer" => 15,
-                         "gameStyle" => 100 ) );
+                         "gameStyle" => 100));
 
-        $this->cards = self::getNew( "module.common.deck" );
+        $this->cards = self::getNew("module.common.deck");
         $this->cards->init("card");
 	}
 	
@@ -67,7 +64,7 @@ class BgaNinetyNine extends Table
         // The number of colors defined here must correspond to the maximum number of players allowed for the gams
         $default_color = array( "ff0000", "008000", "0000ff", "ffa500" );
 
-        $start_points = self::getGameStateValue( 'gameStyle' ) == 1 ? 75 : 100;
+        $start_points = 0;
 
         // Create players
         // Note: if you added some extra field on "player" table in the database (dbmodel.sql), you can initialized it there.
@@ -75,7 +72,7 @@ class BgaNinetyNine extends Table
         $values = array();
         foreach( $players as $player_id => $player )
         {
-            $color = array_shift( $default_color );
+            $color = array_shift($default_color);
             $values[] = "('".$player_id."','$start_points','$color','".$player['player_canal']."','".addslashes( $player['player_name'] )."','".addslashes( $player['player_avatar'] )."')";
         }
         $sql .= implode( $values, ',' );
@@ -85,18 +82,18 @@ class BgaNinetyNine extends Table
         /************ Start the game initialization *****/
         // Init global values with their initial values
 
-        // Note: hand types: 4 = starting type (no trump)
+        // Note: hand types: -1 = starting type (no trump)
 	    //                   
-        self::setGameStateInitialValue( 'currentHandTrump', 4 );
+        self::setGameStateInitialValue('currentHandTrump', -1);
         
         // Set current trick suit to 4 (= no trick color)
-        self::setGameStateInitialValue( 'trickSuit', 4 );
+        self::setGameStateInitialValue('trickSuit', -1);
         
         // Previous Hand Winner Count
-		self::setGameStateInitialValue( 'previousHandWinnerCount', 0 );
+		self::setGameStateInitialValue('previousHandWinnerCount', -1);
         
         // Current Round
-        self::setGameStateInitialValue( 'currentRound', 0 );
+        self::setGameStateInitialValue('currentRound', 0);
         
         // First dealer
         
@@ -104,10 +101,10 @@ class BgaNinetyNine extends Table
         $dealer = array_keys($players)[0];
         $firstPlayer = self::getPlayerAfter($dealer);
         
-        self::setGameStateInitialValue( 'firstDealer', $dealer );
+        self::setGameStateInitialValue('firstDealer', $dealer);
         
         // Player with the first action (starts left of dealer, then winner of trick)
-        self::setGameStateInitialValue( 'firstPlayer', $firstPlayer );
+        self::setGameStateInitialValue('firstPlayer', $firstPlayer);
 
         // Init game statistics
         // (note: statistics are defined in your stats.inc.php file)
@@ -122,8 +119,8 @@ class BgaNinetyNine extends Table
         // $suits = array( "club", "diamond", "spade", "heart" );
         for ($suit_id = 0; $suit_id < 4; $suit_id++) {
             //  2, 3, 4, ... K, A
-            for ($value=6; $value<=14; $value++) {
-                $cards[] = array( 'type' => $suit_id, 'type_arg' => $value, 'nbr' => 1);
+            for ($value = 6; $value <= 14; $value++) {
+                $cards[] = array('type' => $suit_id, 'type_arg' => $value, 'nbr' => 1);
             }
         }
 
@@ -180,7 +177,6 @@ class BgaNinetyNine extends Table
         return $result;
     }
 
-
     /*
         getGameProgression:
         
@@ -190,13 +186,12 @@ class BgaNinetyNine extends Table
     
         This method is called each time we are in a game state with "updateGameProgression" property (see states.inc.php)
     */
-    function getGameProgression()
-    {
+    function getGameProgression() {
         // Game progression: get player minimum score
         
-        $minimumScore = self::getUniqueValueFromDb( "SELECT MIN( player_score ) FROM player" );
+        $minimumScore = self::getUniqueValueFromDb("SELECT MIN( player_score) FROM player");
         
-        return max( 0, min( 100, 100-$minimumScore ) );   // Note: 0 => 100
+        return max(0, min(100, 100-$minimumScore)); // Note: 0 => 100
     }
 
 
@@ -222,8 +217,8 @@ class BgaNinetyNine extends Table
         $actualDealerPosition = 1 + 
             (($round + ($firstDealerPosition - 1)) % count($basicPlayerInfo));
         
-        foreach ( $basicPlayerInfo as $playerId => $player ) {
-            if ( $player['player_no'] == $actualDealerPosition ) {
+        foreach ($basicPlayerInfo as $playerId => $player) {
+            if ($player['player_no'] == $actualDealerPosition) {
                 return $playerId;
             }
         }
@@ -235,38 +230,57 @@ class BgaNinetyNine extends Table
 		Gets the first player to play a card
 	**/
 	function getFirstPlayer() {
-		self::getGameStateValue( "firstPlayer" );
+		return self::getGameStateValue("firstPlayer");
 	}
 	
 	/**
 		Sets the first player to play a card
 	**/
-	function setFirstPlayer( $playerID ) {
-		self::setGameStateValue( "firstPlayer", $playerID );
+	function setFirstPlayer($playerID) {
+		self::setGameStateValue("firstPlayer", $playerID);
 	}
 
     /**
         Gets whether or not the current hand has a trump
+
+        returns:
+          0 = clubs
+          1 = diamonds
+          2 = spades
+          3 = hearts
+          null = none
     **/
     function getCurrentHandTrump() {
-        self::getGameStateValue( "currentHandTrump" ) == 1;
+        $prevWinnerCount = self::getGameStateValue("previousHandWinnerCount");
+        if ($prevWinnerCount < 0 || $prevWinnerCount > 3) {
+            return null;
+        }
+        return ($prevWinnerCount + 1) % 4;
+    }
+    
+    function setPreviousWinnerCount($prevWinnerCount) {
+        self::setGameStateValue("previousHandWinnerCount", $prevWinnerCount);
+    }
+    
+    function clearPreviousWinnerCount() {
+        self::setGameStateValue("previousHandWinnerCount", -1);
     }
     
     /**
         Clears whether or not the current hand has trump.
     **/
     function clearCurrentHandTrump() {
-        self::setGameStateValue( "currentHandTrump" , 0 );
+        self::setGameStateValue("currentHandTrump" , -1);
     }
     
-    /**
-        Gets whether or not the current hand has a trump
-    **/
-    function setHandWinnerCount( $winnerCountOfPreviousHand ) {
-        self::setGameStateValue( "currentHandTrump", 1 );
-        self::setGameStateValue( "previousHandWinnerCount", $winnerCountOfPreviousHand );
+    function getCurrentTrickSuit() {
+        return self::getGameStateValue("trickSuit");
     }
     
+    function clearCurrentTrickSuit() {
+        self::setGameStateValue("trickSuit", -1);
+    }
+
     /**
         Set the trick suit.
         1 = spades
@@ -275,12 +289,20 @@ class BgaNinetyNine extends Table
         4 = club
         
     **/
-    function setTrickSuit( $trickSuit ) {
-        self::setGameStateValue( "trickSuit", $trickSuit );
+    function setCurrentTrickSuit($trickSuit) {
+        self::setGameStateValue("trickSuit", $trickSuit);
+    }
+    
+    /**
+        Gets whether or not the current hand has a trump
+    **/
+    function setHandWinnerCount($winnerCountOfPreviousHand) {
+        self::setGameStateValue("currentHandTrump", 1);
+        self::setGameStateValue("previousHandWinnerCount", $winnerCountOfPreviousHand);
     }
     
     // Order of id: array( "club", "diamond", "spade", "heart" );
-    function getCardBidValue( $card ) {
+    function getCardBidValue($card) {
         switch ($card['type']) {
             case 0:
                 return 3;
@@ -295,26 +317,15 @@ class BgaNinetyNine extends Table
         }
     }
     
-    function getCardSuit( $card ) {
-        switch ($card['type']) {
-            case 0:
-                return "club";
-            case 1:
-                return "diamond";
-            case 2:
-                return "spade";
-            case 3:
-                return "heart";
-            default:
-                throw new feException("Unknown suit: " + $card['type']);
-        }
+    function getSuitName($suit) {
+        return $this->suits[$suit]['nametr'];
     }
     
     /**
         Get the current round number. 0 indexed.
     **/
     function getCurrentRound() {
-        self::getGameStateValue( "currentRound" );
+        return self::getGameStateValue("currentRound");
     }
     
     /**
@@ -329,7 +340,7 @@ class BgaNinetyNine extends Table
     **/
     function persistPlayerBid( $playerId, $bid ) {
         $sql = "UPDATE player SET player_bid=$bid WHERE player_id='$playerId'";
-        $this->DbQuery( $sql );
+        $this->DbQuery($sql);
     }
     
     function getPlayerColor($playerId) {
@@ -356,7 +367,7 @@ class BgaNinetyNine extends Table
     function setDeclareReveal($playerId, $decRev) {
         $this->clearAllDeclareReveal();
         $sql = "UPDATE player SET player_declare_reveal=$decRev WHERE player_id='$playerId'";
-        $this->DbQuery( $sql );
+        $this->DbQuery($sql);
     }
     
     // set score
@@ -456,36 +467,69 @@ class BgaNinetyNine extends Table
     
     // Return players => direction (N/S/E/W) from the point of view
     //  of current player (current player must be on south)
-    function getPlayersToDirection()
-    {
+    function getPlayersToDirection() {
         $result = array();
     
         $players = self::loadPlayersBasicInfos();
-        $nextPlayer = self::createNextPlayerTable( array_keys( $players ) );
+        $nextPlayer = self::createNextPlayerTable(array_keys($players));
 
         $current_player = self::getCurrentPlayerId();
         
-        $directions = array( 'S', 'W', 'E' );
+        $directions = array('S', 'W', 'E');
         
-        if( ! isset( $nextPlayer[ $current_player ] ) )
-        {
+        if (!isset($nextPlayer[$current_player])) {
             // Spectator mode: take any player for south
             $player_id = $nextPlayer[0];
-            $result[ $player_id ] = array_shift( $directions );
-        }
-        else
-        {
+            $result[$player_id] = array_shift($directions);
+        } else {
             // Normal mode: current player is on south
             $player_id = $current_player;
-            $result[ $player_id ] = array_shift( $directions );
+            $result[$player_id] = array_shift($directions);
         }
         
-        while( count( $directions ) > 0 )
-        {
-            $player_id = $nextPlayer[ $player_id ];
-            $result[ $player_id ] = array_shift( $directions );
+        while (count($directions) > 0) {
+            $player_id = $nextPlayer[$player_id];
+            $result[$player_id] = array_shift($directions);
         }
         return $result;
+    }
+    
+    function getCardValue($card, $suitLed, $trumpSuit) {
+        if ($card['type'] != $suitLed) {
+            if ($card['type'] == $trumpSuit) {
+                return 100 + $card['type_arg'];
+            }
+            return 0;
+        } else {
+            return $card['type_arg'];
+        }
+    }
+    
+    // Returns the card associated with the trick winner
+    // The trick winner id is the location_arg of the card
+    function getTrickWinner() {
+        // This is the end of the trick
+        $cardsOnTable = $this->cards->getCardsInLocation('cardsontable');
+        
+        if (count($cardsOnTable) != 3) {
+            throw new feException("Invalid trick card count");
+        }
+        
+        $bestValue = 0;
+        $bestValueCard = null;
+
+        $currentTrickSuit = $this->getCurrentTrickSuit();
+        $trumpSuit = $this->getCurrentHandTrump();
+
+        foreach ($cardsOnTable as $card) {
+            $cardVal = $this->getCardValue($card, $currentTrickSuit, $trumpSuit);
+            if ($bestValue <= $cardVal) {
+                $bestValue = $cardVal;
+                $bestValueCard = $card;
+            }
+        }
+        
+        return $bestValueCard;
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -497,48 +541,47 @@ class BgaNinetyNine extends Table
         (note: each method below correspond to an input method in bganinetynine.action.php)
     */
 
-    function submitBid( $card_ids ) {
+    function submitBid($card_ids) {
         self::warn("submitBid");
-        self::checkAction( "submitBid" );
+        self::checkAction("submitBid");
         
         // Check that the cards are actually in the current user's hands.
         $player_id = self::getCurrentPlayerId();
         
-        if( count( $card_ids ) != 3 ) {
-            throw new feException( self::_("You must bid exactly 3 cards") );
+        if (count($card_ids) != 3) {
+            throw new feException(self::_("You must bid exactly 3 cards"));
         }
         
         $cards = $this->cards->getCards( $card_ids );
         
-        if( count( $cards ) != 3 )
-            throw new feException( self::_("Some of these cards don't exist") );
+        if (count($cards) != 3)
+            throw new feException(self::_("Some of these cards don't exist"));
         
         // When a player plays a card in front of him on the table:
         $bidValue = 0;
-        foreach ( $cards as $bidCard ) {
+        foreach ($cards as $bidCard) {
+            if ($bidCard['location'] != 'hand' || $bidCard['location_arg'] != $player_id)
+                throw new feException(self::_("Some of these cards are not in your hand"));
             
-            if( $bidCard['location'] != 'hand' || $bidCard['location_arg'] != $player_id )
-                throw new feException( self::_("Some of these cards are not in your hand" ) );
-            
-            $this->cards->moveCard( $bidCard['id'], 'bid', $player_id );
+            $this->cards->moveCard($bidCard['id'], 'bid', $player_id);
             
             $bidValue += $this->getCardBidValue($bidCard);
         }
         
-        $bidCards = $this->cards->getCardsInLocation( 'bid', $player_id );
+        $bidCards = $this->cards->getCardsInLocation('bid', $player_id);
         
         // Notify the player so we can make these cards disapear
-        self::notifyPlayer( $player_id, "bidCards", "", array(
+        self::notifyPlayer($player_id, "bidCards", "", array(
             "cards" => $card_ids,
             "bidValue" => $bidValue
-        ) );
+        ));
         
-        $this->persistPlayerBid($player_id, $bidValue );
+        $this->persistPlayerBid($player_id, $bidValue);
         
-        $this->gamestate->setPlayerNonMultiactive( $player_id, "biddingDone" );
+        $this->gamestate->setPlayerNonMultiactive($player_id, "biddingDone");
     }
     
-    function declareOrReveal( $declareOrReveal ) {
+    function declareOrReveal($declareOrReveal) {
         self::warn("declareOrReveal");
         self::checkAction( "submitDeclareOrReveal" );
         
@@ -549,20 +592,13 @@ class BgaNinetyNine extends Table
         // Check that the cards are actually in the current user's hands.
         $playerId = self::getCurrentPlayerId();
         
-        // For now assume that if they are QuasarDukeDev2,
-        // they want to reveal. That user is 2315810
-//        if ($playerId == 2315810) {
-//            $declareOrReveal = 2;
-//        }
-        
         $this->persistPlayerDeclareReveal($playerId, $declareOrReveal);
         
         $this->gamestate->setPlayerNonMultiactive($playerId, "declaringOrRevealingDone");
     }
 
     // Play a card from player hand
-    function playCard( $card_id )
-    {
+    function playCard($card_id) {
         self::checkAction( "playCard" );
         
         $player_id = self::getActivePlayerId();
@@ -570,168 +606,63 @@ class BgaNinetyNine extends Table
         // Get all cards in player hand
         // (note: we must get ALL cards in player's hand in order to check if the card played is correct)
         
-        $playerhands = $this->cards->getCardsInLocation( 'hand', $player_id );
+        $playerhand = $this->cards->getPlayerHand($player_id);
 
-        $bFirstCard = ( count( $playerhands ) == 13 );
-                
-        $currentTrickSuit = self::getGameStateValue( 'trickSuit' ) ;
-                
+        // This line may not be needed
+        // $currentTrickSuit = $this->getCurrentTrickSuit();
+        $currentTrump = $this->getCurrentHandTrump();
+
+        // Returns the 'bottom' card of the location
+        $firstPlayedSuit = null;
+        $firstCardOfTrick = $this->cards->countCardInLocation('cardsontable') == 0;
+        
+        if (!$firstCardOfTrick) {
+            $firstPlayedSuit = $this->getCurrentTrickSuit();
+        }
+
         // Check that the card is in this hand
-        $bIsInHand = false;
+        $cardIsInPlayerHand = false;
         $currentCard = null;
-        $bAtLeastOneCardOfCurrentTrickSuit = false;
-        $bAtLeastOneCardWithoutPoints = false;
-        $bAtLeastOneCardNotHeart = false;
-        foreach( $playerhands as $card )
-        {
-            if( $card['id'] == $card_id )
-            {
-                $bIsInHand = true;
+        $atLeastOneCardOfCurrentTrickSuit = false;
+        foreach ($playerhand as $card) {
+            if ($card['id'] == $card_id) {
+                $cardIsInPlayerHand = true;
                 $currentCard = $card;
             }
-            
-            if( $card['type'] == $currentTrickSuit )
-                $bAtLeastOneCardOfCurrentTrickSuit = true;
 
-            if( $card['type'] != 2 )
-                $bAtLeastOneCardNotHeart = true;
-                
-            if( $card['type'] == 2 || ( $card['type'] == 1 && $card['type_arg'] == 12  ) )
-            {
-                // This is a card with point
+            if ($card['type'] == $firstPlayedSuit) {
+                $atLeastOneCardOfCurrentTrickSuit = true;   
             }
-            else
-                $bAtLeastOneCardWithoutPoints = true;
         }
-        if( ! $bIsInHand )
-            throw new feException( "This card is not in your hand" );
+        if (!$cardIsInPlayerHand) {
+            throw new feException("This card is not in your hand");
+        }
             
-        if( $this->cards->countCardInLocation( 'hand' ) == 52 )
-        {
-            // If this is the first card of the hand, it must be 2-club
-            // Note: first card of the hand <=> cards on hands == 52
-
-            if( $currentCard['type'] != 3 || $currentCard['type_arg'] != 2 ) // Club 2
-                throw new feException( self::_("You must play the Club-2"), true );                
-        }
-        else if( $currentTrickColor == 0 )
-        {
-            // Otherwise, if this is the first card of the trick, any cards can be played
-            // except a Heart if:
-            // _ no heart has been played, and
-            // _ player has at least one non-heart
-            if( self::getGameStateValue( 'alreadyPlayedBgaNinetyNine')==0
-             && $currentCard['type'] == 2   // this is a heart
-             && $bAtLeastOneCardNotHeart )
-            {
-                throw new feException( self::_("You can't play a heart to start the trick if no heart has been played before"), true );
-            }
-        }
-        else
-        {
-            // The trick started before => we must check the color
-            if( $bAtLeastOneCardOfCurrentTrickColor )
-            {
-                if( $currentCard['type'] != $currentTrickColor )
-                    throw new feException( sprintf( self::_("You must play a %s"), $this->colors[ $currentTrickColor ]['nametr'] ), true );
-            }
-            else
-            {
-                // The player has no card of current trick color => he can plays what he want to
-                
-                if( $bFirstCard && $bAtLeastOneCardWithoutPoints )
-                {
-                    // ...except if it is the first card played by this player during this hand
-                    // (it is forbidden to play card with points during the first trick)
-                    // (note: if player has only cards with points, this does not apply)
-                    
-                    if( $currentCard['type'] == 2 || ( $currentCard['type'] == 1 && $currentCard['type_arg'] == 12  ) )
-                    {
-                        // This is a card with point                  
-                        throw new feException( self::_("You can't play cards with points during the first trick"), true );
-                    }
-                }
-            }
+        if ($firstCardOfTrick) {
+            $this->setCurrentTrickSuit($currentCard['type']);
+            // If this is the first card of the trick, any cards can be played
+        } else if ($atLeastOneCardOfCurrentTrickSuit &&
+                   $currentCard['type'] != $firstPlayedSuit) {
+            throw new feException(sprintf(self::_("You must play a %s"), $this->getSuitName($firstPlayedSuit)), true);
         }
         
         // Checks are done! now we can play our card
-        $this->cards->moveCard( $card_id, 'cardsontable', $player_id );
-        
-        // Set the trick color if it hasn't been set yet
-        if( $currentTrickColor == 0 )
-            self::setGameStateValue( 'trickSuit', $currentCard['type'] );
+        $this->cards->moveCard($card_id, 'cardsontable', $player_id);
         
         // And notify
-        self::notifyAllPlayers( 'playCard', clienttranslate('${player_name} plays ${value_displayed} ${color_displayed}'), array(
-            'i18n' => array( 'color_displayed', 'value_displayed' ),
+        self::notifyAllPlayers('playCard', clienttranslate('${player_name} plays ${rank_displayed} ${suit_displayed}'), array(
+            'i18n' => array('suit_displayed', 'rank_displayed'),
             'card_id' => $card_id,
             'player_id' => $player_id,
             'player_name' => self::getActivePlayerName(),
-            'value' => $currentCard['type_arg'],
-            'value_displayed' => $this->values_label[ $currentCard['type_arg'] ],
-            'color' => $currentCard['type'],
-            'color_displayed' => $this->colors[ $currentCard['type'] ]['name']
-        ) );
+            'rank' => $currentCard['type_arg'],
+            'rank_displayed' => $this->rank_label[$currentCard['type_arg']],
+            'suit' => $currentCard['type'],
+            'suit_displayed' => $this->suits[$currentCard['type']]['name']
+        ));
         
         // Next player
-        $this->gamestate->nextState( 'playCard' );
-    }
-    
-    // Give some cards (before the hands begin)
-    function giveCards( $card_ids )
-    {
-        self::checkAction( "giveCards" );
-        
-        // !! Here we have to get CURRENT player (= player who send the request) and not
-        //    active player, cause we are in a multiple active player state and the "active player"
-        //    correspond to nothing.
-        $player_id = self::getCurrentPlayerId();
-        
-        if( count( $card_ids ) != 3 )
-            throw new feException( self::_("You must give exactly 3 cards") );
-    
-        // Check if these cards are in player hands
-        $cards = $this->cards->getCards( $card_ids );
-        
-        if( count( $cards ) != 3 )
-            throw new feException( self::_("Some of these cards don't exist") );
-        
-        foreach( $cards as $card )
-        {
-            if( $card['location'] != 'hand' || $card['location_arg'] != $player_id )
-                throw new feException( self::_("Some of these cards are not in your hand") );
-        }
-        
-        // To which player should I give these cards ?
-        $player_to_give_cards = null;
-        $player_to_direction = self::getPlayersToDirection();   // Note: current player is on the south
-        $handType = self::getGameStateValue( "currentHandType" );
-        if( $handType == 0 )
-            $direction = 'W';
-        else if( $handType == 1 )
-            $direction = 'N';
-        else if( $handType == 2 )
-            $direction = 'E';
-        foreach( $player_to_direction as $opponent_id => $opponent_direction )
-        {
-            if( $opponent_direction == $direction )
-                $player_to_give_cards = $opponent_id;
-        }
-        if( $player_to_give_cards === null )
-            throw new feException( self::_("Error while determining to who give the cards") );
-        
-        // Allright, these cards can be given to this player
-        // (note: we place the cards in some temporary location in order he can't see them before the hand starts)
-        $this->cards->moveCards( $card_ids, "temporary", $player_to_give_cards );
-
-        // Notify the player so we can make these cards disapear
-        self::notifyPlayer( $player_id, "giveCards", "", array(
-            "cards" => $card_ids
-        ) );
-
-        // Make this player unactive now
-        // (and tell the machine state to use transtion "giveCards" if all players are now unactive
-        $this->gamestate->setPlayerNonMultiactive( $player_id, "giveCards" );
+        $this->gamestate->nextState('playCard');
     }
     
 //////////////////////////////////////////////////////////////////////////////
@@ -744,8 +675,7 @@ class BgaNinetyNine extends Table
         game state.
     */
 
-    function argGiveCards()
-    {
+    function argGiveCards() {
         $handType = self::getGameStateValue( "currentHandType" );
         $direction = "";
         if( $handType == 0 )
@@ -855,10 +785,8 @@ class BgaNinetyNine extends Table
 
     function stNewTrick() {
 		self::warn("stNewTrick");
-        
-        // New trick: active the player who wins the last trick, or the player who own the club-2 card
-        
-        self::setGameStateInitialValue('trickSuit', 0);
+
+        $this->clearCurrentTrickSuit();
 
         $this->gamestate->nextState("");
     }
@@ -866,39 +794,29 @@ class BgaNinetyNine extends Table
     function stNextPlayer() {
 		self::warn("stNextPlayer");
         // Active next player OR end the trick and go to the next trick OR end the hand
-        if ($this->cards->countCardInLocation('cardsontable') == 4) {
-            // This is the end of the trick
-            $cards_on_table = $this->cards->getCardsInLocation('cardsontable');
-            $best_value = 0;
-            $best_value_player_id = null;
-            $currentTrickColor = self::getGameStateValue('trickSuit');
-            foreach ( $cards_on_table as $card ) {
-                // Note: type = card color
-                if ($card ['type'] == $currentTrickColor) {
-                    if ($best_value_player_id === null || $card ['type_arg'] > $best_value) {
-                        $best_value_player_id = $card ['location_arg']; // Note: location_arg = player who played this card on table
-                        $best_value = $card ['type_arg']; // Note: type_arg = value of the card
-                    }
-                }
-            }
-            
+        if ($this->cards->countCardInLocation('cardsontable') == 3) {
+            $winningCard = $this->getTrickWinner();
+            $winningPlayer = $winningCard['location_arg'];
+
             // Active this player => he's the one who starts the next trick
-            $this->gamestate->changeActivePlayer( $best_value_player_id );
+            $this->gamestate->changeActivePlayer($winningPlayer);
             
             // Move all cards to "cardswon" of the given player
-            $this->cards->moveAllCardsInLocation('cardsontable', 'cardswon', null, $best_value_player_id);
+            $this->cards->moveAllCardsInLocation('cardsontable', 'cardswon', null, $winningPlayer);
         
             // Notify
             // Note: we use 2 notifications here in order we can pause the display during the first notification
             //  before we move all cards to the winner (during the second)
             $players = self::loadPlayersBasicInfos();
             self::notifyAllPlayers( 'trickWin', clienttranslate('${player_name} wins the trick'), array(
-                    'player_id' => $best_value_player_id,
-                    'player_name' => $players[ $best_value_player_id ]['player_name']
-            ) );
+                    'player_id' => $winningPlayer,
+                    'player_name' => $players[$winningPlayer]['player_name']
+            ));
             self::notifyAllPlayers( 'giveAllCardsToPlayer','', array(
-                    'player_id' => $best_value_player_id
-            ) );
+                    'player_id' => $winningPlayer
+            ));
+            
+            $this->clearCurrentTrickSuit();
             
             if ($this->cards->countCardInLocation('hand') == 0) {
                 // End of the hand
@@ -918,9 +836,9 @@ class BgaNinetyNine extends Table
 
     function stEndHand() {
 		self::warn("stEndHand");
-            // Count and score points, then end the game or go to the next hand.
+
+        // Count and score points, then end the round / game or go to the next hand.
         $players = self::loadPlayersBasicInfos();
-        // Gets all "hearts" + queen of spades
 
         $player_to_points = array ();
         foreach ( $players as $player_id => $player ) {
@@ -964,7 +882,7 @@ class BgaNinetyNine extends Table
         // Clear the player's bid
         // Clear the player's declare/reveal preference
         
-        $this->gamestate->nextState("nextHand");
+        $this->gamestate->nextState("newHand");
     }
     
 	function stEndOfCurrentRound() {
