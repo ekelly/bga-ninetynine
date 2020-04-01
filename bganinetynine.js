@@ -213,16 +213,16 @@ function (dojo, declare, domStyle) {
         onUpdateActionButtons: function(stateName, args) {
             console.log('onUpdateActionButtons: ' + stateName);
                       
-            if( this.isCurrentPlayerActive() ) {
+            if (this.isCurrentPlayerActive()) {
                 console.log("Current player is active");
                 switch (stateName) {
                     case 'bidding':
-                        this.addActionButton( 'bidCards_button', _('Bid selected cards'), 'onBidCards' ); 
+                        this.addActionButton('bidCards_button', _('Bid selected cards'), 'onBidCards');
                         break;
                     case 'declareOrReveal':
-                        this.addActionButton( 'reveal_button', _('Reveal'), 'onReveal' ); 
-                        this.addActionButton( 'declare_button', _('Declare'), 'onDeclare' ); 
-                        this.addActionButton( 'none_button', _('Neither'), 'onNoDeclare' );
+                        this.addActionButton('reveal_button', _('Reveal'), 'onReveal'); 
+                        this.addActionButton('declare_button', _('Declare'), 'onDeclare'); 
+                        this.addActionButton('none_button', _('Neither'), 'onNoDeclare');
                         break;
                 }
             } else {
@@ -245,13 +245,35 @@ function (dojo, declare, domStyle) {
             return parseInt(color)*13+(parseInt(value)-2);
         },
         
-        getCardSuit: function (suit) {
+        getCardSuit: function(suit) {
             return ["club", "diamond", "spade", "heart"][suit];
+        },
+        
+        stockContains: function(stock, el) {
+            var stockContents = stock.getAllItems();
+            for (var i in stockContents) {
+                var card = stockContents[i];
+                if (card.type == el) {
+                    return true;
+                }
+            }
+            return false;
+        },
+        
+        stockContainsId: function(stock, id) {
+            var stockContents = stock.getAllItems();
+            for (var i in stockContents) {
+                var card = stockContents[i];
+                if (card.id == id) {
+                    return true;
+                }
+            }
+            return false;
         },
         
         playCardOnTable: function(player_id, suit, value, card_id) {
             console.log('playCardOnTable');
-            // player_id => direction
+
             dojo.place(
                 this.format_block('jstpl_cardontable', {
                     card_id: card_id,
@@ -259,7 +281,7 @@ function (dojo, declare, domStyle) {
                     rank: value,
                     player_id: player_id                
                 }), 'playertablecard_'+player_id);
-                
+
             if (player_id != this.player_id) {
                 // Some opponent played a card
                 // Move card from player panel
@@ -269,7 +291,7 @@ function (dojo, declare, domStyle) {
                 // corresponding item
                 if ($('myhand_item_'+card_id)) {
                     this.placeOnObject('cardontable_'+player_id, 'myhand_item_'+card_id);
-                    this.playerHand.removeFromStockById( card_id );
+                    this.playerHand.removeFromStockById(card_id);
                 }
             }
 
@@ -456,6 +478,14 @@ function (dojo, declare, domStyle) {
         notif_playCard: function(notif) {
             console.log('notif_playCard');
             // Play a card on the table
+            
+            // If I've revealed, remove the card from the revealed card stock
+            if (this.stockContainsId(this.playerHand, notif.args.card_id)) {
+                if (this.stockContainsId(this.revealedHand, notif.args.card_id)) {
+                    this.revealedHand.removeFromStockById(notif.args.card_id);
+                }
+            }
+            
             this.playCardOnTable(notif.args.player_id, notif.args.suit, 
                                  notif.args.rank, notif.args.card_id);
         },
