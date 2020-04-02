@@ -331,15 +331,20 @@ class BgaNinetyNine extends Table {
     /**
         Set the current round number. 0 indexed.
     **/
-    function setCurrentRound( $roundNum ) {
-        self::setGameStateValue( "currentRound", $roundNum );
+    function setCurrentRound($roundNum) {
+        self::setGameStateValue("currentRound", $roundNum);
     }
     
     /**
         Persist the player's bid to the players table
     **/
-    function persistPlayerBid( $playerId, $bid ) {
+    function persistPlayerBid($playerId, $bid) {
         $sql = "UPDATE player SET player_bid=$bid WHERE player_id='$playerId'";
+        $this->DbQuery($sql);
+    }
+    
+    function clearBids() {
+        $sql = "UPDATE player SET player_bid=0 WHERE 1";
         $this->DbQuery($sql);
     }
     
@@ -378,6 +383,21 @@ class BgaNinetyNine extends Table {
     // get score
     function dbGetScore($playerId) {
         return $this->getUniqueValueFromDB("SELECT player_score FROM player WHERE player_id='$playerId'");
+    }
+    
+    // get score
+    function dbGetScoreForRound($playerId) {
+        $round = $this->getCurrentRound();
+        if ($round < 0 || $round > 2) {
+            throw new feException("Invalid round");
+        }
+        return $this->getUniqueValueFromDB("SELECT player_score_round$round FROM player WHERE player_id='$playerId'");
+    }
+    
+    // set score
+    function dbSetRoundScore($playerId, $score) {
+        $round = $this->getCurrentRound();
+        $this->DbQuery("UPDATE player SET player_score_round$round='$score' WHERE player_id='$playerId'");
     }
     
     // increment score (can be negative too)
@@ -840,54 +860,79 @@ class BgaNinetyNine extends Table {
         // Count and score points, then end the round / game or go to the next hand.
         $players = self::loadPlayersBasicInfos();
 
-        $player_to_points = array ();
-        foreach ( $players as $player_id => $player ) {
-            $player_to_points [$player_id] = 0;
+        $player_to_points = array();
+        $players_met_bid = array(); // Player ids that met their bid
+        foreach ($players as $player_id => $player) {
+            $cards = $this->cards->countCardInLocation("cardswon", $player_id);
+            $tricksWon = $cards / 3;
+            $bid = $this->getPlayerBid($player_id);
+            if ($bid == $tricksWon) {
+                $players_met_bid[] = $player_id;
+            }
+            $player_to_points[$player_id] = $tricksWon;
         }
-        $cards = $this->cards->getCardsInLocation("cardswon");
-        foreach ( $cards as $card ) {
-            $player_id = $card ['location_arg'];
-            // Note: 2 = heart
-            if ($card ['type'] == 2) {
-                $player_to_points [$player_id] ++;
+
+        $bonusPoints = count($players_met_bid) * 10;
+        foreach ($players_met_bid as $player_id) {
+            $player_to_points[$player_id] += $bonusPoints;
+        }
+
+        // Player ids that met their bid
+        $players_exceeded_100 = array();
+        foreach ($players as $player_id => $player) {
+            $currentScore = $this->dbGetScoreForRound($player_id);
+            if ($currentScore + $player_to_points[$player_id] >= 100) {
+                $players_exceeded_100[] = $player_id;
             }
         }
+        
+        $roundBonusPoints = count($players_exceeded_100) * 10;
+        foreach ($players_exceeded_100 as $player_id) {
+            $player_to_points[$player_id] += $roundBonusPoints;
+            if ($player_to_points[$player_id] > 0) {
+                $this->dbSetRoundScore($player_id, $player_to_points[$player_id]);    
+            }
+        }
+
         // Apply scores to player
-        foreach ( $player_to_points as $player_id => $points ) {
+        foreach ($player_to_points as $player_id => $points) {
             if ($points != 0) {
-                $sql = "UPDATE player SET player_score=player_score-$points  WHERE player_id='$player_id'";
+                $sql = "UPDATE player SET player_score=player_score+$points WHERE player_id='$player_id'";
                 self::DbQuery($sql);
-                $heart_number = $player_to_points [$player_id];
-                self::notifyAllPlayers("points", clienttranslate('${player_name} gets ${nbr} hearts and looses ${nbr} points'), array (
-                        'player_id' => $player_id,'player_name' => $players [$player_id] ['player_name'],
-                        'nbr' => $heart_number ));
+
+                self::notifyAllPlayers("points", clienttranslate('${player_name} gets ${score} points'), array(
+                    'player_id' => $player_id,
+                    'player_name' => $players[$player_id]['player_name'],
+                    'score' => $points));
             } else {
                 // No point lost (just notify)
-                self::notifyAllPlayers("points", clienttranslate('${player_name} did not get any hearts'), array (
-                        'player_id' => $player_id,'player_name' => $players [$player_id] ['player_name'] ));
+                self::notifyAllPlayers("points", clienttranslate('${player_name} did not get any points'), array (
+                    'player_id' => $player_id,
+                    'player_name' => $players[$player_id]['player_name']));
             }
         }
-        $newScores = self::getCollectionFromDb("SELECT player_id, player_score FROM player", true );
-        self::notifyAllPlayers( "newScores", '', array( 'newScores' => $newScores ) );
-            
-        ///// Test if this is the end of the game
-        foreach ( $newScores as $player_id => $score ) {
-            if ($score <= -100) {
-                // Trigger the end of the game !
+        $newScores = self::getCollectionFromDb("SELECT player_id, player_score FROM player", true);
+        self::notifyAllPlayers("newScores", '', array('newScores' => $newScores));
+        
+        $round = $this->getCurrentRound();
+        
+        $this->clearBids();
+        $this->clearAllDeclareReveal();
+
+        // Test if this is the end of the game
+        if (count($players_exceeded_100) > 0) {
+            if ($round == 2) {
+                // End of the game
                 $this->gamestate->nextState("endGame");
                 return;
+            } else {
+                $this->setCurrentRound($round + 1);
+                $this->gamestate->nextState("nextRound");
             }
+        } else {
+            $this->gamestate->nextState("newHand");
         }
-        
-        // Clear the player's bid
-        // Clear the player's declare/reveal preference
-        
-        $this->gamestate->nextState("newHand");
     }
-    
-	function stEndOfCurrentRound() {
-		self::warn("stEndOfCurrentRound");
-	}
 	
 	function stGameEnd() {
 		self::warn("stGameEnd");

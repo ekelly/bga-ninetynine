@@ -284,8 +284,13 @@ function (dojo, declare, domStyle) {
 
             if (player_id != this.player_id) {
                 // Some opponent played a card
-                // Move card from player panel
-                this.placeOnObject('cardontable_'+player_id, 'overall_player_board_'+player_id);
+                if ($('revealedHand_item_'+card_id)) {
+                    this.placeOnObject('cardontable_'+player_id, 'revealedHand_item_'+card_id);
+                    this.revealedHand.removeFromStockById(card_id);
+                } else {
+                    // Move card from player panel
+                    this.placeOnObject('cardontable_'+player_id, 'overall_player_board_'+player_id);
+                }
             } else {
                 // You played a card. If it exists in your hand, move card from there and remove
                 // corresponding item
