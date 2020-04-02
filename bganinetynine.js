@@ -182,6 +182,11 @@ function (dojo, declare, domStyle) {
            console.log('Entering state: '+stateName);
             
             switch(stateName) {
+                case 'newHand':
+                    this.revealedHand.removeAll();
+                    this.declaredBid.removeAll();
+                    break;
+
                 case 'playerTurn':
                     this.addTooltip( 'myhand', _('Cards in my hand'), _('Play a card') );
                     break;
