@@ -93,6 +93,17 @@
     height: 96px;
 }
 
+#trumpContainer {
+    left: 100%;
+    bottom: 0px;
+    margin-left: -120px;
+    position: absolute;
+    width: 120px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+}
+
 #declarerevealtable {
     position: absolute;
     width: 55%;
@@ -215,13 +226,6 @@
 .bid_container {
     width: 240px;
     margin-left: 50px;
-}
-
-/*** trump ***/
-
-#trumpContainer {
-    width: fit-content;
-    margin-top: 292px;
 }
 
 .red {
