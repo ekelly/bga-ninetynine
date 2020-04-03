@@ -51,6 +51,8 @@
     width: 40%;
     height: 340px;
     display: inline-block;
+    min-width: 390px;
+    /*margin-left: 10%;*/
 }
 
 .playertablename {
@@ -73,13 +75,13 @@
 .playertable_W {
     left: 0px;
     top: 50%;
-    margin-top: -120px;
+    margin-top: -155px;
 }
 
 .playertable_E {
     left: 100%;
     top: 50%;
-    margin-top: -120px;
+    margin-top: -155px;
     margin-left: -180px;
 }
 .playertablecard {
