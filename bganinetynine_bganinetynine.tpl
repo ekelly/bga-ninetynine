@@ -29,6 +29,7 @@
         <div class="playertable whiteblock playertable_{DIR}">
             <div class="playertablename" style="color:#{PLAYER_COLOR}">
                 {PLAYER_NAME}
+                <span id="dealerindicator_{PLAYER_ID}" class="dealerindicator" style="display:none;">(D)</span>
             </div>
             <div class="playertablecard" id="playertablecard_{PLAYER_ID}">
             </div>

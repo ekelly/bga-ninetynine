@@ -173,6 +173,9 @@ class BgaNinetyNine extends Table {
             "cards" => $bidCardIds,
             "bid" => $bid
         );
+        
+        $result['trump'] = $this->getCurrentHandTrump();
+        $result['dealer'] = $this->getDealer();
 
         return $result;
     }

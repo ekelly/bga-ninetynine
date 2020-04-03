@@ -98,6 +98,12 @@ function (dojo, declare, domStyle) {
             this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
             this.showActiveDeclareOrReveal(this.gamedatas.declareReveal);
             
+            // Current dealer
+            this.showDealer(this.gamedatas.dealer);
+            
+            // Current trump
+            this.showTrump(this.gamedatas.trump);
+            
             this.addTooltipToClass("playertablecard", _("Card played on the table"), '');
 
             // Setup game notifications to handle (see "setupNotifications" method below)
@@ -141,6 +147,30 @@ function (dojo, declare, domStyle) {
             return stock;
         },
       
+        showDealer: function(dealer_id) {
+            console.log("Showing dealer: " + dealer_id);
+            dojo.query(".dealerindicator")
+                .style("display", "none");
+            domStyle.set("dealerindicator_" + dealer_id,
+                        "display", "inlineBlock");
+        },
+        
+        showTrump: function(trumpSuit) {
+            console.log("Showing trump: " + trumpSuit);
+            var trumpSuitSpan = dojo.byId("trumpSuit");
+            if (trumpSuit != undefined &&
+                trumpSuit != null &&
+                trumpSuit >= 0 &&
+                trumpSuit < 4) {
+
+                var redSuit = trumpSuit % 2 == 1;
+                trumpSuitSpan.textContent = ["♣", "♦", "♠", "♥"][trumpSuit];
+                domStyle.set(trumpSuitSpan, "color", redSuit ? "red" : "black");
+            } else {
+                trumpSuitSpan.textContent = "none";
+            }
+        },
+        
         getCardSuitFromId: function(card_id) {
             return ["club", "diamond", "spade", "heart"][Math.floor(card_id / 13)];
         },
