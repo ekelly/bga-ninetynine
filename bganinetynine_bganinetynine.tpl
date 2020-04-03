@@ -35,6 +35,9 @@
         </div>
         <!-- END player -->
 
+        <div class="whiteblock" id="trumpContainer">
+            Trump: <span id="trumpSuit"></span>
+        </div>
     </div>
     <div id="declarerevealtable">
         <h3 class="whiteblock">
