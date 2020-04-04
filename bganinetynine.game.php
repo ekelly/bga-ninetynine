@@ -875,9 +875,23 @@ class BgaNinetyNine extends Table {
             $player_to_points[$player_id] = $tricksWon;
         }
 
-        $bonusPoints = count($players_met_bid) * 10;
+        $bonusPoints = 40 - (count($players_met_bid) * 10);
         foreach ($players_met_bid as $player_id) {
             $player_to_points[$player_id] += $bonusPoints;
+        }
+        
+        // Declare reveal status
+        $decRev = $this->getDeclareRevealPlayerInfo();
+        if (count($decRev) == 1) {
+            $pointSwing = 0;
+            if ($decRev[0]['decrev'] == 2) {
+                // Reveal
+                $pointSwing = 60;
+            } else {
+                // Declare
+                $pointSwing = 30;
+            }
+            $decRevPlayerId = array_keys($decRev)[0];
         }
 
         // Player ids that met their bid
@@ -889,7 +903,7 @@ class BgaNinetyNine extends Table {
             }
         }
         
-        $roundBonusPoints = count($players_exceeded_100) * 10;
+        $roundBonusPoints = 40 - (count($players_exceeded_100) * 10);
         foreach ($players_exceeded_100 as $player_id) {
             $player_to_points[$player_id] += $roundBonusPoints;
             if ($player_to_points[$player_id] > 0) {
