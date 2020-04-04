@@ -875,7 +875,10 @@ class BgaNinetyNine extends Table {
             $player_to_points[$player_id] = $tricksWon;
         }
 
-        $bonusPoints = 40 - (count($players_met_bid) * 10);
+        $totalCorrectGuesses = count($players_met_bid);
+        $this->setHandWinnerCount($totalCorrectGuesses);
+        
+        $bonusPoints = 40 - ($totalCorrectGuesses * 10);
         foreach ($players_met_bid as $player_id) {
             $player_to_points[$player_id] += $bonusPoints;
         }
@@ -883,15 +886,24 @@ class BgaNinetyNine extends Table {
         // Declare reveal status
         $decRev = $this->getDeclareRevealPlayerInfo();
         if (count($decRev) == 1) {
+            $decRevPlayerId = array_keys($decRev)[0];
             $pointSwing = 0;
-            if ($decRev[0]['decrev'] == 2) {
+            if ($decRev[$decRevPlayerId]['decrev'] == 2) {
                 // Reveal
                 $pointSwing = 60;
             } else {
                 // Declare
                 $pointSwing = 30;
             }
-            $decRevPlayerId = array_keys($decRev)[0];
+            if (in_array($decRevPlayerId, $players_met_bid)) {
+                $player_to_points[$player_id] += $pointSwing;
+            } else {
+                for ($players as $player_id => $player) {
+                    if ($player_id != $decRevPlayerId) {
+                        $player_to_points[$player_id] += $pointSwing;
+                    }
+                }
+            }
         }
 
         // Player ids that met their bid
@@ -944,6 +956,7 @@ class BgaNinetyNine extends Table {
                 return;
             } else {
                 $this->setCurrentRound($round + 1);
+                $this->clearPreviousWinnerCount();
                 $this->gamestate->nextState("nextRound");
             }
         } else {

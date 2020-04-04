@@ -100,9 +100,11 @@ function (dojo, declare, domStyle) {
             
             // Current dealer
             this.showDealer(this.gamedatas.dealer);
+            console.log("Current dealer: " + this.gamedatas.dealer);
             
             // Current trump
             this.showTrump(this.gamedatas.trump);
+            console.log("Current trump: " + this.gamedatas.trump);
             
             this.addTooltipToClass("playertablecard", _("Card played on the table"), '');
 
@@ -152,7 +154,7 @@ function (dojo, declare, domStyle) {
             dojo.query(".dealerindicator")
                 .style("display", "none");
             domStyle.set("dealerindicator_" + dealer_id,
-                        "display", "inlineBlock");
+                        "display", "inline-block");
         },
         
         showTrump: function(trumpSuit) {

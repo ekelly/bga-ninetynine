@@ -231,3 +231,8 @@
 .red {
     color: red;
 }
+
+.dealerindicator {
+    display: none;
+    color: black;
+}
