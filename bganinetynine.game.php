@@ -791,10 +791,12 @@ class BgaNinetyNine extends Table {
         $players = self::loadPlayersBasicInfos();
         $dealer = $this->getDealer();
         $firstPlayer = $this->getPlayerAfter($dealer);
+        $trump = $this->getCurrentHandTrump();
         foreach ($players as $player_id => $player) {
             $cards = $this->cards->pickCards(12, 'deck', $player_id);
             // Notify player about his cards
-            self::notifyPlayer($player_id, 'newHand', '', array ('cards' => $cards, 'dealer' => $dealer, 'firstPlayer' => $firstPlayer));
+            self::notifyPlayer($player_id, 'newHand', '', array('cards' => $cards,
+              'dealer' => $dealer, 'firstPlayer' => $firstPlayer, 'trump' => $trump));
         }
         
         $this->gamestate->nextState("");
