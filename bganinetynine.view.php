@@ -32,7 +32,7 @@
         return "bganinetynine";
     }    
   	function build_page( $viewArgs )
-  	{		
+  	{
   	    // Get players & players number
         $players = $this->game->loadPlayersBasicInfos();
         $players_nbr = count( $players );

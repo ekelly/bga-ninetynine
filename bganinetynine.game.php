@@ -152,7 +152,7 @@ class BgaNinetyNine extends Table {
         $sql .= "WHERE 1 ";
         $dbres = self::DbQuery($sql);
         while ($player = mysql_fetch_assoc($dbres)) {
-            $result['players'][$player['id']] = $player;
+            $result['players'][intval($player['id'])] = $player;
         }
   
         // Cards in player hand
@@ -178,6 +178,8 @@ class BgaNinetyNine extends Table {
         $result['trump'] = $this->getCurrentHandTrump();
         $result['dealer'] = $this->getDealer();
         $result['firstPlayer'] = $this->getFirstPlayer();
+        $result['trickCounts'] = $this->getTrickCounts();
+        $result['roundScores'] = $this->getCurrentRoundScores();
 
         return $result;
     }
@@ -203,10 +205,29 @@ class BgaNinetyNine extends Table {
 //////////////////////////////////////////////////////////////////////////////
 //////////// Utility functions
 ////////////    
-
+    
     /*
         At this place, you can put any utility methods useful for your game logic
     */
+    
+    function getTrickCounts() {
+        $tricksWon = array();
+        $players = self::loadPlayersBasicInfos();
+        foreach ($players as $playerId => $player) {
+            $cardsWon = $this->cards->countCardInLocation('cardswon', $playerId);
+            $tricksWon[$playerId] = $cardsWon / 3;
+        }
+        return $tricksWon;
+    }
+    
+    function getCurrentRoundScores() {
+        $scores = array();
+        $players = self::loadPlayersBasicInfos();
+        foreach ($players as $playerId => $player) {
+            $scores[$playerId] = $this->dbGetScoreForRound($playerId);
+        }
+        return $scores;
+    }
     
     /**
 		Gets the current dealer
@@ -443,12 +464,13 @@ class BgaNinetyNine extends Table {
         
         $checkPlayer = $firstPlayer;
         for ($i = 0; $i < count($nextPlayerTable) - 1; $i++) {
-            if ($result[$checkPlayer]['decrev'] == 2) {
+            $decRevVal = intval($result[$checkPlayer]['decrev']);
+            if ($decRevVal == 2) {
                 $firstPlayerToReveal = $checkPlayer;
                 break;
             } else if ($firstPlayerToDeclare == 0 && 
                        $firstPlayerToReveal == 0 &&
-                       $result[$checkPlayer]['decrev'] == 1) {
+                       $decRevVal == 1) {
                 $firstPlayerToDeclare = $checkPlayer;
             }
             $checkPlayer = $this->getPlayerAfter($checkPlayer);
@@ -462,11 +484,20 @@ class BgaNinetyNine extends Table {
     }
 
     function getDeclareRevealPlayerInfo() {
+        $output = array();
         $result = $this->getCollectionFromDB("SELECT player_id id, player_name name, player_declare_reveal decrev FROM player WHERE player_declare_reveal != 0");
         if (count($result) > 1) {
             throw new feException("Invalid game state - multiple declaring or revealing players");
+        } else if (count($result) == 1) {
+            $playerId = array_keys($result)[0];
+            $playerName = $result[$playerId]['name'];
+            $decRev = intval($result[$playerId]['decrev']);
+            $output[$playerId] = array(
+                'name' => $playerName,
+                'decrev' => $decRev
+            );
         }
-        return $result;
+        return $output;
     }
     
     function getDeclareOrRevealInfo() {
@@ -760,7 +791,7 @@ class BgaNinetyNine extends Table {
         $players = self::loadPlayersBasicInfos();
         $dealer = $this->getDealer();
         $firstPlayer = $this->getPlayerAfter($dealer);
-        foreach ($players as $player_id => $player ) {
+        foreach ($players as $player_id => $player) {
             $cards = $this->cards->pickCards(12, 'deck', $player_id);
             // Notify player about his cards
             self::notifyPlayer($player_id, 'newHand', '', array ('cards' => $cards, 'dealer' => $dealer, 'firstPlayer' => $firstPlayer));
@@ -846,17 +877,20 @@ class BgaNinetyNine extends Table {
             
             // Move all cards to "cardswon" of the given player
             $this->cards->moveAllCardsInLocation('cardsontable', 'cardswon', null, $winningPlayer);
+            
+            $trickCounts = $this->getTrickCounts();
         
             // Notify
             // Note: we use 2 notifications here in order we can pause the display during the first notification
             //  before we move all cards to the winner (during the second)
             $players = self::loadPlayersBasicInfos();
-            self::notifyAllPlayers( 'trickWin', clienttranslate('${player_name} wins the trick'), array(
+            self::notifyAllPlayers('trickWin', clienttranslate('${player_name} wins the trick'), array(
                     'player_id' => $winningPlayer,
                     'player_name' => $players[$winningPlayer]['player_name']
             ));
-            self::notifyAllPlayers( 'giveAllCardsToPlayer','', array(
-                    'player_id' => $winningPlayer
+            self::notifyAllPlayers('giveAllCardsToPlayer','', array(
+                'playerId' => $winningPlayer,
+                'playerTrickCounts' => $trickCounts
             ));
             
             $this->clearCurrentTrickSuit();
@@ -885,14 +919,13 @@ class BgaNinetyNine extends Table {
 
         $player_to_points = array();
         $players_met_bid = array(); // Player ids that met their bid
+        $tricksWon = $this->getTrickCounts();
         foreach ($players as $player_id => $player) {
-            $cards = $this->cards->countCardInLocation("cardswon", $player_id);
-            $tricksWon = $cards / 3;
             $bid = $this->getPlayerBid($player_id);
-            if ($bid == $tricksWon) {
+            if ($bid == $tricksWon[$player_id]) {
                 $players_met_bid[] = $player_id;
             }
-            $player_to_points[$player_id] = $tricksWon;
+            $player_to_points[$player_id] = $tricksWon[$player_id];
         }
 
         $totalCorrectGuesses = count($players_met_bid);
@@ -949,11 +982,15 @@ class BgaNinetyNine extends Table {
             if ($points != 0) {
                 $sql = "UPDATE player SET player_score=player_score+$points WHERE player_id='$player_id'";
                 self::DbQuery($sql);
+                
+                $playerRoundScore = $this->dbGetScoreForRound($player_id);
 
-                self::notifyAllPlayers("points", clienttranslate('${player_name} gets ${score} points'), array(
+                self::notifyAllPlayers("points", clienttranslate('${player_name} gets ${points} points'), array(
                     'player_id' => $player_id,
                     'player_name' => $players[$player_id]['player_name'],
-                    'score' => $points));
+                    'points' => $points,
+                    'roundScore' => $playerRoundScore
+                ));
             } else {
                 // No point lost (just notify)
                 self::notifyAllPlayers("points", clienttranslate('${player_name} did not get any points'), array (

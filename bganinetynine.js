@@ -42,7 +42,6 @@ function (dojo, declare, domStyle) {
             //this.playerBid = null;
             this.cardwidth = 72;
             this.cardheight = 96;
-
         },
         
         /*
@@ -106,6 +105,12 @@ function (dojo, declare, domStyle) {
             this.showTrump(this.gamedatas.trump);
             console.log("Current trump: " + this.gamedatas.trump);
             
+            // Set trick counts
+            this.updateTrickCounts(this.gamedatas.trickCounts);
+            
+            // Set scores
+            this.updateRoundScores(this.gamedatas.roundScores);
+            
             this.addTooltipToClass("playertablecard", _("Card played on the table"), '');
 
             // Setup game notifications to handle (see "setupNotifications" method below)
@@ -134,7 +139,7 @@ function (dojo, declare, domStyle) {
             if (selectionChangeFunctionName != undefined && selectionChangeFunctionName.length > 0) {
                 stock.setSelectionMode(1);
                 stock.setSelectionAppearance('disappear');
-                dojo.connect( stock, 'onChangeSelection', this, selectionChangeFunctionName );    
+                dojo.connect(stock, 'onChangeSelection', this, selectionChangeFunctionName);    
             } else {
                 stock.setSelectionMode(0);
             }
@@ -207,6 +212,54 @@ function (dojo, declare, domStyle) {
             var bidValueSpan = dojo.byId(divId);
             bidValueSpan.textContent = bid;
         },
+        
+        updateTrickCounts: function(trickCounts) {
+            for (var playerId in trickCounts) {
+                this.updateCurrentTricksWon(playerId, trickCounts[playerId]);
+            }
+        },
+        
+        updateCurrentTricksWon: function(playerId, tricksWon) {
+            console.log("Updating tricks won: " + playerId + " - " + tricksWon);
+            var divId;
+            if (playerId != this.player_id) {
+                divId = "tricksWon_" + playerId;
+            } else {
+                divId = "myTricksWon";
+            }
+            var tricksWonSpan = dojo.byId(divId);
+            if (tricksWonSpan != null) {
+                tricksWonSpan.textContent = tricksWon;
+            }
+        },
+        
+        clearTricksWon: function() {
+            console.log("hiding trick count");
+            dojo.query(".tricks").style("display", "none");
+            for (var playerId in this.gamedatas.players) {
+                var divId = "tricksWon_" + playerId;
+                var tricksWonSpan = dojo.byId(divId);
+                if (tricksWonSpan != null) {
+                    tricksWonSpan.textContent = 0;
+                }
+            }
+        },
+        
+        displayTricksWon: function() {
+            console.log("showing trick count");
+            dojo.query(".tricks").style("display", "inline-block");
+        },
+        
+        updateRoundScores: function(roundScores) {
+            for (var playerId in roundScores) {
+                this.updatePlayerScore(parseInt(playerId), parseInt(roundScores[parseInt(playerId)]));
+            }
+        },
+        
+        updatePlayerScore: function(playerId, playerScore) {
+            console.log("Player " + playerId + " current round score is " + playerScore);
+            // this.scoreCtrl[playerId].setValue(playerScore);
+        },
 
         ///////////////////////////////////////////////////
         //// Game & client states
@@ -222,10 +275,12 @@ function (dojo, declare, domStyle) {
                 case 'newHand':
                     this.revealedHand.removeAll();
                     this.declaredBid.removeAll();
+                    this.clearTricksWon();
                     break;
 
                 case 'playerTurn':
-                    this.addTooltip( 'myhand', _('Cards in my hand'), _('Play a card') );
+                    this.addTooltip('myhand', _('Cards in my hand'), _('Play a card'));
+                    this.displayTricksWon();
                     break;
 
                 case 'bidding':
@@ -245,6 +300,7 @@ function (dojo, declare, domStyle) {
             switch (stateName) {
                 case 'bidding':
                     this.playerBid.setSelectionMode(0);
+                    this.displayTricksWon();
                     break;
             }         
         }, 
@@ -458,15 +514,21 @@ function (dojo, declare, domStyle) {
             console.log('onNoDeclare');
             this.submitDeclareOrReveal(0);
         },
-        
+
         onDeclare: function() {
             console.log('onDeclare');
-            this.submitDeclareOrReveal(1);
+            this.confirmationDialog(_('Are you sure you want to declare?'), 
+                                    dojo.hitch(this, function() {
+                this.submitDeclareOrReveal(1);
+            }));
         },
 
         onReveal: function() {
             console.log('onReveal');
-            this.submitDeclareOrReveal(2);
+            this.confirmationDialog(_('Are you sure you want to reveal?'), 
+                                    dojo.hitch(this, function() {
+                this.submitDeclareOrReveal(2);
+            }));
         },
 
         // decrev should be 0 = none, 1 = declare, 2 = reveal
@@ -501,6 +563,7 @@ function (dojo, declare, domStyle) {
             dojo.subscribe('playCard', this, "notif_playCard");
             dojo.subscribe('trickWin', this, "notif_trickWin");
             this.notifqueue.setSynchronous('trickWin', 1000);
+            dojo.subscribe('points', this, "notif_points");
             dojo.subscribe('giveAllCardsToPlayer', this, "notif_giveAllCardsToPlayer");
             dojo.subscribe('newScores', this, "notif_newScores");
             dojo.subscribe('bidCards', this, "notif_bidCards");
@@ -545,11 +608,21 @@ function (dojo, declare, domStyle) {
             // We do nothing here (just wait in order players can view the 4 cards played before they're gone.
         },
         
+        notif_points: function(notif) {
+            console.log('notif_points');
+            var playerId = notif.args.player_id;
+            var score = notif.args.roundScore;
+            if (score) {
+                this.updatePlayerScore(playerId, score);
+            }
+        },
+        
         notif_giveAllCardsToPlayer: function(notif) {
             console.log('notif_giveAllCardsToPlayer');
             // Move all cards on table to given table, then destroy them
-            var winner_id = notif.args.player_id;
+            var winner_id = notif.args.playerId;
             this.showFirstPlayer(winner_id);
+            this.updateTrickCounts(notif.args.playerTrickCounts);
             for (var player_id in this.gamedatas.players) {
                 var anim = this.slideToObject('cardontable_'+player_id, 'overall_player_board_'+winner_id);
                 dojo.connect(anim, 'onEnd', function(node) { dojo.destroy(node);});

@@ -65,7 +65,10 @@
     </div>
     <div class="section bid_container">
         <h3>
-            <span class="to_translate" style="display: inline-block;">My Bid: <span id="bidValue"></span>
+            <span class="to_translate" style="display: inline-block;">My Bid: 
+                <span id="myTricksWon" class="tricks"></span>
+                <span class="tricks">/</span>
+                <span id="bidValue"></span>
             </span>
         </h3>
         <div id="mybid"></div>
