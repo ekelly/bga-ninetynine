@@ -275,6 +275,8 @@ function (dojo, declare, domStyle) {
                 case 'newHand':
                     this.revealedHand.removeAll();
                     this.declaredBid.removeAll();
+                    this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
+                    this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
                     this.clearTricksWon();
                     break;
 
@@ -415,11 +417,11 @@ function (dojo, declare, domStyle) {
                 // Show Declared bid
                 this.declaredBid.removeAll();
                 this.addCardsToStock(this.declaredBid, decRevInfo.bid);
-
             } else {
                 playerNameSpan.textContent = "None";
                 domStyle.set(playerNameSpan, "color", "#000000");
             }
+            this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
         },
 
         ///////////////////////////////////////////////////
@@ -577,6 +579,7 @@ function (dojo, declare, domStyle) {
             // We received a new full hand of 13 cards.
             this.playerHand.removeAll();
             this.playerBid.removeAll();
+            this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
             this.showDealer(notif.args.dealer);
             this.showFirstPlayer(notif.args.firstPlayer);
 

@@ -47,7 +47,7 @@
             <span class="to_translate" id="decrev_player_name">None</span> <!-- PLAYER_NAME should say none for rounds with no declaring/revealing player -->
         </h3>
         <div id="declaretable" class="whiteblock">
-            <span>Declared Bid:</span>
+            <span>Declared Bid: </span>
             <span id="declaredBidValue"></span>
             <div id="declaredBid"></div>
         </div>
