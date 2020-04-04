@@ -170,6 +170,7 @@ function (dojo, declare, domStyle) {
                 domStyle.set(trumpSuitSpan, "color", redSuit ? "red" : "black");
             } else {
                 trumpSuitSpan.textContent = "none";
+                domStyle.set(trumpSuitSpan, "color", "black");
             }
         },
         
