@@ -809,6 +809,10 @@ class BgaNinetyNine extends Table {
 
     function stBidding() {
         self::warn("stBidding");
+        $players = self::loadPlayersBasicInfos();
+        foreach ($players as $player_id => $player) {
+            $this->giveExtraTime($player_id);
+        }
         $this->gamestate->setAllPlayersMultiactive();
     }
 
@@ -819,6 +823,10 @@ class BgaNinetyNine extends Table {
 
     function stDeclareOrReveal() {
         self::warn("stDeclareOrReveal");
+        $players = self::loadPlayersBasicInfos();
+        foreach ($players as $player_id => $player) {
+            $this->giveExtraTime($player_id);
+        }
         $this->gamestate->setAllPlayersMultiactive();
     }
 
