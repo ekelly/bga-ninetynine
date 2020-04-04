@@ -36,6 +36,7 @@ class BgaNinetyNine extends Table {
                          "currentRound" => 13,
                          "firstDealer" => 14,
                          "firstPlayer" => 15,
+                         "currentDealer" => 16,
                          "gameStyle" => 100));
 
         $this->cards = self::getNew("module.common.deck");
@@ -57,7 +58,7 @@ class BgaNinetyNine extends Table {
     protected function setupNewGame($players, $options = array()) {
 		self::warn("setupNewGame");
         $sql = "DELETE FROM player WHERE 1 ";
-        self::DbQuery( $sql ); 
+        self::DbQuery($sql); 
  
         // Set the colors of the players with HTML color code
         // The default below is red/green/blue/yellow
@@ -70,13 +71,12 @@ class BgaNinetyNine extends Table {
         // Note: if you added some extra field on "player" table in the database (dbmodel.sql), you can initialized it there.
         $sql = "INSERT INTO player (player_id, player_score, player_color, player_canal, player_name, player_avatar) VALUES ";
         $values = array();
-        foreach( $players as $player_id => $player )
-        {
+        foreach ($players as $player_id => $player) {
             $color = array_shift($default_color);
-            $values[] = "('".$player_id."','$start_points','$color','".$player['player_canal']."','".addslashes( $player['player_name'] )."','".addslashes( $player['player_avatar'] )."')";
+            $values[] = "('".$player_id."','$start_points','$color','".$player['player_canal']."','".addslashes($player['player_name'] )."','".addslashes($player['player_avatar'])."')";
         }
-        $sql .= implode( $values, ',' );
-        self::DbQuery( $sql );
+        $sql .= implode($values, ',');
+        self::DbQuery($sql);
         self::reloadPlayersBasicInfos();
 
         /************ Start the game initialization *****/
@@ -102,7 +102,8 @@ class BgaNinetyNine extends Table {
         $firstPlayer = self::getPlayerAfter($dealer);
         
         self::setGameStateInitialValue('firstDealer', $dealer);
-        
+        self::setGameStateInitialValue('currentDealer', $dealer);
+
         // Player with the first action (starts left of dealer, then winner of trick)
         self::setGameStateInitialValue('firstPlayer', $firstPlayer);
 
@@ -176,6 +177,7 @@ class BgaNinetyNine extends Table {
         
         $result['trump'] = $this->getCurrentHandTrump();
         $result['dealer'] = $this->getDealer();
+        $result['firstPlayer'] = $this->getFirstPlayer();
 
         return $result;
     }
@@ -209,9 +211,9 @@ class BgaNinetyNine extends Table {
     /**
 		Gets the current dealer
 	**/
-	function getDealer() {
-		$dealer = self::getGameStateValue( "firstDealer" );
-        $round = self::getGameStateValue( "currentRound" );
+	function getRoundDealer() {
+		$dealer = self::getGameStateValue("firstDealer");
+        $round = self::getGameStateValue("currentRound");
         $basicPlayerInfo = self::loadPlayersBasicInfos();
         
         $firstDealerPosition = $basicPlayerInfo[$dealer]['player_no'];
@@ -228,7 +230,20 @@ class BgaNinetyNine extends Table {
         
 		throw new feException("Incorrect calculation of dealer: $actualDealerPosition");
 	}
+    
+    function getDealer() {
+        return self::getGameStateValue("currentDealer");
+    }
 	
+    function setDealer($dealer) {
+        self::setGameStateValue("currentDealer", $dealer);
+    }
+    
+    function nextDealer() {
+        $dealer = $this->getPlayerAfter($this->getDealer());
+        self::setGameStateValue("currentDealer", $dealer);
+    }
+    
 	/**
 		Gets the first player to play a card
 	**/
@@ -260,26 +275,26 @@ class BgaNinetyNine extends Table {
         }
         return ($prevWinnerCount + 1) % 4;
     }
-    
+
     function setPreviousWinnerCount($prevWinnerCount) {
         self::setGameStateValue("previousHandWinnerCount", $prevWinnerCount);
     }
-    
+
     function clearPreviousWinnerCount() {
         self::setGameStateValue("previousHandWinnerCount", -1);
     }
-    
+
     /**
         Clears whether or not the current hand has trump.
     **/
     function clearCurrentHandTrump() {
         self::setGameStateValue("currentHandTrump" , -1);
     }
-    
+
     function getCurrentTrickSuit() {
         return self::getGameStateValue("trickSuit");
     }
-    
+
     function clearCurrentTrickSuit() {
         self::setGameStateValue("trickSuit", -1);
     }
@@ -445,7 +460,7 @@ class BgaNinetyNine extends Table {
             $this->setDeclareReveal($firstPlayerToDeclare, 1);
         }
     }
-    
+
     function getDeclareRevealPlayerInfo() {
         $result = $this->getCollectionFromDB("SELECT player_id id, player_name name, player_declare_reveal decrev FROM player WHERE player_declare_reveal != 0");
         if (count($result) > 1) {
@@ -575,7 +590,7 @@ class BgaNinetyNine extends Table {
             throw new feException(self::_("You must bid exactly 3 cards"));
         }
         
-        $cards = $this->cards->getCards( $card_ids );
+        $cards = $this->cards->getCards($card_ids);
         
         if (count($cards) != 3)
             throw new feException(self::_("Some of these cards don't exist"));
@@ -730,6 +745,7 @@ class BgaNinetyNine extends Table {
 	
 	function stNewRound() {
 		self::warn("stNewRound");
+        $this->setDealer($this->getRoundDealer());
 		$this->gamestate->nextState("");
 	}
 	
@@ -742,10 +758,12 @@ class BgaNinetyNine extends Table {
         // Deal 12 cards to each players
         // Create deck, shuffle it and give 12 initial cards
         $players = self::loadPlayersBasicInfos();
-        foreach ( $players as $player_id => $player ) {
+        $dealer = $this->getDealer();
+        $firstPlayer = $this->getPlayerAfter($dealer);
+        foreach ($players as $player_id => $player ) {
             $cards = $this->cards->pickCards(12, 'deck', $player_id);
             // Notify player about his cards
-            self::notifyPlayer($player_id, 'newHand', '', array ('cards' => $cards ));
+            self::notifyPlayer($player_id, 'newHand', '', array ('cards' => $cards, 'dealer' => $dealer, 'firstPlayer' => $firstPlayer));
         }
         
         $this->gamestate->nextState("");
@@ -773,6 +791,11 @@ class BgaNinetyNine extends Table {
         $declareReveal = $this->getDeclareOrRevealInfo();
         $declaringOrRevealingPlayer = $declareReveal['playerId'];
         
+        // Inform people who goes first
+        $dealerId = $this->getDealer();
+        $firstPlayer = $this->getPlayerAfter($dealerId);
+        $this->setFirstPlayer($firstPlayer);
+        
         $players = self::loadPlayersBasicInfos();
         foreach ($players as $playerId => $player) {
             $declaring = $playerId == $declaringOrRevealingPlayer && $declareReveal['decRev'] == 1;
@@ -786,20 +809,17 @@ class BgaNinetyNine extends Table {
             // Notify the player so we can make these cards disapear
             self::notifyPlayer($playerId, "biddingComplete", "", array(
                 "cards" => $cardIds,
-                "bid" => array (
+                "bid" => array(
                     "cards" => $bidCardIds,
                     "bid" => $bid,
                     "declare" => $declaring,
                     "reveal" => $revealing
                 ),
-                "declareReveal" => $declareReveal
+                "declareReveal" => $declareReveal,
+                "dealer" => $dealerId,
+                "firstPlayer" => $firstPlayer
             ));
         }
-        
-        // Inform people who goes first
-        $dealerId = $this->getDealer();
-        $firstPlayer = $this->getPlayerAfter($dealerId);
-        $this->setFirstPlayer($firstPlayer);
 
         $this->gamestate->changeActivePlayer($firstPlayer);
         
@@ -961,6 +981,7 @@ class BgaNinetyNine extends Table {
                 $this->gamestate->nextState("nextRound");
             }
         } else {
+            $this->nextDealer();
             $this->gamestate->nextState("newHand");
         }
     }
@@ -982,14 +1003,11 @@ class BgaNinetyNine extends Table {
         (ex: pass).
     */
 
-    function zombieTurn( $state, $active_player )
-    {
+    function zombieTurn($state, $active_player) {
         // Note: zombie mode has not be realized for BgaNinetyNine, as it is an example game and
         //       that it can be complex to choose a right card to play.
         throw new feException( "Zombie mode not supported for BgaNinetyNine" );
     }
-   
-   
 }
   
 

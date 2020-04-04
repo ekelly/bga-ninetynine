@@ -157,6 +157,10 @@ function (dojo, declare, domStyle) {
                         "display", "inline-block");
         },
         
+        showFirstPlayer: function(first_player) {
+            console.log("First player: " + first_player);
+        },
+        
         showTrump: function(trumpSuit) {
             console.log("Showing trump: " + trumpSuit);
             var trumpSuitSpan = dojo.byId("trumpSuit");
@@ -286,7 +290,7 @@ function (dojo, declare, domStyle) {
         getCardSuit: function(suit) {
             return ["club", "diamond", "spade", "heart"][suit];
         },
-        
+
         stockContains: function(stock, el) {
             var stockContents = stock.getAllItems();
             for (var i in stockContents) {
@@ -509,6 +513,8 @@ function (dojo, declare, domStyle) {
             console.log('notif_newHand');
             // We received a new full hand of 13 cards.
             this.playerHand.removeAll();
+            this.showDealer(notif.args.dealer);
+            this.showFirstPlayer(notif.args.firstPlayer);
 
             for (var i in notif.args.cards) {
                 var card = notif.args.cards[i];
@@ -542,9 +548,10 @@ function (dojo, declare, domStyle) {
             console.log('notif_giveAllCardsToPlayer');
             // Move all cards on table to given table, then destroy them
             var winner_id = notif.args.player_id;
+            this.showFirstPlayer(winner_id);
             for (var player_id in this.gamedatas.players) {
                 var anim = this.slideToObject('cardontable_'+player_id, 'overall_player_board_'+winner_id);
-                dojo.connect(anim, 'onEnd', function(node) { dojo.destroy(node); });
+                dojo.connect(anim, 'onEnd', function(node) { dojo.destroy(node);});
                 anim.play();
             }
         },
