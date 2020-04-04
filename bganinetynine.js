@@ -273,11 +273,9 @@ function (dojo, declare, domStyle) {
 
             switch(stateName) {
                 case 'newHand':
-                    this.revealedHand.removeAll();
-                    this.declaredBid.removeAll();
                     this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
-                    this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
                     this.clearTricksWon();
+                    this.clearActiveDeclareOrReveal();
                     break;
 
                 case 'playerTurn':
@@ -404,9 +402,9 @@ function (dojo, declare, domStyle) {
             this.slideToObject('cardontable_'+player_id, 'playertablecard_'+player_id).play();
         },
 
-        showActiveDeclareOrReveal: function (decRevInfo) {
+        showActiveDeclareOrReveal: function(decRevInfo) {
             var playerNameSpan = dojo.byId("decrev_player_name");
-            if (decRevInfo.playerId != 0) {
+            if (decRevInfo.playerId) {
                 playerNameSpan.textContent = decRevInfo.playerName;
                 var playerColor = decRevInfo.playerColor;
                 domStyle.set(playerNameSpan, "color", "#" + playerColor);
@@ -421,6 +419,13 @@ function (dojo, declare, domStyle) {
                 playerNameSpan.textContent = "None";
                 domStyle.set(playerNameSpan, "color", "#000000");
             }
+            this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
+        },
+
+        clearActiveDeclareOrReveal: function() {
+            this.showActiveDeclareOrReveal({});
+            this.declaredBid.removeAll();
+            this.revealedHand.removeAll();
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
         },
 
