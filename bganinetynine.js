@@ -513,6 +513,7 @@ function (dojo, declare, domStyle) {
             console.log('notif_newHand');
             // We received a new full hand of 13 cards.
             this.playerHand.removeAll();
+            this.playerBid.removeAll();
             this.showDealer(notif.args.dealer);
             this.showFirstPlayer(notif.args.firstPlayer);
 
