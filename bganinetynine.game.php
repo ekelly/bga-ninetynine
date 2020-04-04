@@ -895,10 +895,11 @@ class BgaNinetyNine extends Table {
                 // Declare
                 $pointSwing = 30;
             }
+
             if (in_array($decRevPlayerId, $players_met_bid)) {
                 $player_to_points[$player_id] += $pointSwing;
             } else {
-                for ($players as $player_id => $player) {
+                foreach ($players as $player_id => $player) {
                     if ($player_id != $decRevPlayerId) {
                         $player_to_points[$player_id] += $pointSwing;
                     }
