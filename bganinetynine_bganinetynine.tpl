@@ -26,7 +26,7 @@
     <div id="playertables">
 
         <!-- BEGIN player -->
-        <div class="playertable whiteblock playertable_{DIR}">
+        <div class="playertable whiteblock playertable_{DIR}" id="playertable_{PLAYER_ID}">
             <div class="playertablename" style="color:#{PLAYER_COLOR}">
                 {PLAYER_NAME}
                 <span id="dealerindicator_{PLAYER_ID}" class="dealerindicator">(D)</span>

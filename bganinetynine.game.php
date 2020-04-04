@@ -266,7 +266,7 @@ class BgaNinetyNine extends Table {
         Gets the first player to play a card
     **/
     function getFirstPlayer() {
-        return self::getGameStateValue("firstPlayer");
+        return intval(self::getGameStateValue("firstPlayer"));
     }
 
     /**
@@ -665,7 +665,7 @@ class BgaNinetyNine extends Table {
 
     // Play a card from player hand
     function playCard($card_id) {
-        self::checkAction( "playCard" );
+        self::checkAction("playCard");
 
         $player_id = self::getActivePlayerId();
 
@@ -724,7 +724,8 @@ class BgaNinetyNine extends Table {
             'rank' => $currentCard['type_arg'],
             'rank_displayed' => $this->rank_label[$currentCard['type_arg']],
             'suit' => $currentCard['type'],
-            'suit_displayed' => $this->suits[$currentCard['type']]['name']
+            'suit_displayed' => $this->suits[$currentCard['type']]['name'],
+            'firstPlayer' => $this->getFirstPlayer()
         ));
 
         // Next player
@@ -773,7 +774,13 @@ class BgaNinetyNine extends Table {
 
     function stNewRound() {
         self::warn("stNewRound");
-    $this->setDealer($this->getRoundDealer());
+        $this->setDealer($this->getRoundDealer());
+        $dealer = $this->getDealer();
+        $firstPlayer = $this->getPlayerAfter($dealer);
+        $this->setFirstPlayer($firstPlayer);
+        self::notifyAllPlayers('newRound', clienttranslate('Starting a new round'), array(
+            'dealer' => $dealer, 'firstPlayer' => $firstPlayer
+        ));
         $this->gamestate->nextState("");
     }
 
@@ -788,6 +795,7 @@ class BgaNinetyNine extends Table {
         $players = self::loadPlayersBasicInfos();
         $dealer = $this->getDealer();
         $firstPlayer = $this->getPlayerAfter($dealer);
+        $this->setFirstPlayer($firstPlayer);
         $trump = $this->getCurrentHandTrump();
         foreach ($players as $player_id => $player) {
             $cards = $this->cards->pickCards(12, 'deck', $player_id);
@@ -873,6 +881,7 @@ class BgaNinetyNine extends Table {
 
             // Active this player => he's the one who starts the next trick
             $this->gamestate->changeActivePlayer($winningPlayer);
+            $this->setFirstPlayer($winningPlayer);
 
             // Move all cards to "cardswon" of the given player
             $this->cards->moveAllCardsInLocation('cardsontable', 'cardswon', null, $winningPlayer);
@@ -905,6 +914,10 @@ class BgaNinetyNine extends Table {
             // Standard case (not the end of the trick)
             // => just active the next player
             $player_id = self::activeNextPlayer();
+            $this->setFirstPlayer($player_id);
+            self::notifyAllPlayers('currentPlayer', '', array(
+                'currentPlayer' => $this->getFirstPlayer()
+            ));
             self::giveExtraTime($player_id);
             $this->gamestate->nextState('nextPlayer');
         }

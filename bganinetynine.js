@@ -101,6 +101,10 @@ function (dojo, declare, domStyle) {
             this.showDealer(this.gamedatas.dealer);
             console.log("Current dealer: " + this.gamedatas.dealer);
 
+            // First player
+            this.showFirstPlayer(this.gamedatas.firstPlayer);
+            console.log("Current player: " + this.gamedatas.firstPlayer);
+
             // Current trump
             this.showTrump(this.gamedatas.trump);
             console.log("Current trump: " + this.gamedatas.trump);
@@ -164,6 +168,8 @@ function (dojo, declare, domStyle) {
 
         showFirstPlayer: function(first_player) {
             console.log("First player: " + first_player);
+            dojo.query(".playertable").removeClass("firstplayer");
+            dojo.addClass("playertable_" + first_player, "firstplayer");
         },
 
         showTrump: function(trumpSuit) {
@@ -281,6 +287,9 @@ function (dojo, declare, domStyle) {
                 case 'playerTurn':
                     this.addTooltip('myhand', _('Cards in my hand'), _('Play a card'));
                     this.displayTricksWon();
+                    if (this.getActivePlayerId() != null) {
+                        this.showFirstPlayer(this.getActivePlayerId());
+                    }
                     break;
 
                 case 'bidding':
@@ -566,6 +575,7 @@ function (dojo, declare, domStyle) {
         setupNotifications: function() {
             console.log( 'notifications subscriptions setup');
 
+            dojo.subscribe('newRound', this, "notif_newRound");
             dojo.subscribe('newHand', this, "notif_newHand");
             dojo.subscribe('playCard', this, "notif_playCard");
             dojo.subscribe('trickWin', this, "notif_trickWin");
@@ -579,9 +589,16 @@ function (dojo, declare, domStyle) {
 
         // TODO: from this point and below, you can write your game notifications handling methods
 
+        notif_newRound: function(notif) {
+            console.log('notif_newRound');
+            this.showDealer(notif.args.dealer);
+            this.showFirstPlayer(notif.args.firstPlayer);
+            this.showTrump(null);
+        },
+
         notif_newHand: function(notif) {
             console.log('notif_newHand');
-            // We received a new full hand of 13 cards.
+            // We received a new full hand of 12 cards.
             this.playerHand.removeAll();
             this.playerBid.removeAll();
             this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
@@ -608,6 +625,7 @@ function (dojo, declare, domStyle) {
                 }
             }
 
+            this.showFirstPlayer(notif.args.firstPlayer);
             this.playCardOnTable(notif.args.player_id, notif.args.suit,
                                  notif.args.rank, notif.args.card_id);
         },
