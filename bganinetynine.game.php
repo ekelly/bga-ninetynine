@@ -934,6 +934,10 @@ class BgaNinetyNine extends Table {
     function stEndHand() {
         self::warn("stEndHand");
 
+        $scoreInfo = $this->generateScoreInfo();
+        $scoreTable = $this->createHandScoringTable($scoreInfo);
+        $this->notifyScore($scoreTable, clienttranslate('Hand Score'));
+
         // Count and score points, then end the round / game or go to the next hand.
         $players = self::loadPlayersBasicInfos();
 
@@ -957,11 +961,11 @@ class BgaNinetyNine extends Table {
         }
 
         // Declare reveal status
-        $decRev = $this->getDeclareRevealPlayerInfo();
-        if (count($decRev) == 1) {
-            $decRevPlayerId = array_keys($decRev)[0];
+        $decRev = $this->getDeclareOrRevealInfo();
+        if ($decRev['decRev'] != 0) {
+            $decRevPlayerId = $decRev['playerId'];
             $pointSwing = 0;
-            if ($decRev[$decRevPlayerId]['decrev'] == 2) {
+            if ($decRev['decRev'] == 2) {
                 // Reveal
                 $pointSwing = 60;
             } else {
@@ -1043,10 +1047,134 @@ class BgaNinetyNine extends Table {
         }
     }
 
+    function generateScoreInfo() {
+        $players = self::loadPlayersBasicInfos();
+        $playerBids = array();
+        $playerNames = array();
+        $tricksWon = $this->getTrickCounts();
+        foreach ($players as $player_id => $player) {
+            $bid = $this->getPlayerBid($player_id);
+            $playerBids[$player_id] = $bid;
+            $playerNames[$player_id] = $player['player_name'];
+        }
+        $decRev = $this->getDeclareOrRevealInfo();
+        $decRevPlayer = null;
+        $decRevVal = $decRev['decRev'];
+        if ($decRevVal != 0) {
+            $decRevPlayer = $decRev['playerId'];
+        }
+        $currentScores = self::getCollectionFromDb("SELECT player_id, player_score FROM player", true);
+        return $this->generateScoreInfo2($playerNames, $playerBids,
+            $tricksWon, $decRevVal, $decRevPlayer, $currentScores);
+    }
+
+    function generateScoreInfo2($playerNames, $bid, $tricks, $decRev,
+            $decRevPlayer, $currentScores) {
+        $result = array();
+        $total = array();
+        $result['name'] = array();
+        foreach ($playerNames as $playerId => $name) {
+            $result['name'][$playerId] = $name;
+        }
+        $result['bid'] = array();
+        foreach ($bid as $playerId => $playerBid) {
+            $result['bid'][$playerId] = $playerBid;
+        }
+        $madeBid = array();
+        $result['tricks'] = array();
+        foreach ($tricks as $playerId => $trickCount) {
+            $result['tricks'][$playerId] = $trickCount;
+            $total[$playerId] = $trickCount;
+            if ($trickCount == $bid[$playerId]) {
+                $madeBid[] = $playerId;
+            }
+        }
+        $handBonus = 40 - (count($madeBid) * 10);
+        $result['bonus'] = array();
+        foreach ($tricks as $playerId => $trickCount) {
+            if ($trickCount == $bid[$playerId]) {
+                $result['bonus'][$playerId] = $handBonus;
+                $total[$playerId] += $handBonus;
+            } else {
+                $result['bonus'][$playerId] = 0;
+            }
+        }
+        if ($decRevPlayer != null) {
+            $result['decrev'] = array();
+            $madeBid = $tricks[$decRevPlayer] == $bid[$decRevPlayer];
+            $pointSwing = 30;
+            if ($decRev == 2) {
+                $pointSwing = 60;
+            }
+            foreach ($playerNames as $playerId => $name) {
+                if ($playerId == $decRevPlayer) {
+                    if ($madeBid) {
+                        $result['decrev'][$playerId] = $pointSwing;
+                        $total[$playerId] += $pointSwing;
+                    } else {
+                        $result['decrev'][$playerId] = 0;
+                    }
+                } else {
+                    if (!$madeBid) {
+                        $result['decrev'][$playerId] = $pointSwing;
+                        $total[$playerId] += $pointSwing;
+                    } else {
+                        $result['decrev'][$playerId] = 0;
+                    }
+                }
+            }
+        }
+        $result['total'] = $total;
+        $result['currentScore'] = array();
+        foreach ($currentScores as $playerId => $score) {
+            $result['currentScore'][$playerId] = $total[$playerId] + intval($score);
+        }
+        return $result;
+    }
+
+    function createHandScoringTable($scoreInfo) {
+        $players = self::loadPlayersBasicInfos();
+        $playerIds = array_keys($players);
+        $player1 = $playerIds[0];
+        $player2 = $playerIds[1];
+        $player3 = $playerIds[2];
+        $table = array(
+            array("", $scoreInfo['name'][$player1], $scoreInfo['name'][$player2], $scoreInfo['name'][$player3]),
+            array(clienttranslate("Bid"), $scoreInfo['bid'][$player1], $scoreInfo['bid'][$player2], $scoreInfo['bid'][$player3]),
+            array(clienttranslate("Tricks taken"), $scoreInfo['tricks'][$player1], $scoreInfo['tricks'][$player2], $scoreInfo['tricks'][$player3]),
+            array(clienttranslate("Bonus"), $scoreInfo['bonus'][$player1], $scoreInfo['bonus'][$player2], $scoreInfo['bonus'][$player3])
+        );
+        if (array_key_exists("decrev", $scoreInfo)) {
+            $table[] = array(clienttranslate("Declare/Reveal"), $scoreInfo['decrev'][$player1], $scoreInfo['decrev'][$player2], $scoreInfo['decrev'][$player3]);
+        }
+        $table[] = array(clienttranslate("Total"), $scoreInfo['total'][$player1], $scoreInfo['total'][$player2], $scoreInfo['total'][$player3]);
+        $table[] = array(clienttranslate("Current score"), $scoreInfo['currentScore'][$player1], $scoreInfo['currentScore'][$player2], $scoreInfo['currentScore'][$player3]);
+        return $table;
+    }
+
+    function notifyScore($table, $message) {
+        $this->notifyAllPlayers("tableWindow", '', array(
+            "id" => 'scoreView',
+            "title" => $message,
+            "table" => $table,
+            "closing" => clienttranslate("Done")
+        ));
+    }
+
+    function createRoundScoringTable() {
+    }
+
+    function createFinalScoringTable() {
+    }
+
     function stGameEnd() {
         self::warn("stGameEnd");
     }
 
+    function debug($val) {
+        $strVal = print_r($val, true);
+        $this->notifyAllPlayers("debugLog", "$strVal", array());
+    }
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Zombie
