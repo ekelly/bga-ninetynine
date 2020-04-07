@@ -49,9 +49,9 @@
 
 //    !! It is not a good idea to modify this file when a game is running !!
 
- 
+
 $machinestates = array(
-        
+
         // The initial state. Please do not modify.
         1 => array(
                 "name" => "gameSetup",
@@ -60,9 +60,9 @@ $machinestates = array(
                 "action" => "stGameSetup",
                 "transitions" => array("" => 10)
         ),
-        
+
         // stGameSetup manages the state of the game
-        
+
         // New Round
         10 => array(
                 "name" => "newRound",
@@ -72,9 +72,9 @@ $machinestates = array(
                 "updateGameProgression" => true,
                 "transitions" => array("" => 12)
         ),
-        
+
         // New Hand (each game will have an arbitrary number of rounds / hands)
-        
+
         12 => array(
                 "name" => "newHand",
                 "description" => clienttranslate("Starting the hand"),
@@ -83,9 +83,9 @@ $machinestates = array(
                 "updateGameProgression" => true,
                 "transitions" => array("" => 13)
         ),
-        
+
         // Bidding
-        
+
         13 => array(
                 "name" => "bidding",
                 "description" => clienttranslate("Waiting for other players to bid"),
@@ -122,9 +122,9 @@ $machinestates = array(
                 "updateGameProgression" => false,
                 "transitions" => array("startTrickTaking" => 30)
         ),
-        
+
         // Trick
-        
+
         30 => array(
                 "name" => "newTrick",
                 "description" => "",
@@ -154,12 +154,13 @@ $machinestates = array(
                 "description" => "",
                 "type" => "game",
                 "action" => "stEndHand",
+                "updateGameProgression" => true,
                 "transitions" => array(
                     "newRound" => 10,
-                    "newHand" => 12, 
+                    "newHand" => 12,
                     "gameEnd" => 99)
         ),
-        
+
         // Final state.
         // Please do not modify.
         99 => array(

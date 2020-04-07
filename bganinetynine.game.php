@@ -192,10 +192,13 @@ class BgaNinetyNine extends Table {
     */
     function getGameProgression() {
         // Game progression: get player minimum score
+        $currentRoundScores = $this->getCurrentRoundScores();
+        $maxScore = 0;
+        foreach ($currentRoundScores as $playerId => $score) {
+            $maxScore = max($maxScore, $score);
+        }
 
-        $minimumScore = self::getUniqueValueFromDb("SELECT MIN( player_score) FROM player");
-
-        return max(0, min(100, 100-$minimumScore)); // Note: 0 => 100
+        return (33 * $this->getCurrentRound()) + min(33, ($maxScore / 3)) + 1;
     }
 
 
