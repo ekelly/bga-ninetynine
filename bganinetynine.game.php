@@ -868,6 +868,7 @@ class BgaNinetyNine extends Table {
         }
 
         $this->gamestate->changeActivePlayer($firstPlayer);
+        $this->giveExtraTime($firstPlayer);
 
         $this->gamestate->nextState("startTrickTaking");
     }
@@ -937,72 +938,14 @@ class BgaNinetyNine extends Table {
         $scoreInfo = $this->generateScoreInfo();
         $scoreTable = $this->createHandScoringTable($scoreInfo);
         $this->notifyScore($scoreTable, clienttranslate('Hand Score'));
+        $madeBidCount = $scoreInfo['correctBidCount'];
 
         // Count and score points, then end the round / game or go to the next hand.
         $players = self::loadPlayersBasicInfos();
-
-        $player_to_points = array();
-        $players_met_bid = array(); // Player ids that met their bid
-        $tricksWon = $this->getTrickCounts();
-        foreach ($players as $player_id => $player) {
-            $bid = $this->getPlayerBid($player_id);
-            if ($bid == $tricksWon[$player_id]) {
-                $players_met_bid[] = $player_id;
-            }
-            $player_to_points[$player_id] = $tricksWon[$player_id];
-        }
-
-        $totalCorrectGuesses = count($players_met_bid);
-        $this->setHandWinnerCount($totalCorrectGuesses);
-
-        $bonusPoints = 40 - ($totalCorrectGuesses * 10);
-        foreach ($players_met_bid as $player_id) {
-            $player_to_points[$player_id] += $bonusPoints;
-        }
-
-        // Declare reveal status
-        $decRev = $this->getDeclareOrRevealInfo();
-        if ($decRev['decRev'] != 0) {
-            $decRevPlayerId = $decRev['playerId'];
-            $pointSwing = 0;
-            if ($decRev['decRev'] == 2) {
-                // Reveal
-                $pointSwing = 60;
-            } else {
-                // Declare
-                $pointSwing = 30;
-            }
-
-            if (in_array($decRevPlayerId, $players_met_bid)) {
-                $player_to_points[$player_id] += $pointSwing;
-            } else {
-                foreach ($players as $player_id => $player) {
-                    if ($player_id != $decRevPlayerId) {
-                        $player_to_points[$player_id] += $pointSwing;
-                    }
-                }
-            }
-        }
-
-        // Player ids that met their bid
-        $players_exceeded_100 = array();
-        foreach ($players as $player_id => $player) {
-            $currentScore = $this->dbGetScoreForRound($player_id);
-            if ($currentScore + $player_to_points[$player_id] >= 100) {
-                $players_exceeded_100[] = $player_id;
-            }
-        }
-
-        $roundBonusPoints = 40 - (count($players_exceeded_100) * 10);
-        foreach ($players_exceeded_100 as $player_id) {
-            $player_to_points[$player_id] += $roundBonusPoints;
-            if ($player_to_points[$player_id] > 0) {
-                $this->dbSetRoundScore($player_id, $player_to_points[$player_id]);
-            }
-        }
+        $this->setHandWinnerCount($madeBidCount);
 
         // Apply scores to player
-        foreach ($player_to_points as $player_id => $points) {
+        foreach ($scoreInfo['total'] as $player_id => $points) {
             if ($points != 0) {
                 $sql = "UPDATE player SET player_score=player_score+$points WHERE player_id='$player_id'";
                 self::DbQuery($sql);
@@ -1013,7 +956,7 @@ class BgaNinetyNine extends Table {
                     'player_id' => $player_id,
                     'player_name' => $players[$player_id]['player_name'],
                     'points' => $points,
-                    'roundScore' => $playerRoundScore
+                    'roundScore' => $scoreInfo['currentScore'][$player_id]
                 ));
             } else {
                 // No point lost (just notify)
@@ -1030,8 +973,16 @@ class BgaNinetyNine extends Table {
         $this->clearBids();
         $this->clearAllDeclareReveal();
 
+        // Check if anyone exceeded 100
+        $playerExceeded100 = false;
+        foreach ($scoreInfo['currentScore'] as $playerId => $currentScore) {
+            if ($currentScore >= 100) {
+                $playerExceeded100 = true;
+            }
+        }
+
         // Test if this is the end of the game
-        if (count($players_exceeded_100) > 0) {
+        if ($playerExceeded100) {
             if ($round == 2) {
                 // End of the game
                 $this->gamestate->nextState("endGame");
@@ -1089,6 +1040,7 @@ class BgaNinetyNine extends Table {
                 $madeBid[] = $playerId;
             }
         }
+        $result['correctBidCount'] = count($madeBid);
         $handBonus = 40 - (count($madeBid) * 10);
         $result['bonus'] = array();
         foreach ($tricks as $playerId => $trickCount) {
@@ -1157,7 +1109,7 @@ class BgaNinetyNine extends Table {
             "id" => 'scoreView',
             "title" => $message,
             "table" => $table,
-            "closing" => clienttranslate("Done")
+            "closing" => clienttranslate("Continue")
         ));
     }
 
