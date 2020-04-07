@@ -192,13 +192,18 @@ class BgaNinetyNine extends Table {
     */
     function getGameProgression() {
         // Game progression: get player minimum score
+        $round = $this->getCurrentRound();
+        $this->debug("Current round: $round");
         $currentRoundScores = $this->getCurrentRoundScores();
         $maxScore = 0;
         foreach ($currentRoundScores as $playerId => $score) {
             $maxScore = max($maxScore, $score);
+            $this->debug("Player $playerId score: $score");
         }
 
-        return (33 * $this->getCurrentRound()) + min(33, ($maxScore / 3)) + 1;
+        $progression = (33 * $this->getCurrentRound()) + min(33, ($maxScore / 3)) + 1;
+        $this->debug("Progression: $progression");
+        return $progression;
     }
 
 
@@ -953,13 +958,14 @@ class BgaNinetyNine extends Table {
                 $sql = "UPDATE player SET player_score=player_score+$points WHERE player_id='$player_id'";
                 self::DbQuery($sql);
 
-                $playerRoundScore = $this->dbGetScoreForRound($player_id);
+                $playerRoundScore = $scoreInfo['currentScore'][$player_id];
+                $this->dbSetRoundScore($player_id, $playerRoundScore);
 
                 self::notifyAllPlayers("points", clienttranslate('${player_name} gets ${points} points'), array(
                     'player_id' => $player_id,
                     'player_name' => $players[$player_id]['player_name'],
                     'points' => $points,
-                    'roundScore' => $scoreInfo['currentScore'][$player_id]
+                    'roundScore' => $playerRoundScore
                 ));
             } else {
                 // No point lost (just notify)
