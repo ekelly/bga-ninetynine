@@ -155,9 +155,9 @@ $machinestates = array(
                 "type" => "game",
                 "action" => "stEndHand",
                 "transitions" => array(
-                    "nextRound" => 10,
+                    "newRound" => 10,
                     "newHand" => 12, 
-                    "endGame" => 99)
+                    "gameEnd" => 99)
         ),
         
         // Final state.

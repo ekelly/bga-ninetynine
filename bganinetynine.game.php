@@ -985,12 +985,12 @@ class BgaNinetyNine extends Table {
         if ($playerExceeded100) {
             if ($round == 2) {
                 // End of the game
-                $this->gamestate->nextState("endGame");
+                $this->gamestate->nextState("gameEnd");
                 return;
             } else {
                 $this->setCurrentRound($round + 1);
                 $this->clearPreviousWinnerCount();
-                $this->gamestate->nextState("nextRound");
+                $this->gamestate->nextState("newRound");
             }
         } else {
             $this->nextDealer();
