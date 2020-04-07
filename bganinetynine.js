@@ -242,6 +242,7 @@ function (dojo, declare, domStyle) {
         clearTricksWon: function() {
             console.log("hiding trick count");
             dojo.query(".tricks").style("display", "none");
+            dojo.byId("myTricksWon").textContent = 0;
             for (var playerId in this.gamedatas.players) {
                 var divId = "tricksWon_" + playerId;
                 var tricksWonSpan = dojo.byId(divId);
