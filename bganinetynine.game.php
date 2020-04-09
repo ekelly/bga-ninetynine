@@ -1222,6 +1222,10 @@ class BgaNinetyNine extends Table {
             $table[] = array(clienttranslate("Round Total"), $scoreInfo['roundTotal'][$player1][$i],
                 $scoreInfo['roundTotal'][$player2][$i], $scoreInfo['roundTotal'][$player3][$i]);
         }
+        $player1Score = $this->dbGetScore($player1);
+        $player2Score = $this->dbGetScore($player2);
+        $player3Score = $this->dbGetScore($player3);
+        $table[] = array(clienttranslate("Total"), $player1Score, $player2Score, $player3Score);
         return $table;
     }
 
