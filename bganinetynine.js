@@ -415,6 +415,10 @@ function (dojo, declare, domStyle) {
         showActiveDeclareOrReveal: function(decRevInfo) {
             var playerNameSpan = dojo.byId("decrev_player_name");
             if (decRevInfo.playerId) {
+                dojo.query(".declare").style("display", "block");
+                if (Object.keys(decRevInfo.cards).length > 0) {
+                    dojo.query(".reveal").style("display", "block");
+                }
                 playerNameSpan.textContent = decRevInfo.playerName;
                 var playerColor = decRevInfo.playerColor;
                 domStyle.set(playerNameSpan, "color", "#" + playerColor);
@@ -428,6 +432,8 @@ function (dojo, declare, domStyle) {
             } else {
                 playerNameSpan.textContent = "None";
                 domStyle.set(playerNameSpan, "color", "#000000");
+                dojo.query(".declare").style("display", "none");
+                dojo.query(".reveal").style("display", "none");
             }
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
         },
@@ -437,6 +443,8 @@ function (dojo, declare, domStyle) {
             this.declaredBid.removeAll();
             this.revealedHand.removeAll();
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
+            dojo.query(".declare").style("display", "none");
+            dojo.query(".reveal").style("display", "none");
         },
 
         ///////////////////////////////////////////////////

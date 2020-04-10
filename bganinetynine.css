@@ -107,13 +107,18 @@
     font-weight: bold;
 }
 
-#declarerevealtable {
-    display: block;
-}
-
 #declaretable {
     font-size: 14px;
     font-weight: bold;
+}
+
+.declare {
+    display: none;
+}
+
+.reveal {
+    display: none;
+    height: 130px;
 }
 
 #middleRow {
@@ -229,6 +234,7 @@
 
 .bid_container {
     min-width: 240px;
+    height: 130px;
 }
 
 .bids {

@@ -23,14 +23,14 @@
     See your "view" PHP file to check how to set variables and control blocks
 -->
 <div id="table">
-    <div id="declarerevealtable">
-        <h3 class="whiteblock">
+    <div id="declarerevealtable" class="declare">
+        <h3 class="whiteblock declare">
             <span class="to_translate">Revealing/Declaring Player: </span>
             <!-- PLAYER_NAME should say none for rounds with no declaring/revealing player -->
             <span class="to_translate" id="decrev_player_name">None</span>
         </h3>
-        <div id="revealtable" class="whiteblock">
-            <span>Revealed Hand:</span>
+        <div id="revealtable" class="whiteblock reveal">
+            <h3>Revealed Hand:</h3>
             <div id="revealedHand"></div>
         </div>
     </div>
@@ -54,7 +54,7 @@
             </div>
         </div>
         <div class="bids">
-            <div id="declaretable" class="whiteblock bid_container">
+            <div id="declaretable" class="whiteblock bid_container declare">
                 <h3>Declared Bid: <span id="declaredBidValue"></span></h3>
                 <div id="declaredBid"></div>
             </div>
