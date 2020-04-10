@@ -48,12 +48,15 @@
 
 #playertables {
     position: relative;
-    width: 40%;
-    min-width: 390px;
     height: 340px;
     display: inline-block;
     min-width: 390px;
     /*margin-left: 10%;*/
+}
+
+.bids {
+    width: 100%;
+    margin-left: 100px;
 }
 
 .playertablename {
@@ -96,7 +99,7 @@
 #trumpContainer {
     left: 100%;
     bottom: 0px;
-    margin-left: -120px;
+    margin-left: -75px;
     position: absolute;
     width: 120px;
     text-align: center;
@@ -105,15 +108,16 @@
 }
 
 #declarerevealtable {
-    position: absolute;
-    width: 55%;
-    display: inline-block;
-    margin-left: 5%;
+    display: block;
 }
 
 #declaretable {
     font-size: 14px;
     font-weight: bold;
+}
+
+#middleRow {
+    display: flex;
 }
 
 #revealtable {
@@ -220,12 +224,16 @@
 .section {
     flex-direction: row;
     width: auto;
-    display: inline-block;
+    display: block;
 }
 
 .bid_container {
-    width: 240px;
-    margin-left: 50px;
+    min-width: 240px;
+}
+
+.bids {
+    width: 100%;
+    margin-left: 100px;
 }
 
 .red {
