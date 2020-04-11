@@ -946,9 +946,6 @@ class BgaNinetyNine extends Table {
         $scoreInfo = $this->generateScoreInfo();
         $scoreTable = $this->createHandScoringTable($scoreInfo);
 
-        $this->debug("End hand");
-        $this->debug($scoreInfo);
-
         $this->notifyScore($scoreTable, clienttranslate('Hand Score'));
         $madeBidCount = $scoreInfo['correctBidCount'];
         $this->setHandWinnerCount($madeBidCount);
@@ -1009,8 +1006,6 @@ class BgaNinetyNine extends Table {
 
     function stEndRound() {
         $scoreInfo = $this->generateRoundScoreInfo();
-        $this->debug("round score");
-        $this->debug($scoreInfo);
 
         // Display Round score
         $scoreTable = $this->createRoundScoringTable($scoreInfo);
@@ -1024,8 +1019,6 @@ class BgaNinetyNine extends Table {
             return;
         } else {
             $nextRound = $round + 1;
-            $this->debug("New round: $nextRound");
-
             $this->setCurrentRound($round + 1);
             $this->clearPreviousWinnerCount();
             $this->gamestate->nextState("newRound");

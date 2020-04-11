@@ -227,15 +227,16 @@ function (dojo, declare, domStyle) {
 
         updateCurrentTricksWon: function(playerId, tricksWon) {
             console.log("Updating tricks won: " + playerId + " - " + tricksWon);
-            var divId;
-            if (playerId != this.player_id) {
-                divId = "tricksWon_" + playerId;
-            } else {
-                divId = "myTricksWon";
+            if (playerId == this.player_id) {
+                this.updateValueInNode("myTricksWon", tricksWon);
             }
-            var tricksWonSpan = dojo.byId(divId);
-            if (tricksWonSpan != null) {
-                tricksWonSpan.textContent = tricksWon;
+            this.updateValueInNode("tricks_" + playerId, tricksWon);
+        },
+
+        updateValueInNode: function(nodeId, value) {
+            var node = dojo.byId(nodeId);
+            if (node != null) {
+                node.textContent = value;
             }
         },
 
@@ -244,11 +245,7 @@ function (dojo, declare, domStyle) {
             dojo.query(".tricks").style("display", "none");
             dojo.byId("myTricksWon").textContent = 0;
             for (var playerId in this.gamedatas.players) {
-                var divId = "tricksWon_" + playerId;
-                var tricksWonSpan = dojo.byId(divId);
-                if (tricksWonSpan != null) {
-                    tricksWonSpan.textContent = 0;
-                }
+                this.updateValueInNode("tricks_" + playerId, 0);
             }
         },
 
@@ -415,20 +412,21 @@ function (dojo, declare, domStyle) {
         showActiveDeclareOrReveal: function(decRevInfo) {
             var playerNameSpan = dojo.byId("decrev_player_name");
             if (decRevInfo.playerId) {
-                dojo.query(".declare").style("display", "block");
-                if (Object.keys(decRevInfo.cards).length > 0) {
-                    dojo.query(".reveal").style("display", "block");
+                if (decRevInfo.playerId != this.player_id) {
+                    dojo.query(".declare").style("display", "block");
+                    if (Object.keys(decRevInfo.cards).length > 0) {
+                        dojo.query(".reveal").style("display", "block");
+                    }
+                    // Show Revealed cards
+                    this.revealedHand.removeAll();
+                    this.addCardsToStock(this.revealedHand, decRevInfo.cards);
+                    // Show Declared bid
+                    this.declaredBid.removeAll();
+                    this.addCardsToStock(this.declaredBid, decRevInfo.bid);
                 }
                 playerNameSpan.textContent = decRevInfo.playerName;
                 var playerColor = decRevInfo.playerColor;
                 domStyle.set(playerNameSpan, "color", "#" + playerColor);
-
-                // Show Revealed cards
-                this.revealedHand.removeAll();
-                this.addCardsToStock(this.revealedHand, decRevInfo.cards);
-                // Show Declared bid
-                this.declaredBid.removeAll();
-                this.addCardsToStock(this.declaredBid, decRevInfo.bid);
             } else {
                 playerNameSpan.textContent = "None";
                 domStyle.set(playerNameSpan, "color", "#000000");

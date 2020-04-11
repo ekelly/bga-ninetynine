@@ -40,8 +40,9 @@
             <!-- BEGIN player -->
             <div class="playertable whiteblock playertable_{DIR}" id="playertable_{PLAYER_ID}">
                 <div class="playertablename" style="color:#{PLAYER_COLOR}">
-                    {PLAYER_NAME}
                     <span id="dealerindicator_{PLAYER_ID}" class="dealerindicator">(D)</span>
+                    {PLAYER_NAME}
+                    <span class="tricks">(<span id="tricks_{PLAYER_ID}" class="tricks">0</span>)</span>
                 </div>
                 <div class="playertablecard" id="playertablecard_{PLAYER_ID}">
                 </div>
@@ -61,9 +62,9 @@
             <div class="section whiteblock bid_container">
                 <h3>
                     <span class="to_translate" style="display: inline-block;">My Bid: 
-                        <span id="myTricksWon" class="tricks"></span>
-                        <span class="tricks">/</span>
                         <span id="bidValue"></span>
+                        <span class="tricks"> / Tricks Taken: </span>
+                        <span id="myTricksWon" class="tricks"></span>
                     </span>
                 </h3>
                 <div id="mybid"></div>
