@@ -412,6 +412,7 @@ function (dojo, declare, domStyle) {
         showActiveDeclareOrReveal: function(decRevInfo) {
             var playerNameSpan = dojo.byId("decrev_player_name");
             if (decRevInfo.playerId) {
+                dojo.query(".declaringplayer").style("display", "block");
                 if (decRevInfo.playerId != this.player_id) {
                     dojo.query(".declare").style("display", "block");
                     if (Object.keys(decRevInfo.cards).length > 0) {
@@ -601,6 +602,11 @@ function (dojo, declare, domStyle) {
             this.showDealer(notif.args.dealer);
             this.showFirstPlayer(notif.args.firstPlayer);
             this.showTrump(null);
+
+            // Clear everyone's scores
+            for (var player_id in this.gamedatas.players) {
+                this.scoreCtrl[player_id].toValue(0);
+            }
         },
 
         notif_newHand: function(notif) {

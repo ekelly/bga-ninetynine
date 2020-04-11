@@ -989,8 +989,7 @@ class BgaNinetyNine extends Table {
                     'player_name' => $players[$player_id]['player_name']));
             }
         }
-        $newScores = self::getCollectionFromDb("SELECT player_id, player_score FROM player", true);
-        self::notifyAllPlayers("newScores", '', array('newScores' => $newScores));
+        self::notifyAllPlayers("newScores", '', array('newScores' => $scoreInfo['currentScore']));
 
         $this->clearAllDeclareReveal();
         $this->clearBids();
@@ -1227,6 +1226,8 @@ class BgaNinetyNine extends Table {
 
     function stGameEnd() {
         self::warn("stGameEnd");
+        $newScores = self::getCollectionFromDb("SELECT player_id, player_score FROM player", true);
+        self::notifyAllPlayers("newScores", '', array('newScores' => $newScores));
     }
 
     function debug($val) {

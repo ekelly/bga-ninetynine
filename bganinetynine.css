@@ -116,6 +116,10 @@
     display: none;
 }
 
+.declaringplayer {
+    display: none;
+}
+
 .reveal {
     display: none;
     height: 130px;
@@ -254,6 +258,12 @@
 .tricks {
     display: none;
     color: black;
+}
+
+.playertable > .tricks {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
 }
 
 .firstplayer {

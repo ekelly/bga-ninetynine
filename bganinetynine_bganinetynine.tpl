@@ -23,8 +23,8 @@
     See your "view" PHP file to check how to set variables and control blocks
 -->
 <div id="table">
-    <div id="declarerevealtable" class="declare">
-        <h3 class="whiteblock declare">
+    <div id="declarerevealtable" class="declaringplayer">
+        <h3 class="whiteblock declaringplayer">
             <span class="to_translate">Revealing/Declaring Player: </span>
             <!-- PLAYER_NAME should say none for rounds with no declaring/revealing player -->
             <span class="to_translate" id="decrev_player_name">None</span>
@@ -42,10 +42,10 @@
                 <div class="playertablename" style="color:#{PLAYER_COLOR}">
                     <span id="dealerindicator_{PLAYER_ID}" class="dealerindicator">(D)</span>
                     {PLAYER_NAME}
-                    <span class="tricks">(<span id="tricks_{PLAYER_ID}" class="tricks">0</span>)</span>
                 </div>
                 <div class="playertablecard" id="playertablecard_{PLAYER_ID}">
                 </div>
+                <span class="tricks">(<span id="tricks_{PLAYER_ID}" class="tricks">0</span>)</span>
             </div>
             <!-- END player -->
 
