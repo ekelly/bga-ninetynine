@@ -76,6 +76,7 @@ function (dojo, declare, domStyle) {
 
             // Revealed Hand
             this.revealedHand = this.setupCardStocks('revealedHand');
+            this.revealedHand.setOverlap(20, 0);
 
             console.log("Initial hand: " + this.gamedatas.hand);
             console.log(this.gamedatas.hand);
