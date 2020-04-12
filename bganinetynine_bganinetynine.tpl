@@ -59,16 +59,6 @@
                 <h3>Declared Bid: <span id="declaredBidValue"></span></h3>
                 <div id="declaredBid"></div>
             </div>
-            <div class="section whiteblock bid_container">
-                <h3>
-                    <span class="to_translate" style="display: inline-block;">My Bid: 
-                        <span id="bidValue"></span>
-                        <span class="tricks"> / Tricks Taken: </span>
-                        <span id="myTricksWon" class="tricks"></span>
-                    </span>
-                </h3>
-                <div id="mybid"></div>
-            </div>
         </div>
     </div>
 </div>
@@ -78,8 +68,18 @@
         <div class="to_translate" style="width: auto;"><h3>My Hand</h3></div>
         <div id="myhand"></div>
     </div>
+    
 </div>
-
+<div class="section whiteblock bid_container">
+                <h3>
+                    <span class="to_translate" style="display: inline-block;">My Bid: 
+                        <span id="bidValue"></span>
+                        <span class="tricks"> / Tricks Taken: </span>
+                        <span id="myTricksWon" class="tricks"></span>
+                    </span>
+                </h3>
+                <div id="mybid"></div>
+            </div>
 
 
 

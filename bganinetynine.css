@@ -113,15 +113,12 @@
 }
 
 .declare {
-    display: none;
 }
 
 .declaringplayer {
-    display: none;
 }
 
 .reveal {
-    display: none;
     height: 130px;
 }
 
@@ -268,4 +265,6 @@
 
 .firstplayer {
     border: 2px black dashed;
+    width: 176px;
+    height: 126px;
 }
