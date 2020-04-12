@@ -1118,8 +1118,15 @@ class BgaNinetyNine extends Table {
         $player1 = $playerIds[0];
         $player2 = $playerIds[1];
         $player3 = $playerIds[2];
+        $table = array();
+        $firstRow = array('');
+        foreach ($players as $player_id => $player) {
+            $firstRow[] = array('str' => '${player_name}',
+                                'args' => array('player_name' => $player['player_name']),
+                                'type' => 'header');
+        }
+        $table[] = $firstRow;
         $table = array(
-            array("", $scoreInfo['name'][$player1], $scoreInfo['name'][$player2], $scoreInfo['name'][$player3]),
             array(clienttranslate("Bid"), $scoreInfo['bid'][$player1], $scoreInfo['bid'][$player2], $scoreInfo['bid'][$player3]),
             array(clienttranslate("Tricks taken"), $scoreInfo['tricks'][$player1], $scoreInfo['tricks'][$player2], $scoreInfo['tricks'][$player3]),
             array(clienttranslate("Bonus"), $scoreInfo['bonus'][$player1], $scoreInfo['bonus'][$player2], $scoreInfo['bonus'][$player3])
@@ -1128,7 +1135,7 @@ class BgaNinetyNine extends Table {
             $table[] = array(clienttranslate("Declare/Reveal"), $scoreInfo['decrev'][$player1], $scoreInfo['decrev'][$player2], $scoreInfo['decrev'][$player3]);
         }
         $table[] = array(clienttranslate("Total"), $scoreInfo['total'][$player1], $scoreInfo['total'][$player2], $scoreInfo['total'][$player3]);
-        $table[] = array(clienttranslate("Current score"), $scoreInfo['currentScore'][$player1], $scoreInfo['currentScore'][$player2], $scoreInfo['currentScore'][$player3]);
+        $table[] = array(clienttranslate("Round score"), $scoreInfo['currentScore'][$player1], $scoreInfo['currentScore'][$player2], $scoreInfo['currentScore'][$player3]);
         return $table;
     }
 
@@ -1202,17 +1209,21 @@ class BgaNinetyNine extends Table {
         $player2 = $playerIds[1];
         $player3 = $playerIds[2];
         $round = $this->getCurrentRound();
-        $table = array(
-            array("", $scoreInfo['name'][$player1], $scoreInfo['name'][$player2], $scoreInfo['name'][$player3]),
-        );
+        $table = array();
+
+        $firstRow = array('');
+        foreach ($players as $player_id => $player) {
+            $firstRow[] = array('str' => '${player_name}',
+                                'args' => array('player_name' => $player['player_name']),
+                                'type' => 'header');
+        }
+        $table[] = $firstRow;
         for ($i = 0; $i < $round + 1; $i++) {
             $roundName = $i + 1;
             $table[] = array(clienttranslate("Round $roundName"), $scoreInfo['score'][$player1][$i],
                 $scoreInfo['score'][$player2][$i], $scoreInfo['score'][$player3][$i]);
             $table[] = array(clienttranslate("Round $roundName bonus"), $scoreInfo['roundBonus'][$player1][$i],
                 $scoreInfo['roundBonus'][$player2][$i], $scoreInfo['roundBonus'][$player3][$i]);
-            $table[] = array(clienttranslate("Round Total"), $scoreInfo['roundTotal'][$player1][$i],
-                $scoreInfo['roundTotal'][$player2][$i], $scoreInfo['roundTotal'][$player3][$i]);
         }
         $player1Score = $this->dbGetScore($player1);
         $player2Score = $this->dbGetScore($player2);
