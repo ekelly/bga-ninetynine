@@ -49,16 +49,17 @@
                 <div>Trump Suit:</div>
                 <div id="trumpSuit">none</div>
             </div>
-        </div>
+        </div>            
         <div class="bids">
-            <div id="revealtable" class="whiteblock reveal">
-                <h3>Revealed Hand:</h3>
-                <div id="revealedHand"></div>
-            </div>
             <div id="declaretable" class="whiteblock bid_container declare">
                 <h3>Declared Bid: <span id="declaredBidValue"></span></h3>
                 <div id="declaredBid"></div>
             </div>
+            <div id="revealtable" class="whiteblock reveal">
+                <h3 id="revealed_label">Revealed Hand:</h3>
+                <div id="revealedHand"></div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -70,7 +71,7 @@
     </div>
     
 </div>
-<div class="section whiteblock bid_container">
+<div class="section whiteblock bid_container my_bid_container">
                 <h3>
                     <span class="to_translate" style="display: inline-block;">My Bid: 
                         <span id="bidValue"></span>

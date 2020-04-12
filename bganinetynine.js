@@ -183,10 +183,17 @@ function (dojo, declare, domStyle) {
 
                 var redSuit = trumpSuit % 2 == 1;
                 trumpSuitSpan.textContent = ["♣", "♦", "♠", "♥"][trumpSuit];
-                domStyle.set(trumpSuitSpan, "color", redSuit ? "red" : "black");
+                dojo.query("#trumpSuit").removeClass("trump_red");
+                dojo.query("#trumpSuit").removeClass("trump_black");
+                dojo.query("#trumpSuit").removeClass("trump_none");
+                dojo.addClass(trumpSuitSpan, redSuit ? "trump_red" : "trump_black")
+                //domStyle.set(trumpSuitSpan, "color", redSuit ? "red" : "black");
             } else {
                 trumpSuitSpan.textContent = "none";
-                domStyle.set(trumpSuitSpan, "color", "black");
+                dojo.query("#trumpSuit").removeClass("trump_red");
+                dojo.query("#trumpSuit").removeClass("trump_black");
+                dojo.addClass(trumpSuitSpan, "trump_none")
+                //domStyle.set(trumpSuitSpan, "color", "black");
             }
         },
 
@@ -432,8 +439,9 @@ function (dojo, declare, domStyle) {
             } else {
                 playerNameSpan.textContent = "None";
                 domStyle.set(playerNameSpan, "color", "#000000");
-                //dojo.query(".declare").style("display", "none");
-                //dojo.query(".reveal").style("display", "none");
+                //dojo.query("#revealed_label").style("display", "none");
+                dojo.query(".declare").style("display", "none");
+                dojo.query(".reveal").style("display", "none");
             }
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
         },
@@ -443,8 +451,8 @@ function (dojo, declare, domStyle) {
             this.declaredBid.removeAll();
             this.revealedHand.removeAll();
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
-            //dojo.query(".declare").style("display", "none");
-            //dojo.query(".reveal").style("display", "none");
+            dojo.query(".declare").style("display", "none");
+            dojo.query(".reveal").style("display", "none");
         },
 
         ///////////////////////////////////////////////////

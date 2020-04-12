@@ -237,7 +237,7 @@
 .bids {
     width: 100%;
     margin-left: 100px;
-    /*display: flex;*/
+    display: flex;
 }
 
 .red {
@@ -279,4 +279,10 @@
     border: 2px black dashed;
     width: 176px;
     height: 126px;
+}
+
+.my_bid_container{
+    position: absolute;
+    right: 0%;
+    bottom: 25.4%;
 }
