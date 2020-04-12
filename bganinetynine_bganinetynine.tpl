@@ -29,10 +29,6 @@
             <!-- PLAYER_NAME should say none for rounds with no declaring/revealing player -->
             <span class="to_translate" id="decrev_player_name">None</span>
         </h3>
-        <div id="revealtable" class="whiteblock reveal">
-            <h3>Revealed Hand:</h3>
-            <div id="revealedHand"></div>
-        </div>
     </div>
     <div id="middleRow">
         <div id="playertables">
@@ -58,6 +54,10 @@
             <div id="declaretable" class="whiteblock bid_container declare">
                 <h3>Declared Bid: <span id="declaredBidValue"></span></h3>
                 <div id="declaredBid"></div>
+            </div>
+            <div id="revealtable" class="whiteblock reveal">
+                <h3>Revealed Hand:</h3>
+                <div id="revealedHand"></div>
             </div>
         </div>
     </div>

@@ -54,11 +54,6 @@
     /*margin-left: 10%;*/
 }
 
-.bids {
-    width: 100%;
-    margin-left: 100px;
-}
-
 .playertablename {
     font-weight: bold;
 }
@@ -129,6 +124,7 @@
 #revealtable {
     font-size: 14px;
     font-weight: bold;
+    min-width: 230px;
 }
 
 /*** cards on table ***/
@@ -241,6 +237,7 @@
 .bids {
     width: 100%;
     margin-left: 100px;
+    display: flex;
 }
 
 .red {
