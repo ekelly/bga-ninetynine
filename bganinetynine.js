@@ -432,8 +432,8 @@ function (dojo, declare, domStyle) {
             } else {
                 playerNameSpan.textContent = "None";
                 domStyle.set(playerNameSpan, "color", "#000000");
-                dojo.query(".declare").style("display", "none");
-                dojo.query(".reveal").style("display", "none");
+                //dojo.query(".declare").style("display", "none");
+                //dojo.query(".reveal").style("display", "none");
             }
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
         },
@@ -443,8 +443,8 @@ function (dojo, declare, domStyle) {
             this.declaredBid.removeAll();
             this.revealedHand.removeAll();
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
-            dojo.query(".declare").style("display", "none");
-            dojo.query(".reveal").style("display", "none");
+            //dojo.query(".declare").style("display", "none");
+            //dojo.query(".reveal").style("display", "none");
         },
 
         ///////////////////////////////////////////////////

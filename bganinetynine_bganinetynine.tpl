@@ -51,13 +51,13 @@
             </div>
         </div>
         <div class="bids">
-            <div id="declaretable" class="whiteblock bid_container declare">
-                <h3>Declared Bid: <span id="declaredBidValue"></span></h3>
-                <div id="declaredBid"></div>
-            </div>
             <div id="revealtable" class="whiteblock reveal">
                 <h3>Revealed Hand:</h3>
                 <div id="revealedHand"></div>
+            </div>
+            <div id="declaretable" class="whiteblock bid_container declare">
+                <h3>Declared Bid: <span id="declaredBidValue"></span></h3>
+                <div id="declaredBid"></div>
             </div>
         </div>
     </div>

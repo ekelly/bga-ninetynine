@@ -237,11 +237,26 @@
 .bids {
     width: 100%;
     margin-left: 100px;
-    display: flex;
+    /*display: flex;*/
 }
 
 .red {
     color: red;
+}
+
+.trump_red{
+    color: red;
+    font-size: 40px;
+}
+
+.trump_black{
+    color: black;
+    font-size: 40px;
+}
+
+.trump_none{
+    color: black;
+    font-size: 16px;
 }
 
 .dealerindicator {
