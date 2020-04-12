@@ -476,6 +476,13 @@ function (dojo, declare, domStyle) {
 
                     this.playerHand.unselectAll();
                 } else if (this.checkAction('submitBid')) {
+
+                    if (this.playerBid.getAllItems().length == 3) {
+                        // Disallow adding more than three cards to the bid
+                        this.playerHand.unselectAll();
+                        return;
+                    }
+
                     var divId = this.playerHand.getItemDivId(items[0].id);
 
                     // Remove that card from the bid and return it to the hand
