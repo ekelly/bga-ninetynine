@@ -438,6 +438,13 @@ class BgaNinetyNine extends Table {
         return $this->getUniqueValueFromDB("SELECT player_score_round$round FROM player WHERE player_id='$playerId'");
     }
 
+    function dbGetRoundScores($round) {
+        if ($round < 0 || $round > 2) {
+            throw new feException("Invalid round");
+        }
+        return $this->getCollectionFromDB("SELECT player_id, player_score_round$round score FROM player", true);
+    }
+
     // set score
     function dbSetRoundScore($playerId, $score) {
         $round = $this->getCurrentRound();
@@ -943,11 +950,8 @@ class BgaNinetyNine extends Table {
     function stEndHand() {
         self::warn("stEndHand");
 
-        $scoreInfo = $this->generateScoreInfo();
-        $scoreTable = $this->createHandScoringTable($scoreInfo);
-
-        $this->notifyScore($scoreTable, clienttranslate('Hand Score'));
-        $madeBidCount = $scoreInfo['correctBidCount'];
+        $handScoreInfo = $this->generateScoreInfo();
+        $madeBidCount = $handScoreInfo['correctBidCount'];
         $this->setHandWinnerCount($madeBidCount);
 
         // Count and score points, then end the round / game or go to the next hand.
@@ -955,25 +959,26 @@ class BgaNinetyNine extends Table {
 
         // Check if anyone exceeded 100
         $countPlayersExceeded100 = 0;
-        foreach ($scoreInfo['currentScore'] as $playerId => $currentScore) {
-            if ($currentScore >= 100) {
+        foreach ($handScoreInfo['currentScore'] as $playerId => $currentScore) {
+            if ($currentScore + $handScoreInfo['total'][$playerId] >= 100) {
                 $countPlayersExceeded100++;
             }
         }
 
         // Apply scores to player
-        foreach ($scoreInfo['total'] as $player_id => $points) {
+        foreach ($handScoreInfo['total'] as $player_id => $points) {
             if ($points != 0) {
 
                 // Add the round bonus to the total score
-                if ($scoreInfo['currentScore'][$player_id] >= 100) {
+                $playerRoundScore = $handScoreInfo['currentScore'][$player_id] +
+                    $handScoreInfo['total'][$player_id];
+                if ($playerRoundScore >= 100) {
                     $points += (40 - ($countPlayersExceeded100 * 10));
                 }
 
                 $sql = "UPDATE player SET player_score=player_score+$points WHERE player_id='$player_id'";
                 self::DbQuery($sql);
 
-                $playerRoundScore = $scoreInfo['currentScore'][$player_id];
                 $this->dbSetRoundScore($player_id, $playerRoundScore);
 
                 self::notifyAllPlayers("points", clienttranslate('${player_name} gets ${points} points'), array(
@@ -989,26 +994,36 @@ class BgaNinetyNine extends Table {
                     'player_name' => $players[$player_id]['player_name']));
             }
         }
-        self::notifyAllPlayers("newScores", '', array('newScores' => $scoreInfo['currentScore']));
+        $newScores = $this->dbGetRoundScores($this->getCurrentRound());
+        self::notifyAllPlayers("newScores", '', array('newScores' => $newScores));
 
-        $this->clearAllDeclareReveal();
-        $this->clearBids();
-
-        // Test if this is the end of the game
+        // Test if this is the end of the round
         if ($countPlayersExceeded100 > 0) {
             $this->gamestate->nextState("endRound");
         } else {
+            // Display the score for the hand
+            $handScoreInfo = $this->generateScoreInfo();
+            $scoreTable = $this->createHandScoringTable($handScoreInfo);
+            $this->notifyScore($scoreTable, clienttranslate('Hand Score'));
+
+            $this->clearAllDeclareReveal();
+            $this->clearBids();
+
             $this->nextDealer();
             $this->gamestate->nextState("newHand");
         }
     }
 
     function stEndRound() {
-        $scoreInfo = $this->generateRoundScoreInfo();
+        $handScoreInfo = $this->generateScoreInfo();
+        $roundScoreInfo = $this->generateRoundScoreInfo();
 
         // Display Round score
-        $scoreTable = $this->createRoundScoringTable($scoreInfo);
-        $this->notifyScore($scoreTable, clienttranslate('Round Score'));
+        $scoreTable = $this->createRoundScoringTable($handScoreInfo, $roundScoreInfo);
+        $this->notifyScore($scoreTable, clienttranslate('End of Round Score'));
+
+        $this->clearAllDeclareReveal();
+        $this->clearBids();
 
         // Test if this is the end of the game
         $round = $this->getCurrentRound();
@@ -1107,17 +1122,13 @@ class BgaNinetyNine extends Table {
         $result['total'] = $total;
         $result['currentScore'] = array();
         foreach ($currentScores as $playerId => $score) {
-            $result['currentScore'][$playerId] = $total[$playerId] + intval($score);
+            $result['currentScore'][$playerId] = intval($score);
         }
         return $result;
     }
 
     function createHandScoringTable($scoreInfo) {
         $players = self::loadPlayersBasicInfos();
-        $playerIds = array_keys($players);
-        $player1 = $playerIds[0];
-        $player2 = $playerIds[1];
-        $player3 = $playerIds[2];
         $table = array();
         $firstRow = array('');
         foreach ($players as $player_id => $player) {
@@ -1126,16 +1137,47 @@ class BgaNinetyNine extends Table {
                                 'type' => 'header');
         }
         $table[] = $firstRow;
-        $table = array(
-            array(clienttranslate("Bid"), $scoreInfo['bid'][$player1], $scoreInfo['bid'][$player2], $scoreInfo['bid'][$player3]),
-            array(clienttranslate("Tricks taken"), $scoreInfo['tricks'][$player1], $scoreInfo['tricks'][$player2], $scoreInfo['tricks'][$player3]),
-            array(clienttranslate("Bonus"), $scoreInfo['bonus'][$player1], $scoreInfo['bonus'][$player2], $scoreInfo['bonus'][$player3])
-        );
-        if (array_key_exists("decrev", $scoreInfo)) {
-            $table[] = array(clienttranslate("Declare/Reveal"), $scoreInfo['decrev'][$player1], $scoreInfo['decrev'][$player2], $scoreInfo['decrev'][$player3]);
+
+        $bidRow = array(clienttranslate("Bid"));
+        foreach ($players as $player_id => $player) {
+            $bidRow[] = $scoreInfo['bid'][$player_id];
         }
-        $table[] = array(clienttranslate("Total"), $scoreInfo['total'][$player1], $scoreInfo['total'][$player2], $scoreInfo['total'][$player3]);
-        $table[] = array(clienttranslate("Round score"), $scoreInfo['currentScore'][$player1], $scoreInfo['currentScore'][$player2], $scoreInfo['currentScore'][$player3]);
+        $table[] = $bidRow;
+
+        $tricksRow = array(clienttranslate("Tricks Taken"));
+        foreach ($players as $player_id => $player) {
+            $tricksRow[] = $scoreInfo['tricks'][$player_id];
+        }
+        $table[] = $tricksRow;
+
+        $bonusRow = array(clienttranslate("Bonus"));
+        foreach ($players as $player_id => $player) {
+            $bonusRow[] = $scoreInfo['bonus'][$player_id];
+        }
+        $table[] = $bonusRow;
+
+        if (array_key_exists("decrev", $scoreInfo)) {
+            $decRevRow = array(clienttranslate("Declare/Reveal"));
+            foreach ($players as $player_id => $player) {
+                $decRevRow[] = $scoreInfo['decrev'][$player_id];
+            }
+            $table[] = $decRevRow;
+        }
+
+        $totalRow = array(clienttranslate("Total"));
+        foreach ($players as $player_id => $player) {
+            $totalRow[] = $scoreInfo['total'][$player_id];
+        }
+        $table[] = $totalRow;
+
+        // Having a separater between hand total and round total is nice
+        $table[] = array('', '', '', '');
+
+        $roundScoreRow = array(clienttranslate("Round Score"));
+        foreach ($players as $player_id => $player) {
+            $roundScoreRow[] = $scoreInfo['currentScore'][$player_id];
+        }
+        $table[] = $roundScoreRow;
         return $table;
     }
 
@@ -1150,19 +1192,16 @@ class BgaNinetyNine extends Table {
 
     function generateRoundScoreInfo() {
         $players = self::loadPlayersBasicInfos();
-        $playerIds = array_keys($players);
-        $player1 = $playerIds[0];
-        $player2 = $playerIds[1];
-        $player3 = $playerIds[2];
         $result = array();
         $result['name'] = array();
-        $result['score'] = array();
+        $result['roundScore'] = array();
+        $result['gameScore'] = array();
         $round = $this->getCurrentRound();
         $playerBroke100 = array();
         $countBroke100 = array();
         foreach ($players as $playerId => $player) {
             $result['name'][$playerId] = $player['player_name'];
-            $result['score'][$playerId] = array();
+            $result['roundScore'][$playerId] = array();
             $playerBroke100[$playerId] = array();
             for ($i = 0; $i < $round + 1; $i++) {
                 $roundScore = $this->dbGetRoundScore($playerId, $i);
@@ -1175,7 +1214,7 @@ class BgaNinetyNine extends Table {
                 } else {
                     $playerBroke100[$playerId][$i] = false;
                 }
-                $result['score'][$playerId][$i] = $roundScore;
+                $result['roundScore'][$playerId][$i] = $roundScore;
             }
         }
         // Calculate round bonuses
@@ -1195,44 +1234,53 @@ class BgaNinetyNine extends Table {
                     $result['roundBonus'][$playerId][$i] = 0;
                 }
                 $result['roundTotal'][$playerId][$i] =
-                    $result['score'][$playerId][$i] +
+                    $result['roundScore'][$playerId][$i] +
                         $result['roundBonus'][$playerId][$i];
             }
+            $gameScore = $this->dbGetScore($playerId);
+            $result['gameScore'][$playerId] = $gameScore;
         }
         return $result;
     }
 
-    function createRoundScoringTable($scoreInfo) {
-        $players = self::loadPlayersBasicInfos();
-        $playerIds = array_keys($players);
-        $player1 = $playerIds[0];
-        $player2 = $playerIds[1];
-        $player3 = $playerIds[2];
-        $round = $this->getCurrentRound();
-        $table = array();
+    function createRoundScoringTable($handScoreInfo, $roundScoreInfo) {
 
-        $firstRow = array('');
-        foreach ($players as $player_id => $player) {
-            $firstRow[] = array('str' => '${player_name}',
-                                'args' => array('player_name' => $player['player_name']),
-                                'type' => 'header');
-        }
-        $table[] = $firstRow;
+        $table = $this->createHandScoringTable($handScoreInfo);
+
+        $players = self::loadPlayersBasicInfos();
+        $round = $this->getCurrentRound();
+
+        $table[] = array('', '', '', '');
+
         for ($i = 0; $i < $round + 1; $i++) {
             $roundName = $i + 1;
-            $table[] = array(clienttranslate("Round $roundName"), $scoreInfo['score'][$player1][$i],
-                $scoreInfo['score'][$player2][$i], $scoreInfo['score'][$player3][$i]);
-            $table[] = array(clienttranslate("Round $roundName bonus"), $scoreInfo['roundBonus'][$player1][$i],
-                $scoreInfo['roundBonus'][$player2][$i], $scoreInfo['roundBonus'][$player3][$i]);
-        }
-        $player1Score = $this->dbGetScore($player1);
-        $player2Score = $this->dbGetScore($player2);
-        $player3Score = $this->dbGetScore($player3);
-        $table[] = array(clienttranslate("Total"), $player1Score, $player2Score, $player3Score);
-        return $table;
-    }
 
-    function createFinalScoringTable() {
+            $roundScoreRow = array(clienttranslate("Round $roundName"));
+            foreach ($players as $player_id => $player) {
+                $roundScore = $roundScoreInfo['roundScore'][$player_id][$i];
+                // Since we're not showing the bonuses unless it's the current round,
+                // we need to add them to the previous round's score here
+                if ($i != $round) {
+                    $roundScore += $roundScoreInfo['roundBonus'][$player_id][$i];
+                }
+                $roundScoreRow[] = $roundScore;
+            }
+            $table[] = $roundScoreRow;
+
+            if ($i == $round) {
+                $roundBonusRow = array(clienttranslate("Round $roundName bonus"));
+                foreach ($players as $player_id => $player) {
+                    $roundBonusRow[] = $roundScoreInfo['roundBonus'][$player_id][$i];
+                }
+                $table[] = $roundBonusRow;
+            }
+        }
+        $totalRow = array(clienttranslate("Game Total"));
+        foreach ($players as $player_id => $player) {
+            $totalRow[] = $roundScoreInfo['gameScore'][$player_id];
+        }
+        $table[] = $totalRow;
+        return $table;
     }
 
     function stGameEnd() {
