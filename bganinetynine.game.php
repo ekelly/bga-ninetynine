@@ -151,7 +151,8 @@ class BgaNinetyNine extends Table {
         self::warn("getAllDatas");
         $result = array( 'players' => array() );
 
-        $player_id = self::getCurrentPlayerId();    // !! We must only return informations visible by this player !!
+        // !! We must only return informations visible by this player !!
+        $player_id = self::getCurrentPlayerId();
 
         // Get information about players
         // Note: you can retrieve some extra field you add for "player" table in "dbmodel.sql" if you need it.
@@ -167,7 +168,7 @@ class BgaNinetyNine extends Table {
         $result['hand'] = $this->cards->getPlayerHand($player_id);
 
         // Cards played on the table
-        $result['cardsontable'] = $this->cards->getCardsInLocation( 'cardsontable');
+        $result['cardsontable'] = $this->cards->getCardsInLocation('cardsontable');
 
         // Result should be the following:
         // result = { 'players': [[id, score], ...], 'hand': [{card}, ...], 'cardsontable': [...]}
@@ -261,7 +262,7 @@ class BgaNinetyNine extends Table {
             }
         }
 
-        throw new feException("Incorrect calculation of dealer: $actualDealerPosition");
+        throw new feException(sprintf(_("Incorrect calculation of dealer: %d"), $actualDealerPosition));
     }
 
     function getDealer() {
@@ -334,11 +335,6 @@ class BgaNinetyNine extends Table {
 
     /**
         Set the trick suit.
-        1 = spades
-        2 = hearts
-        3 = diamond
-        4 = club
-
     **/
     function setCurrentTrickSuit($trickSuit) {
         self::setGameStateValue("trickSuit", $trickSuit);
@@ -364,7 +360,7 @@ class BgaNinetyNine extends Table {
             case 3:
                 return 2;
             default:
-                throw new feException("Unknown suit: " + $card['type']);
+                throw new feException(sprintf(_("Unknown suit: %s"), $card['type']));
         }
     }
 
@@ -444,14 +440,14 @@ class BgaNinetyNine extends Table {
 
     function dbGetRoundScore($playerId, $round) {
         if ($round < 0 || $round > 2) {
-            throw new feException("Invalid round");
+            throw new feException(_("Invalid round"));
         }
         return $this->getUniqueValueFromDB("SELECT player_score_round$round FROM player WHERE player_id='$playerId'");
     }
 
     function dbGetRoundScores($round) {
         if ($round < 0 || $round > 2) {
-            throw new feException("Invalid round");
+            throw new feException(_("Invalid round"));
         }
         return $this->getCollectionFromDB("SELECT player_id, player_score_round$round score FROM player", true);
     }
@@ -510,7 +506,7 @@ class BgaNinetyNine extends Table {
         $output = array();
         $result = $this->getCollectionFromDB("SELECT player_id id, player_name name, player_declare_reveal decrev FROM player WHERE player_declare_reveal != 0");
         if (count($result) > 1) {
-            throw new feException("Invalid game state - multiple declaring or revealing players");
+            throw new feException(_("Invalid game state - multiple declaring or revealing players"));
         } else if (count($result) == 1) {
             $playerId = array_keys($result)[0];
             $playerName = $result[$playerId]['name'];
@@ -543,7 +539,7 @@ class BgaNinetyNine extends Table {
             $declareReveal['playerColor'] = $this->getPlayerColor($declaringOrRevealingPlayer);
             if ($result[$declaringOrRevealingPlayer]['decrev'] >= 1) {
                 $declareReveal['bid'] =
-                    $this->cards->getCardsInLocation( 'bid', $declaringOrRevealingPlayer);
+                    $this->cards->getCardsInLocation('bid', $declaringOrRevealingPlayer);
                 $decRev = 1;
             }
             if ($result[$declaringOrRevealingPlayer]['decrev'] == 2) {
@@ -604,7 +600,7 @@ class BgaNinetyNine extends Table {
         $cardsOnTable = $this->cards->getCardsInLocation('cardsontable');
 
         if (count($cardsOnTable) != 3) {
-            throw new feException("Invalid trick card count");
+            throw new feException(_("Invalid trick card count"));
         }
 
         $bestValue = 0;
@@ -678,7 +674,7 @@ class BgaNinetyNine extends Table {
         self::checkAction( "submitDeclareOrReveal" );
 
         if ($declareOrReveal < 0 || $declareOrReveal > 2) {
-            throw new feException(self::_("Invalid declare or reveal: $declareOrReveal"));
+            throw new feException(sprintf(_("Invalid declare or reveal: %d"), $declareOrReveal));
         }
 
         // Check that the cards are actually in the current user's hands.
@@ -727,7 +723,7 @@ class BgaNinetyNine extends Table {
             }
         }
         if (!$cardIsInPlayerHand) {
-            throw new feException("This card is not in your hand");
+            throw new feException(_("This card is not in your hand"));
         }
 
         if ($firstCardOfTrick) {
@@ -759,32 +755,6 @@ class BgaNinetyNine extends Table {
     }
 
 //////////////////////////////////////////////////////////////////////////////
-//////////// Game state arguments
-////////////
-
-    /*
-        Here, you can create methods defines as "game state arguments" (see "args" property in states.inc.php).
-        These methods are returning some additional informations that are specific to the current
-        game state.
-    */
-
-    function argGiveCards() {
-        $handType = self::getGameStateValue( "currentHandType" );
-        $direction = "";
-        if( $handType == 0 )
-            $direction = clienttranslate( "the player on the left" );
-        else if( $handType == 1 )
-            $direction = clienttranslate( "the player accros the table" );
-        else if( $handType == 2 )
-            $direction = clienttranslate( "the player on the right" );
-
-        return array(
-            "i18n" => array( 'direction'),
-            "direction" => $direction
-        );
-    }
-
-//////////////////////////////////////////////////////////////////////////////
 //////////// Game state actions
 ////////////
 
@@ -805,7 +775,8 @@ class BgaNinetyNine extends Table {
         $firstPlayer = $this->getPlayerAfter($dealer);
         $this->setFirstPlayer($firstPlayer);
         self::notifyAllPlayers('newRound', clienttranslate('Starting a new round'), array(
-            'dealer' => $dealer, 'firstPlayer' => $firstPlayer
+            'dealer' => $dealer,
+            'firstPlayer' => $firstPlayer
         ));
         $this->gamestate->nextState("");
     }
@@ -1332,7 +1303,8 @@ class BgaNinetyNine extends Table {
         for ($i = 0; $i < $round + 1; $i++) {
             $roundName = $i + 1;
 
-            $roundScoreRow = array(clienttranslate("Round $roundName"));
+            $translatedRoundName = sprintf(clienttranslate("Round %d"), $roundName);
+            $roundScoreRow = array($translatedRoundName);
             foreach ($players as $player_id => $player) {
                 $roundScore = $roundScoreInfo['roundScore'][$player_id][$i];
                 // Since we're not showing the bonuses unless it's the current round,
@@ -1345,7 +1317,8 @@ class BgaNinetyNine extends Table {
             $table[] = $roundScoreRow;
 
             if ($i == $round) {
-                $roundBonusRow = array(clienttranslate("Round $roundName bonus"));
+                $translatedRoundBonus = sprintf(clienttranslate("Round %d bonus"), $roundName);
+                $roundBonusRow = array($translatedRoundBonus);
                 foreach ($players as $player_id => $player) {
                     $roundBonusRow[] = $roundScoreInfo['roundBonus'][$player_id][$i];
                 }
@@ -1380,7 +1353,7 @@ class BgaNinetyNine extends Table {
     function zombieTurn($state, $active_player) {
         // Note: zombie mode has not be realized for BgaNinetyNine, as it is an example game and
         //       that it can be complex to choose a right card to play.
-        throw new feException( "Zombie mode not supported for BgaNinetyNine" );
+        throw new feException(_("Zombie mode not supported for BgaNinetyNine"));
     }
 }
 

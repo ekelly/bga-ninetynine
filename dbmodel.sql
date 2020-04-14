@@ -19,17 +19,6 @@
 -- Note: The database schema is created from this file when the game starts. If you modify this file,
 --       you have to restart a game to see your changes in database.
 
--- Example 1: create a standard "card" table to be used with the "Deck" tools (see example game "bganinetynine"):
-
--- CREATE TABLE IF NOT EXISTS `card` (
---   `card_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
---   `card_type` varchar(16) NOT NULL,
---   `card_type_arg` int(11) NOT NULL,
---   `card_location` varchar(16) NOT NULL,
---   `card_location_arg` int(11) NOT NULL,
---   PRIMARY KEY (`card_id`)
--- ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
 -- Default Player Table columns:
 -- player_no: int player number
 -- player_id: int id representing player
@@ -61,10 +50,4 @@ CREATE TABLE IF NOT EXISTS `card` (
   `card_location_arg` int(11) NOT NULL,
   PRIMARY KEY (`card_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
--- card locations:
--- DECK, DISCARD, HAND, BID
--- both bid and hand require player id as a card_location_arg
-
-
 

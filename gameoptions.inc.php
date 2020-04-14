@@ -28,7 +28,7 @@ $game_options = array(
 		100 => array(
             'name' => totranslate('Game style'),
             'values' => array(
-                    1 => array( 'name' => totranslate( 'Standard game (3 rounds)' ) ),
+                    1 => array('name' => totranslate('Standard game (3 rounds)')),
             ),
             'default' => 1,
             'startcondition' => array(
