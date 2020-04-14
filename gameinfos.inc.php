@@ -12,10 +12,10 @@
 
 $gameinfos = array(
 
-'game_name' => "99",
+'game_name' => "Ninety-Nine",
 
 // Game designer (or game designers, separated by commas)
-'designer' => 'Eric Kelly, Alex Greenberg',
+'designer' => 'David Parlett',
 
 // Game artist (or game artists, separated by commas)
 'artist' => 'Unknown',
@@ -36,7 +36,7 @@ $gameinfos = array(
 'bgg_id' => 6688,
 
 // Players configuration that can be played (ex: 2 to 4 players)
-'players' => array( 3 ),
+'players' => array(3),
 
 // Suggest players to play with this number of players. Must be null if there is no such advice, or if there is only one possible player configuration.
 'suggest_player_number' => null,
