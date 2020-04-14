@@ -105,12 +105,23 @@ class BgaNinetyNine extends Table {
         self::setGameStateInitialValue('firstPlayer', $firstPlayer);
 
         // Init game statistics
-        // (note: statistics are defined in your stats.inc.php file)
-        /*self::initStat( "table", "handNbr", 0 );
-        self::initStat( "player", "getQueenOfSpade", 0 );
-        self::initStat( "player", "getBgaNinetyNine", 0 );
-        self::initStat( "player", "getAllPointCards", 0 );
-        self::initStat( "player", "getNoPointCards", 0 );*/
+        self::initStat("table", "handCount", 0);
+        self::initStat("table", "total3WinnerHands", 0);
+        self::initStat("table", "total2WinnerHands", 0);
+        self::initStat("table", "total1WinnerHands", 0);
+        self::initStat("table", "total0WinnerHands", 0);
+        self::initStat("player", "tricksWon", 0);
+        self::initStat("player", "trickWinPercentage", 0);
+        self::initStat("player", "roundsWon", 0);
+        self::initStat("player", "roundWinPercentage", 0);
+        self::initStat("player", "declareCount", 0);
+        self::initStat("player", "revealCount", 0);
+        self::initStat("player", "declareSuccess", 0);
+        self::initStat("player", "declareSuccessPercentage", 0);
+        self::initStat("player", "revealSuccess", 0);
+        self::initStat("player", "revealSuccessPercentage", 0);
+        self::initStat("player", "successBidCount", 0);
+        self::initStat("player", "successBidPercentage", 0);
 
         // Create cards
         $cards = array();
@@ -802,6 +813,8 @@ class BgaNinetyNine extends Table {
     function stNewHand() {
         self::warn("stNewHand");
 
+        self::incStat(1, "handCount");
+
         // Take back all cards (from any location => null) to deck
         $this->cards->moveAllCardsInLocation(null, "deck");
         $this->cards->shuffle('deck');
@@ -851,6 +864,14 @@ class BgaNinetyNine extends Table {
         $this->assignDeclareRevealPlayer();
         $declareReveal = $this->getDeclareOrRevealInfo();
         $declaringOrRevealingPlayer = $declareReveal['playerId'];
+
+        // Record declare/reveal stats
+        $declareRevealType = $declareReveal['decRev'];
+        if ($declareRevealType == 1) {
+            self::incStat(1, "declareCount", $declaringOrRevealingPlayer);
+        } else if ($declareRevealType == 2) {
+            self::incStat(1, "revealCount", $declaringOrRevealingPlayer);
+        }
 
         // Inform people who goes first
         $dealerId = $this->getDealer();
@@ -903,6 +924,9 @@ class BgaNinetyNine extends Table {
             $winningCard = $this->getTrickWinner();
             $winningPlayer = $winningCard['location_arg'];
 
+            // Winning tricks statistics
+            self::incStat(1, "tricksWon", $winningPlayer);
+
             // Active this player => he's the one who starts the next trick
             $this->gamestate->changeActivePlayer($winningPlayer);
             $this->setFirstPlayer($winningPlayer);
@@ -954,6 +978,9 @@ class BgaNinetyNine extends Table {
         $madeBidCount = $handScoreInfo['correctBidCount'];
         $this->setHandWinnerCount($madeBidCount);
 
+        // Record statistics for how many hands had 0/1/2/3 winners
+        self::incStat(1, "total{$madeBidCount}WinnerHands");
+
         // Count and score points, then end the round / game or go to the next hand.
         $players = self::loadPlayersBasicInfos();
 
@@ -965,6 +992,21 @@ class BgaNinetyNine extends Table {
             }
         }
 
+        $decRev = $this->getDeclareOrRevealInfo();
+        foreach ($handScoreInfo['bonus'] as $playerId => $bonus) {
+            if ($bonus > 0) {
+                // Made the bid
+                self::incStat(1, "successBidCount", $playerId);
+                if ($playerId == $decRev['playerId']) {
+                    if ($decRev['decRev'] == 2) {
+                        self::incStat(1, "revealSuccess", $playerId);
+                    } else if ($decRev['decRev'] == 1) {
+                        self::incStat(1, "declareSuccess", $playerId);
+                    }
+                }
+            }
+        }
+
         // Apply scores to player
         foreach ($handScoreInfo['total'] as $player_id => $points) {
             if ($points != 0) {
@@ -973,6 +1015,7 @@ class BgaNinetyNine extends Table {
                 $playerRoundScore = $handScoreInfo['currentScore'][$player_id] +
                     $handScoreInfo['total'][$player_id];
                 if ($playerRoundScore >= 100) {
+                    self::incStat(1, "roundsWon", $player_id);
                     $points += (40 - ($countPlayersExceeded100 * 10));
                 }
 
@@ -1039,6 +1082,40 @@ class BgaNinetyNine extends Table {
         }
     }
 
+    function stGameEnd() {
+        self::warn("stGameEnd");
+        $newScores = self::getCollectionFromDb("SELECT player_id, player_score FROM player", true);
+        self::notifyAllPlayers("newScores", '', array('newScores' => $newScores));
+
+        // Calculate statistics
+        $handCount = self::getStat("handCount");
+        $totalTrickCount = $handCount * 3;
+        $players = self::loadPlayersBasicInfos();
+        foreach ($players as $playerId => $player) {
+            // trickWinPercentage
+            $tricksTaken = self::getStat("tricksWon", $playerId);
+            self::setStat($tricksTaken / $totalTrickCount, "trickWinPercentage", $playerId);
+
+            // roundWinPercentage
+            $roundsWon = self::getStat("roundsWon", $playerId);
+            self::setStat($roundsWon / 3, "roundWinPercentage", $playerId);
+
+            // declareSuccessPercentage
+            $declares = self::getStat("declareCount", $playerId);
+            $declareSuccess = self::getStat("declareSuccess", $playerId);
+            self::setStat($declareSuccess / $declares, "declareSuccessPercentage", $playerId);
+
+            // revealSuccessPercentage
+            $reveals = self::getStat("revealCount", $playerId);
+            $revealSuccess = self::getStat("revealSuccess", $playerId);
+            self::setStat($revealSuccess / $reveals, "revealSuccessPercentage", $playerId);
+
+            // successBidPercentage
+            $successfulBids = self::getStat("successBidCount", $playerId);
+            self::setStat($successfulBids / $handCount, "successBidPercentage", $playerId);
+        }
+    }
+
     function generateScoreInfo() {
         $players = self::loadPlayersBasicInfos();
         $playerBids = array();
@@ -1058,11 +1135,11 @@ class BgaNinetyNine extends Table {
         if ($decRevVal != 0) {
             $decRevPlayer = $decRev['playerId'];
         }
-        return $this->generateScoreInfo2($playerNames, $playerBids,
+        return $this->generateScoreInfoHelper($playerNames, $playerBids,
             $tricksWon, $decRevVal, $decRevPlayer, $roundScore);
     }
 
-    function generateScoreInfo2($playerNames, $bid, $tricks, $decRev,
+    function generateScoreInfoHelper($playerNames, $bid, $tricks, $decRev,
             $decRevPlayer, $currentScores) {
         $result = array();
         $total = array();
@@ -1281,12 +1358,6 @@ class BgaNinetyNine extends Table {
         }
         $table[] = $totalRow;
         return $table;
-    }
-
-    function stGameEnd() {
-        self::warn("stGameEnd");
-        $newScores = self::getCollectionFromDb("SELECT player_id, player_score FROM player", true);
-        self::notifyAllPlayers("newScores", '', array('newScores' => $newScores));
     }
 
     function debug($val) {

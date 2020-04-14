@@ -36,33 +36,76 @@ $stats_type = array(
 
     // Statistics global to table
     "table" => array(
-        //"handNbr" => array(   "id"=> 10,
-        //                        "name" => totranslate("Number of hands"), 
-        //                        "type" => "int" ),
 
+        "handCount" => array("id"=> 10,
+                             "name" => totranslate("Number of hands"),
+                             "type" => "int"),
+
+        "total3WinnerHands" => array("id" => 11,
+                                     "name" => totranslate("Total hands in which all players made their bids"),
+                                     "type" => "int"),
+        "total2WinnerHands" => array("id" => 12,
+                                     "name" => totranslate("Total hands in which exactly two players made their bids"),
+                                     "type" => "int"),
+        "total1WinnerHands" => array("id" => 13,
+                                     "name" => totranslate("Total hands in which only a single player made their bid"),
+                                     "type" => "int"),
+        "total0WinnerHands" => array("id" => 14,
+                                     "name" => totranslate("Total hands in which only a single player made their bid"),
+                                     "type" => "int")
 
     ),
-    
+
     // Statistics existing for each player
     "player" => array(
-    
-        //"getQueenOfSpade" => array(   "id"=> 10,
-        //                        "name" => totranslate("Get the Queen of Spade during a hand"), 
-        //                        "type" => "int" ),
-        //                        
-        //"getBgaNinetyNine" => array(   "id"=> 11,
-        //                        "name" => totranslate("Total heart cards collected"), 
-        //                        "type" => "int" ),
-        //
-        //"getAllPointCards" => array(   "id"=> 12,
-        //                        "name" => totranslate("Get all bganinetynine + Queen of Spade"), 
-        //                        "type" => "int" ),
-        //
-        //"getNoPointCards" => array(   "id"=> 13,
-        //                        "name" => totranslate("Get no cards with ponts during a hand"), 
-        //                        "type" => "int" )
 
-  
+        "tricksWon" => array("id" => 10,
+                             "name" => totranslate("Total tricks won"),
+                             "type" => "int"),
+
+        "trickWinPercentage" => array("id" => 11,
+                                      "name" => totranslate("Trick win %"),
+                                      "type" => "float"),
+
+        "roundsWon" => array("id" => 12,
+                             "name" => totranslate("Total rounds won"),
+                             "type" => "int"),
+
+        "roundWinPercentage" => array("id" => 13,
+                                      "name" => totranslate("Round win %"),
+                                      "type" => "float"),
+
+        "declareCount" => array("id" => 14,
+                                "name" => totranslate("Total declares"),
+                                "type" => "int"),
+
+        "revealCount" => array("id" => 15,
+                               "name" => totranslate("Total reveals"),
+                               "type" => "int"),
+
+        "declareSuccess" => array("id" => 16,
+                                  "name" => totranslate("Total successful declares"),
+                                  "type" => "int"),
+
+        "declareSuccessPercentage" => array("id" => 17,
+                                            "name" => totranslate("Successful declare %"),
+                                            "type" => "float"),
+
+        "revealSuccess" => array("id" => 18,
+                                 "name" => totranslate("Total successful reveals"),
+                                 "type" => "int"),
+
+        "revealSuccessPercentage" => array("id" => 19,
+                                           "name" => totranslate("Successful reveal %"),
+                                           "type" => "float"),
+
+        "successBidCount" => array("id" => 20,
+                                   "name" => totranslate("Accurate bids"),
+                                   "type" => "int"),
+
+        "successBidPercentage" => array("id" => 21,
+                                        "name" => totranslate("Accurate bid %"),
+                                        "type" => "float")
     )
 
 );
