@@ -442,7 +442,7 @@ function (dojo, declare, domStyle) {
                     this.addCardsToStock(this.declaredBid, decRevInfo.bid);
                     // Hide declare/reveal label for myself
                     this.setNodeHidden("declare_label", true);
-                    this.setNodeHidden("revealed_label", true);
+                    this.setNodeHidden("reveal_label", true);
                 } else {
                     this.setNodeHidden("declare_label", false);
                     if (Object.keys(decRevInfo.cards).length > 0) {
