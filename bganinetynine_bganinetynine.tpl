@@ -68,7 +68,7 @@
     <div class="section" style="flex-grow: 1;">
         <div style="width: auto; display: flex">
             <h3 id="myhandlabel" class="to_translate">My Hand</h3>
-            <h3 id="reveal_label" class="hidden" style="margin-left: 5px;color: red;">(Revealed)</h3>
+            <h3 id="reveal_label" class="hidden to_translate" style="margin-left: 5px;color: red;">(Revealed)</h3>
         </div>
         <div id="myhand"></div>
     </div>
@@ -80,7 +80,7 @@
         <span id="bidValue"></span>
         <span class="tricks to_translate"> / Tricks Taken: </span>
         <span id="myTricksWon" class="tricks"></span>
-        <span id="declare_label" class="hidden" style="margin-left: 5px;color: red;">(Declared)</span>
+        <span id="declare_label" class="hidden to_translate" style="margin-left: 5px;color: red;">(Declared)</span>
     </h3>
     <div id="mybid"></div>
 </div>
