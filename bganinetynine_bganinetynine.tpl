@@ -66,7 +66,10 @@
 
 <div class="whiteblock container">
     <div class="section" style="flex-grow: 1;">
-        <div style="width: auto;"><h3 id="myhandlabel" class="to_translate">My Hand</h3></div>
+        <div style="width: auto;">
+            <h3 id="myhandlabel" class="to_translate">My Hand</h3>
+            <h3 id="reveal_label" class="hidden" style="margin-left: 5px;color: red;">(Revealed)</h3>
+        </div>
         <div id="myhand"></div>
     </div>
 
@@ -77,6 +80,7 @@
                     <span id="bidValue"></span>
                     <span class="tricks to_translate"> / Tricks Taken: </span>
                     <span id="myTricksWon" class="tricks"></span>
+                    <span id="declare_label" class="hidden" style="margin-left: 5px;color: red;">(Declared)</span>
                 </h3>
                 <div id="mybid"></div>
             </div>

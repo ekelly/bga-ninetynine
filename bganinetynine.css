@@ -286,3 +286,7 @@
     right: 0%;
     bottom: 25.4%;
 }
+
+.hidden{
+    display: none;
+}
