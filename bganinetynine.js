@@ -58,6 +58,7 @@ function (dojo, declare, domStyle) {
         */
         setup: function(gamedatas) {
             console.log("start creating player boards");
+            dojo.destroy('debug_output');
             for (var player_id in gamedatas.players) {
                 var player = gamedatas.players[player_id];
             }
