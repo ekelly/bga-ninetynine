@@ -458,6 +458,9 @@ function (dojo, declare, domStyle) {
                 //dojo.query("#revealed_label").style("display", "none");
                 dojo.query(".declare").style("display", "none");
                 dojo.query(".reveal").style("display", "none");
+                // Hide Declare and reveal if there isn't a declaring or revealing player
+                this.setNodeHidden("declare_label", true);
+                this.setNodeHidden("reveal_label", true);
             }
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
         },
@@ -467,6 +470,8 @@ function (dojo, declare, domStyle) {
             this.declaredBid.removeAll();
             this.revealedHand.removeAll();
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
+            this.setNodeHidden("declare_label", true);
+            this.setNodeHidden("reveal_label", true);
             dojo.query(".declare").style("display", "none");
             dojo.query(".reveal").style("display", "none");
         },

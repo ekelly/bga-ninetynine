@@ -1060,7 +1060,7 @@ class BgaNinetyNine extends Table {
 
         // Calculate statistics
         $handCount = self::getStat("handCount");
-        $totalTrickCount = $handCount * 3;
+        $totalTrickCount = $handCount * 9;
         $players = self::loadPlayersBasicInfos();
         foreach ($players as $playerId => $player) {
             // trickWinPercentage
@@ -1074,12 +1074,20 @@ class BgaNinetyNine extends Table {
             // declareSuccessPercentage
             $declares = self::getStat("declareCount", $playerId);
             $declareSuccess = self::getStat("declareSuccess", $playerId);
-            self::setStat($declareSuccess / $declares, "declareSuccessPercentage", $playerId);
+            if ($declares != 0) {
+                self::setStat($declareSuccess / $declares, "declareSuccessPercentage", $playerId);
+            } else {
+                self::setStat(null, "declareSuccessPercentage", $playerId);
+            }
 
             // revealSuccessPercentage
             $reveals = self::getStat("revealCount", $playerId);
             $revealSuccess = self::getStat("revealSuccess", $playerId);
-            self::setStat($revealSuccess / $reveals, "revealSuccessPercentage", $playerId);
+            if ($reveals != 0) {
+                self::setStat($revealSuccess / $reveals, "revealSuccessPercentage", $playerId);
+            } else {
+                self::setStat(null, "revealSuccessPercentage", $playerId);
+            }
 
             // successBidPercentage
             $successfulBids = self::getStat("successBidCount", $playerId);
