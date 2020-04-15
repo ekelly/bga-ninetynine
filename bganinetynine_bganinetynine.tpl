@@ -46,17 +46,17 @@
             <!-- END player -->
 
             <div class="whiteblock" id="trumpContainer">
-                <div>Trump Suit:</div>
-                <div id="trumpSuit">none</div>
+                <div class="to_translate">Trump Suit:</div>
+                <div class="to_translate" id="trumpSuit">none</div>
             </div>
-        </div>            
+        </div>
         <div class="bids">
             <div id="declaretable" class="whiteblock bid_container declare">
-                <h3>Declared Bid: <span id="declaredBidValue"></span></h3>
+                <h3 class="to_translate">Declared Bid: <span id="declaredBidValue"></span></h3>
                 <div id="declaredBid"></div>
             </div>
             <div id="revealtable" class="whiteblock reveal">
-                <h3 id="revealed_label">Revealed Hand:</h3>
+                <h3 id="revealed_label" class="to_translate">Revealed Hand:</h3>
                 <div id="revealedHand"></div>
             </div>
 
@@ -66,18 +66,17 @@
 
 <div class="whiteblock container">
     <div class="section" style="flex-grow: 1;">
-        <div class="to_translate" style="width: auto;"><h3>My Hand</h3></div>
+        <div style="width: auto;"><h3 id="myhandlabel" class="to_translate">My Hand</h3></div>
         <div id="myhand"></div>
     </div>
-    
+
 </div>
 <div class="section whiteblock bid_container my_bid_container">
                 <h3>
-                    <span class="to_translate" style="display: inline-block;">My Bid: 
-                        <span id="bidValue"></span>
-                        <span class="tricks"> / Tricks Taken: </span>
-                        <span id="myTricksWon" class="tricks"></span>
-                    </span>
+                    <span class="to_translate" style="display: inline-block;">My Bid: </span>
+                    <span id="bidValue"></span>
+                    <span class="tricks to_translate"> / Tricks Taken: </span>
+                    <span id="myTricksWon" class="tricks"></span>
                 </h3>
                 <div id="mybid"></div>
             </div>
