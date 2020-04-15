@@ -417,6 +417,14 @@ function (dojo, declare, domStyle) {
             this.slideToObject('cardontable_'+player_id, 'playertablecard_'+player_id).play();
         },
 
+        setNodeHidden: function(nodeId, hidden) {
+            if (hidden) {
+                dojo.addClass(nodeId, "hidden");
+            } else {
+                dojo.removeClass(nodeId, "hidden");
+            }
+        },
+
         showActiveDeclareOrReveal: function(decRevInfo) {
             var playerNameSpan = dojo.byId("decrev_player_name");
             if (decRevInfo.playerId) {
@@ -432,6 +440,14 @@ function (dojo, declare, domStyle) {
                     // Show Declared bid
                     this.declaredBid.removeAll();
                     this.addCardsToStock(this.declaredBid, decRevInfo.bid);
+                    // Hide declare/reveal label for myself
+                    this.setNodeHidden("declare_label", true);
+                    this.setNodeHidden("revealed_label", true);
+                } else {
+                    this.setNodeHidden("declare_label", false);
+                    if (Object.keys(decRevInfo.cards).length > 0) {
+                        this.setNodeHidden("reveal_label", false);
+                    }
                 }
                 playerNameSpan.textContent = decRevInfo.playerName;
                 var playerColor = decRevInfo.playerColor;

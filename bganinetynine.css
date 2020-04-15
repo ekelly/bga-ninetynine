@@ -108,12 +108,14 @@
 }
 
 .declare {
+    display: none;
 }
 
 .declaringplayer {
 }
 
 .reveal {
+    display: none;
     height: 130px;
 }
 
