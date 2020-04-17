@@ -111,6 +111,8 @@ function (dojo, declare, domStyle) {
             this.updateRoundScores(this.gamedatas.roundScores);
 
             this.addTooltipToClass("playertablecard", _("Card played on the table"), '');
+            this.addTooltip("declaretable", _("Opponent's declared bid"), '');
+            this.addTooltip("revealtable", _("Opponent's revealed hand"), '');
 
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
@@ -126,9 +128,9 @@ function (dojo, declare, domStyle) {
         //
 
         onEnteringState: function(stateName, args) {
-           console.log('Entering state: '+stateName);
+           console.log('Entering state: ' + stateName);
 
-            switch(stateName) {
+            switch (stateName) {
                 case 'newHand':
                     this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
                     this.clearTricksWon();
@@ -144,8 +146,7 @@ function (dojo, declare, domStyle) {
                     break;
 
                 case 'bidding':
-                    this.addTooltip( 'myhand', _('Cards in my hand'), _('Select a card') );
-                    console.log('Added bidding tooltip');
+                    this.addTooltip('mybid', _('Cards in my bid'), _('Remove from bid'));
                     this.playerBid.setSelectionMode(1);
                     break;
             }
@@ -161,6 +162,7 @@ function (dojo, declare, domStyle) {
                 case 'bidding':
                     this.playerBid.setSelectionMode(0);
                     this.displayTricksWon();
+                    this.addTooltip('mybid', _('Cards in my bid'), '');
                     break;
             }
         },
