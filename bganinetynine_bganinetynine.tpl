@@ -23,8 +23,8 @@
     See your "view" PHP file to check how to set variables and control blocks
 -->
 <div id="table">
-    <div id="declarerevealtable" class="declaringplayer hidden">
-        <h3 class="whiteblock declaringplayer hidden">
+    <div id="declarerevealtable" class="declaringplayer">
+        <h3 class="whiteblock declaringplayer">
             <span class="to_translate">Revealing/Declaring Player: </span>
             <!-- PLAYER_NAME should say none for rounds with no declaring/revealing player -->
             <span class="to_translate" id="decrev_player_name">None</span>

@@ -39,7 +39,6 @@ function (dojo, declare, domStyle) {
             // this.myGlobalValue = 0;
 
             this.playerHand = null;
-            //this.playerBid = null;
             this.cardwidth = 72;
             this.cardheight = 96;
         },
@@ -118,6 +117,86 @@ function (dojo, declare, domStyle) {
 
             this.ensureSpecificImageLoading(['../common/point.png']);
         },
+
+        ///////////////////////////////////////////////////
+        //// Game & client states
+
+        // onEnteringState: this method is called each time we are entering into a new game state.
+        //                  You can use this method to perform some user interface changes at this moment.
+        //
+
+        onEnteringState: function(stateName, args) {
+           console.log('Entering state: '+stateName);
+
+            switch(stateName) {
+                case 'newHand':
+                    this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
+                    this.clearTricksWon();
+                    this.clearActiveDeclareOrReveal();
+                    break;
+
+                case 'playerTurn':
+                    this.addTooltip('myhand', _('Cards in my hand'), _('Play a card'));
+                    this.displayTricksWon();
+                    if (this.getActivePlayerId() != null) {
+                        this.showFirstPlayer(this.getActivePlayerId());
+                    }
+                    break;
+
+                case 'bidding':
+                    this.addTooltip( 'myhand', _('Cards in my hand'), _('Select a card') );
+                    console.log('Added bidding tooltip');
+                    this.playerBid.setSelectionMode(1);
+                    break;
+            }
+        },
+
+        // onLeavingState: this method is called each time we are leaving a game state.
+        //                 You can use this method to perform some user interface changes at this moment.
+        //
+        onLeavingState: function(stateName) {
+            console.log('Leaving state: '+stateName);
+
+            switch (stateName) {
+                case 'bidding':
+                    this.playerBid.setSelectionMode(0);
+                    this.displayTricksWon();
+                    break;
+            }
+        },
+
+        // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
+        //                        action status bar (ie: the HTML links in the status bar).
+        //
+        onUpdateActionButtons: function(stateName, args) {
+            console.log('onUpdateActionButtons: ' + stateName);
+
+            if (this.isCurrentPlayerActive()) {
+                console.log("Current player is active");
+                switch (stateName) {
+                    case 'bidding':
+                        this.addActionButton('bidCards_button', _('Bid selected cards'), 'onBidCards');
+                        break;
+                    case 'declareOrReveal':
+                        this.addActionButton('reveal_button', _('Reveal'), 'onReveal'); 
+                        this.addActionButton('declare_button', _('Declare'), 'onDeclare'); 
+                        this.addActionButton('none_button', _('Neither'), 'onNoDeclare');
+                        break;
+                }
+            } else {
+                console.log("Current player is not active");
+            }
+        },
+
+        ///////////////////////////////////////////////////
+        //// Utility methods
+
+        /*
+
+            Here, you can defines some utility methods that you can use everywhere in your javascript
+            script.
+
+        */
 
         addCardsToStock: function(stock, cards) {
             for (var i in cards) {
@@ -233,6 +312,11 @@ function (dojo, declare, domStyle) {
             }
         },
 
+        displayTricksWon: function() {
+            console.log("showing trick count");
+            dojo.query(".tricks").removeClass("hidden");
+        },
+
         clearTricksWon: function() {
             console.log("hiding trick count");
             dojo.query(".tricks").addClass("hidden");
@@ -240,11 +324,6 @@ function (dojo, declare, domStyle) {
             for (var playerId in this.gamedatas.players) {
                 this.updateValueInNode("tricks_" + playerId, 0);
             }
-        },
-
-        displayTricksWon: function() {
-            console.log("showing trick count");
-            dojo.query(".tricks").removeClass("hidden");
         },
 
         updateRoundScores: function(roundScores) {
@@ -260,115 +339,13 @@ function (dojo, declare, domStyle) {
             }
         },
 
-        ///////////////////////////////////////////////////
-        //// Game & client states
-
-        // onEnteringState: this method is called each time we are entering into a new game state.
-        //                  You can use this method to perform some user interface changes at this moment.
-        //
-
-        onEnteringState: function(stateName, args) {
-           console.log('Entering state: '+stateName);
-
-            switch(stateName) {
-                case 'newHand':
-                    this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
-                    this.clearTricksWon();
-                    this.clearActiveDeclareOrReveal();
-                    break;
-
-                case 'playerTurn':
-                    this.addTooltip('myhand', _('Cards in my hand'), _('Play a card'));
-                    this.displayTricksWon();
-                    if (this.getActivePlayerId() != null) {
-                        this.showFirstPlayer(this.getActivePlayerId());
-                    }
-                    break;
-
-                case 'bidding':
-                    this.addTooltip( 'myhand', _('Cards in my hand'), _('Select a card') );
-                    console.log('Added bidding tooltip');
-                    this.playerBid.setSelectionMode(1);
-                    break;
-            }
-        },
-
-        // onLeavingState: this method is called each time we are leaving a game state.
-        //                 You can use this method to perform some user interface changes at this moment.
-        //
-        onLeavingState: function(stateName) {
-            console.log('Leaving state: '+stateName);
-
-            switch (stateName) {
-                case 'bidding':
-                    this.playerBid.setSelectionMode(0);
-                    this.displayTricksWon();
-                    break;
-            }
-        },
-
-        // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
-        //                        action status bar (ie: the HTML links in the status bar).
-        //
-        onUpdateActionButtons: function(stateName, args) {
-            console.log('onUpdateActionButtons: ' + stateName);
-
-            if (this.isCurrentPlayerActive()) {
-                console.log("Current player is active");
-                switch (stateName) {
-                    case 'bidding':
-                        this.addActionButton('bidCards_button', _('Bid selected cards'), 'onBidCards');
-                        break;
-                    case 'declareOrReveal':
-                        this.addActionButton('reveal_button', _('Reveal'), 'onReveal'); 
-                        this.addActionButton('declare_button', _('Declare'), 'onDeclare'); 
-                        this.addActionButton('none_button', _('Neither'), 'onNoDeclare');
-                        break;
-                }
-            } else {
-                console.log("Current player is not active");
-            }
-        },
-
-        ///////////////////////////////////////////////////
-        //// Utility methods
-
-        /*
-
-            Here, you can defines some utility methods that you can use everywhere in your javascript
-            script.
-
-        */
-
         // Get card unique identifier based on its color and value
         getCardUniqueId: function(color, value) {
-            return parseInt(color)*13+(parseInt(value)-2);
+            return parseInt(color) * 13 + (parseInt(value) - 2);
         },
 
         getCardSuit: function(suit) {
             return ["club", "diamond", "spade", "heart"][suit];
-        },
-
-        stockContains: function(stock, el) {
-            var stockContents = stock.getAllItems();
-            for (var i in stockContents) {
-                var card = stockContents[i];
-                if (card.type == el) {
-                    return true;
-                }
-            }
-            return false;
-        },
-
-        stockContainsId: function(stock, id) {
-            var stockContents = stock.getAllItems();
-            for (var i in stockContents) {
-                var card = stockContents[i];
-                if (card.id == id) {
-                    return true;
-                }
-            }
-            return false;
         },
 
         playCardOnTable: function(player_id, suit, value, card_id) {
@@ -440,6 +417,7 @@ function (dojo, declare, domStyle) {
                 var playerColor = decRevInfo.playerColor;
                 domStyle.set(playerNameSpan, "color", "#" + playerColor);
             } else {
+                debugger;
                 playerNameSpan.textContent = "None";
                 domStyle.set(playerNameSpan, "color", "#000000");
                 dojo.query(".declare").addClass("hidden");
@@ -458,8 +436,8 @@ function (dojo, declare, domStyle) {
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
             this.setNodeHidden("declare_label", true);
             this.setNodeHidden("reveal_label", true);
-            dojo.query(".declare").style("display", "none");
-            dojo.query(".reveal").style("display", "none");
+            dojo.query(".declare").addClass("hidden");
+            dojo.query(".reveal").addClass("hidden");
         },
 
         ///////////////////////////////////////////////////
@@ -627,8 +605,8 @@ function (dojo, declare, domStyle) {
             this.showTrump(null);
 
             // Clear everyone's scores
-            for (var player_id in this.gamedatas.players) {
-                this.scoreCtrl[player_id].toValue(0);
+            for (var playerId in this.gamedatas.players) {
+                this.updatePlayerScore(playerId, 0);
             }
         },
 
@@ -652,23 +630,15 @@ function (dojo, declare, domStyle) {
 
         notif_playCard: function(notif) {
             console.log('notif_playCard');
-            // Play a card on the table
-
-            // If I've revealed, remove the card from the revealed card stock
-            if (this.stockContainsId(this.playerHand, notif.args.card_id)) {
-                if (this.stockContainsId(this.revealedHand, notif.args.card_id)) {
-                    this.revealedHand.removeFromStockById(notif.args.card_id);
-                }
-            }
-
             this.showFirstPlayer(notif.args.firstPlayer);
+            // Play a card on the table
             this.playCardOnTable(notif.args.player_id, notif.args.suit,
                                  notif.args.rank, notif.args.card_id);
         },
 
         notif_trickWin: function(notif) {
             console.log('notif_trickWin');
-            // We do nothing here (just wait in order players can view the cards played before they're gone.
+            // We do nothing here (just wait in order players can view the cards played before they're gone.)
         },
 
         notif_points: function(notif) {
@@ -696,9 +666,7 @@ function (dojo, declare, domStyle) {
         notif_newScores: function(notif) {
             console.log('notif_newScores');
             // Update players' scores
-            for (var player_id in notif.args.newScores) {
-                this.scoreCtrl[player_id].toValue(notif.args.newScores[player_id]);
-            }
+            this.updateRoundScores(notif.args.newScores);
         },
 
         notif_bidCards: function(notif) {
@@ -711,14 +679,6 @@ function (dojo, declare, domStyle) {
         },
 
         notif_biddingComplete: function(notif) {
-            // My cards
-            for (var i in notif.args.cards) {
-                var card_id = notif.args.cards[i];
-            }
-            // My bid
-            for (var i in notif.args.bid.cards) {
-                var card_id = notif.args.bid.cards[i];
-            }
             this.showActiveDeclareOrReveal(notif.args.declareReveal);
         }
    });
