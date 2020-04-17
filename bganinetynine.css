@@ -108,14 +108,12 @@
 }
 
 .declare {
-    display: none;
 }
 
 .declaringplayer {
 }
 
 .reveal {
-    display: none;
     height: 130px;
 }
 
@@ -262,12 +260,10 @@
 }
 
 .dealerindicator {
-    display: none;
     color: black;
 }
 
 .tricks {
-    display: none;
     color: black;
 }
 

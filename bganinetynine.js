@@ -79,9 +79,6 @@ function (dojo, declare, domStyle) {
             this.revealedHand = this.setupCardStocks('revealedHand');
             this.revealedHand.setOverlap(20, 0);
 
-            console.log("Initial hand: " + this.gamedatas.hand);
-            console.log(this.gamedatas.hand);
-
             // Cards in player's hand
             this.addCardsToStock(this.playerHand, this.gamedatas.hand);
 
@@ -101,15 +98,12 @@ function (dojo, declare, domStyle) {
 
             // Current dealer
             this.showDealer(this.gamedatas.dealer);
-            console.log("Current dealer: " + this.gamedatas.dealer);
 
             // First player
             this.showFirstPlayer(this.gamedatas.firstPlayer);
-            console.log("Current player: " + this.gamedatas.firstPlayer);
 
             // Current trump
             this.showTrump(this.gamedatas.trump);
-            console.log("Current trump: " + this.gamedatas.trump);
 
             // Set trick counts
             this.updateTrickCounts(this.gamedatas.trickCounts);
@@ -121,8 +115,6 @@ function (dojo, declare, domStyle) {
 
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
-
-            console.log('Done setting up notifications');
 
             this.ensureSpecificImageLoading(['../common/point.png']);
         },
@@ -151,7 +143,7 @@ function (dojo, declare, domStyle) {
             }
             // Order of id: ["club", "diamond", "spade", "heart"];
             for (var color = 0; color < 4; color++) {
-                for (var rank=2; rank <= 14; rank++) {
+                for (var rank = 2; rank <= 14; rank++) {
                     // Build card type id
                     var card_type_id = this.getCardUniqueId(color, rank);
                     stock.addItemType(card_type_id, card_type_id, g_gamethemeurl+'img/cards.jpg', card_type_id);
@@ -162,10 +154,8 @@ function (dojo, declare, domStyle) {
 
         showDealer: function(dealer_id) {
             console.log("Showing dealer: " + dealer_id);
-            dojo.query(".dealerindicator")
-                .style("display", "none");
-            domStyle.set("dealerindicator_" + dealer_id,
-                        "display", "inline-block");
+            dojo.query(".dealerindicator").addClass("hidden");
+            this.setNodeHidden("dealerindicator_" + dealer_id, false);
         },
 
         showFirstPlayer: function(first_player) {
@@ -188,13 +178,11 @@ function (dojo, declare, domStyle) {
                 dojo.query("#trumpSuit").removeClass("trump_black");
                 dojo.query("#trumpSuit").removeClass("trump_none");
                 dojo.addClass(trumpSuitSpan, redSuit ? "trump_red" : "trump_black")
-                //domStyle.set(trumpSuitSpan, "color", redSuit ? "red" : "black");
             } else {
                 trumpSuitSpan.textContent = "none";
                 dojo.query("#trumpSuit").removeClass("trump_red");
                 dojo.query("#trumpSuit").removeClass("trump_black");
                 dojo.addClass(trumpSuitSpan, "trump_none")
-                //domStyle.set(trumpSuitSpan, "color", "black");
             }
         },
 
@@ -209,10 +197,6 @@ function (dojo, declare, domStyle) {
         getBidValueFromSuit: function(suit) {
             return {club: 3, diamond: 0, spade: 1, heart: 2}[suit];
         },
-
-        //getBidValueFromId: function(card_id) {
-        //    return this.getBidValueFromSuit(this.getCardSuitFromId(card_id));
-        //},
 
         updateCurrentBidFromBidStock: function(bidStock, divId) {
             var bid = 0;
@@ -251,7 +235,7 @@ function (dojo, declare, domStyle) {
 
         clearTricksWon: function() {
             console.log("hiding trick count");
-            dojo.query(".tricks").style("display", "none");
+            dojo.query(".tricks").addClass("hidden");
             dojo.byId("myTricksWon").textContent = 0;
             for (var playerId in this.gamedatas.players) {
                 this.updateValueInNode("tricks_" + playerId, 0);
@@ -260,7 +244,7 @@ function (dojo, declare, domStyle) {
 
         displayTricksWon: function() {
             console.log("showing trick count");
-            dojo.query(".tricks").style("display", "inline-block");
+            dojo.query(".tricks").removeClass("hidden");
         },
 
         updateRoundScores: function(roundScores) {
@@ -271,7 +255,9 @@ function (dojo, declare, domStyle) {
 
         updatePlayerScore: function(playerId, playerScore) {
             console.log("Player " + playerId + " current round score is " + playerScore);
-            // this.scoreCtrl[playerId].setValue(playerScore);
+            if (this.scoreCtrl[playerId]) {
+                this.scoreCtrl[playerId].toValue(playerScore);
+            }
         },
 
         ///////////////////////////////////////////////////
@@ -429,11 +415,11 @@ function (dojo, declare, domStyle) {
         showActiveDeclareOrReveal: function(decRevInfo) {
             var playerNameSpan = dojo.byId("decrev_player_name");
             if (decRevInfo.playerId) {
-                dojo.query(".declaringplayer").style("display", "block");
+                dojo.query(".declaringplayer").removeClass("hidden");
                 if (decRevInfo.playerId != this.player_id) {
-                    dojo.query(".declare").style("display", "block");
+                    dojo.query(".declare").removeClass("hidden");
                     if (Object.keys(decRevInfo.cards).length > 0) {
-                        dojo.query(".reveal").style("display", "block");
+                        dojo.query(".reveal").removeClass("hidden");
                     }
                     // Show Revealed cards
                     this.revealedHand.removeAll();
@@ -456,9 +442,8 @@ function (dojo, declare, domStyle) {
             } else {
                 playerNameSpan.textContent = "None";
                 domStyle.set(playerNameSpan, "color", "#000000");
-                //dojo.query("#revealed_label").style("display", "none");
-                dojo.query(".declare").style("display", "none");
-                dojo.query(".reveal").style("display", "none");
+                dojo.query(".declare").addClass("hidden");
+                dojo.query(".reveal").addClass("hidden");
                 // Hide Declare and reveal if there isn't a declaring or revealing player
                 this.setNodeHidden("declare_label", true);
                 this.setNodeHidden("reveal_label", true);
@@ -633,7 +618,7 @@ function (dojo, declare, domStyle) {
             dojo.subscribe('biddingComplete' , this, "notif_biddingComplete");
         },
 
-        // TODO: from this point and below, you can write your game notifications handling methods
+        // From this point and below, you can write your game notifications handling methods
 
         notif_newRound: function(notif) {
             console.log('notif_newRound');
@@ -683,7 +668,7 @@ function (dojo, declare, domStyle) {
 
         notif_trickWin: function(notif) {
             console.log('notif_trickWin');
-            // We do nothing here (just wait in order players can view the 4 cards played before they're gone.
+            // We do nothing here (just wait in order players can view the cards played before they're gone.
         },
 
         notif_points: function(notif) {
@@ -726,20 +711,14 @@ function (dojo, declare, domStyle) {
         },
 
         notif_biddingComplete: function(notif) {
-            console.log("Bidding complete");
-            console.log(notif.args);
             // My cards
             for (var i in notif.args.cards) {
                 var card_id = notif.args.cards[i];
             }
             // My bid
-            console.log("My bid? " + parseInt(notif.args.bid.bid));
             for (var i in notif.args.bid.cards) {
                 var card_id = notif.args.bid.cards[i];
             }
-            console.log("Declare? " + notif.args.bid.declare);
-            console.log("Reveal? " + notif.args.bid.reveal);
-
             this.showActiveDeclareOrReveal(notif.args.declareReveal);
         }
    });

@@ -23,8 +23,8 @@
     See your "view" PHP file to check how to set variables and control blocks
 -->
 <div id="table">
-    <div id="declarerevealtable" class="declaringplayer">
-        <h3 class="whiteblock declaringplayer">
+    <div id="declarerevealtable" class="declaringplayer hidden">
+        <h3 class="whiteblock declaringplayer hidden">
             <span class="to_translate">Revealing/Declaring Player: </span>
             <!-- PLAYER_NAME should say none for rounds with no declaring/revealing player -->
             <span class="to_translate" id="decrev_player_name">None</span>
@@ -36,12 +36,12 @@
             <!-- BEGIN player -->
             <div class="playertable whiteblock playertable_{DIR}" id="playertable_{PLAYER_ID}">
                 <div class="playertablename" style="color:#{PLAYER_COLOR}">
-                    <span id="dealerindicator_{PLAYER_ID}" class="dealerindicator">(D)</span>
+                    <span id="dealerindicator_{PLAYER_ID}" class="dealerindicator hidden">(D)</span>
                     {PLAYER_NAME}
                 </div>
                 <div class="playertablecard" id="playertablecard_{PLAYER_ID}">
                 </div>
-                <span class="tricks">(<span id="tricks_{PLAYER_ID}" class="tricks">0</span>)</span>
+                <span class="tricks hidden">(<span id="tricks_{PLAYER_ID}" class="tricks hidden">0</span>)</span>
             </div>
             <!-- END player -->
 
@@ -51,11 +51,11 @@
             </div>
         </div>
         <div class="bids">
-            <div id="declaretable" class="whiteblock bid_container declare">
+            <div id="declaretable" class="whiteblock bid_container declare hidden">
                 <h3 class="to_translate">Declared Bid: <span id="declaredBidValue"></span></h3>
                 <div id="declaredBid"></div>
             </div>
-            <div id="revealtable" class="whiteblock reveal">
+            <div id="revealtable" class="whiteblock reveal hidden">
                 <h3 id="revealed_label" class="to_translate">Revealed Hand:</h3>
                 <div id="revealedHand"></div>
             </div>
@@ -78,8 +78,8 @@
     <h3>
         <span class="to_translate" style="display: inline-block;">My Bid: </span>
         <span id="bidValue"></span>
-        <span class="tricks to_translate"> / Tricks Taken: </span>
-        <span id="myTricksWon" class="tricks"></span>
+        <span class="tricks hidden to_translate"> / Tricks Taken: </span>
+        <span id="myTricksWon" class="tricks hidden"></span>
         <span id="declare_label" class="hidden to_translate" style="margin-left: 5px;color: red;">(Declared)</span>
     </h3>
     <div id="mybid"></div>
