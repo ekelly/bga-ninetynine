@@ -105,7 +105,8 @@ function (dojo, declare, domStyle) {
             this.showTrump(this.gamedatas.trump);
 
             // Set trick counts
-            this.updateTrickCounts(this.gamedatas.trickCounts);
+            this.updateTrickCounts(this.gamedatas.trickCounts,
+                                   this.gamedatas.declareReveal.playerId);
 
             // Set scores
             this.updateRoundScores(this.gamedatas.roundScores);
@@ -294,17 +295,24 @@ function (dojo, declare, domStyle) {
             bidValueSpan.textContent = bid;
         },
 
-        updateTrickCounts: function(trickCounts) {
+        updateTrickCounts: function(trickCounts, declaringPlayerId) {
             for (var playerId in trickCounts) {
-                this.updateCurrentTricksWon(playerId, trickCounts[playerId]);
+                this.updateCurrentTricksWon(playerId,
+                                            trickCounts[playerId],
+                                            trickCounts[declaringPlayerId]);
             }
         },
 
-        updateCurrentTricksWon: function(playerId, tricksWon) {
+        clearDeclareTrickCount: function() {
+            this.updateValueInNode("declaredTricksWon", 0);
+        },
+
+        updateCurrentTricksWon: function(playerId, tricksWon, declaringPlayerTricks) {
             console.log("Updating tricks won: " + playerId + " - " + tricksWon);
             if (playerId == this.player_id) {
                 this.updateValueInNode("myTricksWon", tricksWon);
             }
+            this.updateValueInNode("declaredTricksWon", declaringPlayerTricks);
             this.updateValueInNode("tricks_" + playerId, tricksWon);
         },
 
@@ -327,6 +335,7 @@ function (dojo, declare, domStyle) {
             for (var playerId in this.gamedatas.players) {
                 this.updateValueInNode("tricks_" + playerId, 0);
             }
+            this.clearDeclareTrickCount();
         },
 
         updateRoundScores: function(roundScores) {
@@ -657,7 +666,7 @@ function (dojo, declare, domStyle) {
             // Move all cards on table to given table, then destroy them
             var winner_id = notif.args.playerId;
             this.showFirstPlayer(winner_id);
-            this.updateTrickCounts(notif.args.playerTrickCounts);
+            this.updateTrickCounts(notif.args.playerTrickCounts, notif.args.decRevPlayerId);
             for (var player_id in this.gamedatas.players) {
                 var anim = this.slideToObject('cardontable_'+player_id, 'overall_player_board_'+winner_id);
                 dojo.connect(anim, 'onEnd', function(node) { dojo.destroy(node);});

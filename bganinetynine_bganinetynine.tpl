@@ -1,25 +1,25 @@
 {OVERALL_GAME_HEADER}
 
-<!-- 
+<!--
 --------
 -- BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
 -- BgaNinetyNine implementation : © Gregory Isabelli <gisabelli@boardgamearena.com>
--- 
+--
 -- This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
 -- See http://en.boardgamearena.com/#!doc/Studio for more information.
 -------
 
     bganinetynine_bganinetynine.tpl
-    
+
     This is the HTML template of your game.
-    
+
     Everything you are writing in this file will be displayed in the HTML page of your game user interface,
     in the "main game zone" of the screen.
-    
+
     You can use in this template:
     _ variables, with the format {MY_VARIABLE_ELEMENT}.
     _ HTML block, with the BEGIN/END format
-    
+
     See your "view" PHP file to check how to set variables and control blocks
 -->
 <div id="table">
@@ -52,7 +52,10 @@
         </div>
         <div class="bids">
             <div id="declaretable" class="whiteblock bid_container declare hidden">
-                <h3 class="to_translate">Declared Bid: <span id="declaredBidValue"></span></h3>
+                <h3 class="to_translate">Declared Bid: <span id="declaredBidValue"></span>
+                    <span class="tricks to_translate"> / Tricks Won: </span>
+                    <span id="declaredTricksWon" class="tricks">0</span>
+                </h3>
                 <div id="declaredBid"></div>
             </div>
             <div id="revealtable" class="whiteblock reveal hidden">

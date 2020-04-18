@@ -18,13 +18,13 @@
 /*
     In this file, you are describing game statistics, that will be displayed at the end of the
     game.
-    
+
     There are 2 types of statistics:
     _ table statistics, that are not associated to a specific player (ie: 1 value for each game).
     _ player statistics, that are associated to each players (ie: 1 value for each player in the game).
 
     Statistics types can be "int" for integer, and "float" for floating point values.
-    
+
     Once you defined your statistics there, you can start using "initStat", "setStat" and "incStat" method
     in your game logic, using statistics names defined below.
 */
@@ -42,16 +42,16 @@ $stats_type = array(
                              "type" => "int"),
 
         "total3WinnerHands" => array("id" => 11,
-                                     "name" => totranslate("Total hands in which all players made their bids"),
+                                     "name" => totranslate("Three winner hands"),
                                      "type" => "int"),
         "total2WinnerHands" => array("id" => 12,
-                                     "name" => totranslate("Total hands in which exactly two players made their bids"),
+                                     "name" => totranslate("Two winner hands"),
                                      "type" => "int"),
         "total1WinnerHands" => array("id" => 13,
-                                     "name" => totranslate("Total hands in which only a single player made their bid"),
+                                     "name" => totranslate("One winner hands"),
                                      "type" => "int"),
         "total0WinnerHands" => array("id" => 14,
-                                     "name" => totranslate("Total hands in which only a single player made their bid"),
+                                     "name" => totranslate("No winner hands"),
                                      "type" => "int")
 
     ),
@@ -60,52 +60,53 @@ $stats_type = array(
     "player" => array(
 
         "tricksWon" => array("id" => 10,
-                             "name" => totranslate("Total tricks won"),
+                             "name" => totranslate("Tricks won"),
                              "type" => "int"),
 
         "trickWinPercentage" => array("id" => 11,
                                       "name" => totranslate("Trick win %"),
                                       "type" => "float"),
 
-        "roundsWon" => array("id" => 12,
-                             "name" => totranslate("Total rounds won"),
+        "successBidCount" => array("id" => 12,
+                                   "name" => totranslate("Successful bids"),
+                                   "type" => "int"),
+
+        "successBidPercentage" => array("id" => 13,
+                                        "name" => totranslate("Bid win %"),
+                                        "type" => "float"),
+
+        "roundsWon" => array("id" => 14,
+                             "name" => totranslate("Rounds won"),
                              "type" => "int"),
 
-        "roundWinPercentage" => array("id" => 13,
+        "roundWinPercentage" => array("id" => 15,
                                       "name" => totranslate("Round win %"),
                                       "type" => "float"),
 
-        "declareCount" => array("id" => 14,
-                                "name" => totranslate("Total declares"),
+        "declareCount" => array("id" => 16,
+                                "name" => totranslate("Declares"),
                                 "type" => "int"),
 
-        "revealCount" => array("id" => 15,
-                               "name" => totranslate("Total reveals"),
-                               "type" => "int"),
-
-        "declareSuccess" => array("id" => 16,
-                                  "name" => totranslate("Total successful declares"),
+        "declareSuccess" => array("id" => 17,
+                                  "name" => totranslate("Successful declares"),
                                   "type" => "int"),
 
-        "declareSuccessPercentage" => array("id" => 17,
+        "declareSuccessPercentage" => array("id" => 18,
                                             "name" => totranslate("Successful declare %"),
                                             "type" => "float"),
 
-        "revealSuccess" => array("id" => 18,
-                                 "name" => totranslate("Total successful reveals"),
+        "revealCount" => array("id" => 19,
+                               "name" => totranslate("Reveals"),
+                               "type" => "int"),
+
+        "revealSuccess" => array("id" => 20,
+                                 "name" => totranslate("Successful reveals"),
                                  "type" => "int"),
 
-        "revealSuccessPercentage" => array("id" => 19,
+        "revealSuccessPercentage" => array("id" => 21,
                                            "name" => totranslate("Successful reveal %"),
-                                           "type" => "float"),
+                                           "type" => "float")
 
-        "successBidCount" => array("id" => 20,
-                                   "name" => totranslate("Accurate bids"),
-                                   "type" => "int"),
-
-        "successBidPercentage" => array("id" => 21,
-                                        "name" => totranslate("Accurate bid %"),
-                                        "type" => "float")
     )
 
 );
