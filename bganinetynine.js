@@ -109,6 +109,7 @@ function (dojo, declare, domStyle) {
 
             // Set scores
             this.updateRoundScores(this.gamedatas.roundScores);
+            console.log(this.gamedatas.roundScores);
 
             this.addTooltipToClass("playertablecard", _("Card played on the table"), '');
             this.addTooltip("declaretable", _("Opponent's declared bid"), '');
@@ -180,8 +181,8 @@ function (dojo, declare, domStyle) {
                         this.addActionButton('bidCards_button', _('Bid selected cards'), 'onBidCards');
                         break;
                     case 'declareOrReveal':
-                        this.addActionButton('reveal_button', _('Reveal'), 'onReveal'); 
-                        this.addActionButton('declare_button', _('Declare'), 'onDeclare'); 
+                        this.addActionButton('reveal_button', _('Reveal'), 'onReveal');
+                        this.addActionButton('declare_button', _('Declare'), 'onDeclare');
                         this.addActionButton('none_button', _('Neither'), 'onNoDeclare');
                         break;
                 }

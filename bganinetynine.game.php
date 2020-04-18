@@ -233,21 +233,12 @@ class BgaNinetyNine extends Table {
         return $tricksWon;
     }
 
-    function getCurrentRoundScores() {
-        $scores = array();
-        $players = self::loadPlayersBasicInfos();
-        foreach ($players as $playerId => $player) {
-            $scores[$playerId] = $this->dbGetScoreForRound($playerId);
-        }
-        return $scores;
-    }
-
     /**
         Gets the current dealer
     **/
     function getRoundDealer() {
         $dealer = self::getGameStateValue("firstDealer");
-        $round = self::getGameStateValue("currentRound");
+        $round = $this->getCurrentRound();
         $basicPlayerInfo = self::loadPlayersBasicInfos();
 
         $firstDealerPosition = $basicPlayerInfo[$dealer]['player_no'];
@@ -422,6 +413,26 @@ class BgaNinetyNine extends Table {
         $this->DbQuery($sql);
     }
 
+    function getCurrentRoundScores() {
+        return $this->dbGetRoundScores($this->getCurrentRound());
+    }
+
+    function dbGetRoundScores($round) {
+        if ($round < 0 || $round > 2) {
+            throw new feException(_("Invalid round"));
+        }
+        $roundScores = $this->getCollectionFromDB("SELECT player_id, player_score_round$round score FROM player", true);
+        $result = array();
+        foreach ($roundScores as $playerId => $score) {
+            $result[$playerId] = intval($score);
+        }
+        return $result;
+    }
+
+    function dbGetRoundScore($playerId, $round) {
+        return $this->dbGetRoundScores($round)[$playerId];
+    }
+
     // set score
     function dbSetScore($playerId, $count) {
         $this->DbQuery("UPDATE player SET player_score='$count' WHERE player_id='$playerId'");
@@ -429,27 +440,7 @@ class BgaNinetyNine extends Table {
 
     // get score
     function dbGetScore($playerId) {
-        return $this->getUniqueValueFromDB("SELECT player_score FROM player WHERE player_id='$playerId'");
-    }
-
-    // get score
-    function dbGetScoreForRound($playerId) {
-        $round = $this->getCurrentRound();
-        return $this->dbGetRoundScore($playerId, $round);
-    }
-
-    function dbGetRoundScore($playerId, $round) {
-        if ($round < 0 || $round > 2) {
-            throw new feException(_("Invalid round"));
-        }
-        return $this->getUniqueValueFromDB("SELECT player_score_round$round FROM player WHERE player_id='$playerId'");
-    }
-
-    function dbGetRoundScores($round) {
-        if ($round < 0 || $round > 2) {
-            throw new feException(_("Invalid round"));
-        }
-        return $this->getCollectionFromDB("SELECT player_id, player_score_round$round score FROM player", true);
+        return intval($this->getUniqueValueFromDB("SELECT player_score FROM player WHERE player_id='$playerId'"));
     }
 
     // set score
@@ -990,9 +981,7 @@ class BgaNinetyNine extends Table {
                     $points += (40 - ($countPlayersExceeded100 * 10));
                 }
 
-                $sql = "UPDATE player SET player_score=player_score+$points WHERE player_id='$player_id'";
-                self::DbQuery($sql);
-
+                $this->dbIncScore($player_id, $points);
                 $this->dbSetRoundScore($player_id, $playerRoundScore);
 
                 self::notifyAllPlayers("points", clienttranslate('${player_name} gets ${points} points'), array(
@@ -1008,7 +997,7 @@ class BgaNinetyNine extends Table {
                     'player_name' => $players[$player_id]['player_name']));
             }
         }
-        $newScores = $this->dbGetRoundScores($this->getCurrentRound());
+        $newScores = $this->getCurrentRoundScores();
         self::notifyAllPlayers("newScores", '', array('newScores' => $newScores));
 
         // Test if this is the end of the round
@@ -1060,11 +1049,16 @@ class BgaNinetyNine extends Table {
 
         // Calculate statistics
         $handCount = self::getStat("handCount");
+        $this->debug("Total hand count: $handCount");
         $totalTrickCount = $handCount * 9;
+        $this->debug("Total trick count: $totalTrickCount");
         $players = self::loadPlayersBasicInfos();
         foreach ($players as $playerId => $player) {
             // trickWinPercentage
             $tricksTaken = self::getStat("tricksWon", $playerId);
+            $this->debug("Tricks won ($playerId): $tricksTaken");
+            $trickWinPerc = $tricksTaken / $totalTrickCount;
+            $this->debug("Tricks win % ($playerId): $trickWinPerc");
             self::setStat($tricksTaken / $totalTrickCount, "trickWinPercentage", $playerId);
 
             // roundWinPercentage
@@ -1076,8 +1070,6 @@ class BgaNinetyNine extends Table {
             $declareSuccess = self::getStat("declareSuccess", $playerId);
             if ($declares != 0) {
                 self::setStat($declareSuccess / $declares, "declareSuccessPercentage", $playerId);
-            } else {
-                self::setStat(null, "declareSuccessPercentage", $playerId);
             }
 
             // revealSuccessPercentage
@@ -1085,8 +1077,6 @@ class BgaNinetyNine extends Table {
             $revealSuccess = self::getStat("revealSuccess", $playerId);
             if ($reveals != 0) {
                 self::setStat($revealSuccess / $reveals, "revealSuccessPercentage", $playerId);
-            } else {
-                self::setStat(null, "revealSuccessPercentage", $playerId);
             }
 
             // successBidPercentage
