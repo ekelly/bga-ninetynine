@@ -15,34 +15,59 @@
 /*
 
     This is the CSS stylesheet of your game User Interface.
-    
+
     Styles defined on this file will be applied to the HTML elements you defined in your
     HTML template (bganinetynine_bganinetynine.tpl), and to HTML elements you create dynamically
     (in bganinetynine.js).
-    
+
     Usually, you are using CSS to:
-    
+
     1°) define the overall layout of your game
         (ex: place the board on the top left, place player's hand beside, place the deck on the right, ...).
 
     2°) create your CSS-sprites:
         All images of your games should be gathered into a small number of image files. Then, using
-        background-image and background-position CSS properties, you create HTML blocks that can 
+        background-image and background-position CSS properties, you create HTML blocks that can
         display these images correctly (see example below).
-    
+
     3°) ... anything else:
         This is really easy to add and remove CSS classes dynamically from your Javascript with
         dojo.addClass and dojo.removeClass. This is also easy to check if an element has a class
         (dojo.hasClass) or to get all elements with a specific class (dojo.query). This is why,
         very often, using CSS classes for the logic of your user interface allow you to do complex
         thing easyly.
-        
-        
+
+
      Note: on the production platform, this file will be compressed and comments will be remove.
            Consequently, don't hesitate to put as many comments as necessary.
 */
 
 @import url(../../../css/csslayer.css);
+
+/** General Styles **/
+
+#middleRow {
+    display: flex;
+}
+
+.container {
+    height: auto;
+    display: flex;
+}
+
+.section {
+    flex-direction: row;
+    width: auto;
+    display: block;
+}
+
+.red {
+    color: red;
+}
+
+.hidden {
+    display: none;
+}
 
 /** Table layout **/
 
@@ -51,7 +76,6 @@
     height: 340px;
     display: inline-block;
     min-width: 390px;
-    /*margin-left: 10%;*/
 }
 
 .playertablename {
@@ -83,6 +107,7 @@
     margin-top: -155px;
     margin-left: -180px;
 }
+
 .playertablecard {
     display: inline-block;
     position: relative;
@@ -102,6 +127,34 @@
     font-weight: bold;
 }
 
+.my_bid_container{
+    position: absolute;
+    right: 0%;
+    bottom: 25.4%;
+}
+
+.dealerindicator {
+    color: black;
+}
+
+.tricks {
+    color: black;
+}
+
+.playertable > .tricks {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.firstplayer {
+    border: 2px black dashed;
+    width: 176px;
+    height: 126px;
+}
+
+/* Declare / Reveal styles */
+
 #declaretable {
     font-size: 14px;
     font-weight: bold;
@@ -117,10 +170,6 @@
     height: 130px;
 }
 
-#middleRow {
-    display: flex;
-}
-
 #revealtable {
     font-size: 14px;
     font-weight: bold;
@@ -133,7 +182,7 @@
     position: absolute;
     width: 72px;
     height: 96px;
-    background-image: url('img/cards.jpg'); 
+    background-image: url('img/cards.jpg');
 }
 
 .suit_spade {
@@ -204,6 +253,21 @@
     background-position-x: -1200%;
 }
 
+.trump_red {
+    color: red;
+    font-size: 40px;
+}
+
+.trump_black {
+    color: black;
+    font-size: 40px;
+}
+
+.trump_none {
+    color: black;
+    font-size: 16px;
+}
+
 /*** hand layout ***/
 
 #myhand {
@@ -218,17 +282,6 @@
     width: 100%;
 }
 
-.container {
-    height: auto;
-    display: flex;
-}
-
-.section {
-    flex-direction: row;
-    width: auto;
-    display: block;
-}
-
 .bid_container {
     min-width: 240px;
     height: 130px;
@@ -240,51 +293,3 @@
     display: flex;
 }
 
-.red {
-    color: red;
-}
-
-.trump_red{
-    color: red;
-    font-size: 40px;
-}
-
-.trump_black{
-    color: black;
-    font-size: 40px;
-}
-
-.trump_none{
-    color: black;
-    font-size: 16px;
-}
-
-.dealerindicator {
-    color: black;
-}
-
-.tricks {
-    color: black;
-}
-
-.playertable > .tricks {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-}
-
-.firstplayer {
-    border: 2px black dashed;
-    width: 176px;
-    height: 126px;
-}
-
-.my_bid_container{
-    position: absolute;
-    right: 0%;
-    bottom: 25.4%;
-}
-
-.hidden{
-    display: none;
-}
