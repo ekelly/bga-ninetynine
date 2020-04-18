@@ -419,7 +419,6 @@ function (dojo, declare, domStyle) {
                 var playerColor = decRevInfo.playerColor;
                 domStyle.set(playerNameSpan, "color", "#" + playerColor);
             } else {
-                debugger;
                 playerNameSpan.textContent = "None";
                 domStyle.set(playerNameSpan, "color", "#000000");
                 dojo.query(".declare").addClass("hidden");
