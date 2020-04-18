@@ -55,7 +55,6 @@ class BgaNinetyNine extends Table {
 
     */
     protected function setupNewGame($players, $options = array()) {
-        self::warn("setupNewGame");
         $sql = "DELETE FROM player WHERE 1 ";
         self::DbQuery($sql);
 
@@ -148,7 +147,6 @@ class BgaNinetyNine extends Table {
         _ when a player refresh the game page (F5)
     */
     protected function getAllDatas() {
-        self::warn("getAllDatas");
         $result = array( 'players' => array() );
 
         // !! We must only return informations visible by this player !!
@@ -634,7 +632,6 @@ class BgaNinetyNine extends Table {
     */
 
     function submitBid($card_ids) {
-        self::warn("submitBid");
         self::checkAction("submitBid");
 
         // Check that the cards are actually in the current user's hands.
@@ -674,7 +671,6 @@ class BgaNinetyNine extends Table {
     }
 
     function declareOrReveal($declareOrReveal) {
-        self::warn("declareOrReveal");
         self::checkAction( "submitDeclareOrReveal" );
 
         if ($declareOrReveal < 0 || $declareOrReveal > 2) {
@@ -768,12 +764,10 @@ class BgaNinetyNine extends Table {
     */
 
     function stGameSetup() {
-        self::warn("stGameSetup");
         $this->gamestate->nextState("");
     }
 
     function stNewRound() {
-        self::warn("stNewRound");
         $this->dbClearScores();
         $this->setDealer($this->getRoundDealer());
         $dealer = $this->getDealer();
@@ -787,7 +781,6 @@ class BgaNinetyNine extends Table {
     }
 
     function stNewHand() {
-        self::warn("stNewHand");
 
         self::incStat(1, "handCount");
 
@@ -812,7 +805,6 @@ class BgaNinetyNine extends Table {
     }
 
     function stBidding() {
-        self::warn("stBidding");
         $players = self::loadPlayersBasicInfos();
         foreach ($players as $player_id => $player) {
             $this->giveExtraTime($player_id);
@@ -821,12 +813,10 @@ class BgaNinetyNine extends Table {
     }
 
     function stCheckBids() {
-        self::warn("stCheckBids");
         $this->gamestate->nextState("declareOrReveal");
     }
 
     function stDeclareOrReveal() {
-        self::warn("stDeclareOrReveal");
         $players = self::loadPlayersBasicInfos();
         foreach ($players as $player_id => $player) {
             $this->giveExtraTime($player_id);
@@ -835,7 +825,6 @@ class BgaNinetyNine extends Table {
     }
 
     function stCheckDeclareOrReveal() {
-        self::warn("stCheckDeclareOrReveal");
 
         $this->assignDeclareRevealPlayer();
         $declareReveal = $this->getDeclareOrRevealInfo();
@@ -886,7 +875,6 @@ class BgaNinetyNine extends Table {
     }
 
     function stNewTrick() {
-        self::warn("stNewTrick");
 
         $this->clearCurrentTrickSuit();
 
@@ -894,7 +882,6 @@ class BgaNinetyNine extends Table {
     }
 
     function stNextPlayer() {
-        self::warn("stNextPlayer");
         // Active next player OR end the trick and go to the next trick OR end the hand
         if ($this->cards->countCardInLocation('cardsontable') == 3) {
             $winningCard = $this->getTrickWinner();
@@ -951,7 +938,6 @@ class BgaNinetyNine extends Table {
     }
 
     function stEndHand() {
-        self::warn("stEndHand");
 
         $handScoreInfo = $this->generateScoreInfo();
         $madeBidCount = $handScoreInfo['correctBidCount'];
@@ -1061,7 +1047,6 @@ class BgaNinetyNine extends Table {
     }
 
     function finalizeGameEndState() {
-        self::warn("finalizeGameEndState");
 
         // This will get the scores from Round 3
         $roundScoreInfo = $this->generateRoundScoreInfo();
@@ -1356,11 +1341,6 @@ class BgaNinetyNine extends Table {
         }
         $table[] = $totalRow;
         return $table;
-    }
-
-    function debug($val) {
-        $strVal = print_r($val, true);
-        $this->notifyAllPlayers("debugLog", "$strVal", array());
     }
 
 //////////////////////////////////////////////////////////////////////////////
