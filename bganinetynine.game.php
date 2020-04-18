@@ -1080,19 +1080,19 @@ class BgaNinetyNine extends Table {
         foreach ($players as $playerId => $player) {
             // trickWinPercentage
             $tricksTaken = self::getStat("tricksWon", $playerId);
-            $trickWinPerc = ($tricksTaken / $totalTrickCount) * 100;
+            $trickWinPerc = round(($tricksTaken / $totalTrickCount) * 100, 1);
             self::setStat($trickWinPerc, "trickWinPercentage", $playerId);
 
             // roundWinPercentage
             $roundsWon = self::getStat("roundsWon", $playerId);
-            $roundWinPerc = ($roundsWon / 3) * 100;
+            $roundWinPerc = round(($roundsWon / 3) * 100, 1);
             self::setStat($roundWinPerc, "roundWinPercentage", $playerId);
 
             // declareSuccessPercentage
             $declares = self::getStat("declareCount", $playerId);
             $declareSuccess = self::getStat("declareSuccess", $playerId);
             if ($declares != 0) {
-                $declareWinPerc = ($declareSuccess / $declares) * 100;
+                $declareWinPerc = round(($declareSuccess / $declares) * 100, 1);
                 self::setStat($declareWinPerc, "declareSuccessPercentage", $playerId);
             }
 
@@ -1100,13 +1100,13 @@ class BgaNinetyNine extends Table {
             $reveals = self::getStat("revealCount", $playerId);
             $revealSuccess = self::getStat("revealSuccess", $playerId);
             if ($reveals != 0) {
-                $revealWinPerc = ($revealSuccess / $reveals) * 100;
+                $revealWinPerc = round(($revealSuccess / $reveals) * 100, 1);
                 self::setStat($revealWinPerc, "revealSuccessPercentage", $playerId);
             }
 
             // successBidPercentage
             $successfulBids = self::getStat("successBidCount", $playerId);
-            $successBidPerc = ($successfulBids / $handCount) * 100;
+            $successBidPerc = round(($successfulBids / $handCount) * 100, 1);
             self::setStat($successBidPerc, "successBidPercentage", $playerId);
         }
     }
