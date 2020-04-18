@@ -32,8 +32,6 @@ function (dojo, declare, domStyle) {
     return declare("bgagame.bganinetynine", ebg.core.gamegui, {
 
         constructor: function() {
-            console.log('bganinetynine constructor');
-
             // Here, you can init the global variables of your user interface
             // Example:
             // this.myGlobalValue = 0;
@@ -56,7 +54,6 @@ function (dojo, declare, domStyle) {
             "gamedatas" argument contains all datas retrieved by your "getAllDatas" PHP method.
         */
         setup: function(gamedatas) {
-            console.log("start creating player boards");
             dojo.destroy('debug_output');
             for (var player_id in gamedatas.players) {
                 var player = gamedatas.players[player_id];
@@ -110,7 +107,6 @@ function (dojo, declare, domStyle) {
 
             // Set scores
             this.updateRoundScores(this.gamedatas.roundScores);
-            console.log(this.gamedatas.roundScores);
 
             this.addTooltipToClass("playertablecard", _("Card played on the table"), '');
             this.addTooltip("declaretable", _("Opponent's declared bid"), '');
@@ -130,8 +126,6 @@ function (dojo, declare, domStyle) {
         //
 
         onEnteringState: function(stateName, args) {
-           console.log('Entering state: ' + stateName);
-
             switch (stateName) {
                 case 'newHand':
                     this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
@@ -158,8 +152,6 @@ function (dojo, declare, domStyle) {
         //                 You can use this method to perform some user interface changes at this moment.
         //
         onLeavingState: function(stateName) {
-            console.log('Leaving state: '+stateName);
-
             switch (stateName) {
                 case 'bidding':
                     this.playerBid.setSelectionMode(0);
@@ -173,10 +165,7 @@ function (dojo, declare, domStyle) {
         //                        action status bar (ie: the HTML links in the status bar).
         //
         onUpdateActionButtons: function(stateName, args) {
-            console.log('onUpdateActionButtons: ' + stateName);
-
             if (this.isCurrentPlayerActive()) {
-                console.log("Current player is active");
                 switch (stateName) {
                     case 'bidding':
                         this.addActionButton('bidCards_button', _('Bid selected cards'), 'onBidCards');
@@ -187,8 +176,6 @@ function (dojo, declare, domStyle) {
                         this.addActionButton('none_button', _('Neither'), 'onNoDeclare');
                         break;
                 }
-            } else {
-                console.log("Current player is not active");
             }
         },
 
@@ -236,19 +223,16 @@ function (dojo, declare, domStyle) {
         },
 
         showDealer: function(dealer_id) {
-            console.log("Showing dealer: " + dealer_id);
             dojo.query(".dealerindicator").addClass("hidden");
             this.setNodeHidden("dealerindicator_" + dealer_id, false);
         },
 
         showFirstPlayer: function(first_player) {
-            console.log("First player: " + first_player);
             dojo.query(".playertable").removeClass("firstplayer");
             dojo.addClass("playertable_" + first_player, "firstplayer");
         },
 
         showTrump: function(trumpSuit) {
-            console.log("Showing trump: " + trumpSuit);
             var trumpSuitSpan = dojo.byId("trumpSuit");
             if (trumpSuit != undefined &&
                 trumpSuit != null &&
@@ -308,7 +292,6 @@ function (dojo, declare, domStyle) {
         },
 
         updateCurrentTricksWon: function(playerId, tricksWon, declaringPlayerTricks) {
-            console.log("Updating tricks won: " + playerId + " - " + tricksWon);
             if (playerId == this.player_id) {
                 this.updateValueInNode("myTricksWon", tricksWon);
             }
@@ -324,12 +307,10 @@ function (dojo, declare, domStyle) {
         },
 
         displayTricksWon: function() {
-            console.log("showing trick count");
             dojo.query(".tricks").removeClass("hidden");
         },
 
         clearTricksWon: function() {
-            console.log("hiding trick count");
             dojo.query(".tricks").addClass("hidden");
             dojo.byId("myTricksWon").textContent = 0;
             for (var playerId in this.gamedatas.players) {
@@ -345,7 +326,6 @@ function (dojo, declare, domStyle) {
         },
 
         updatePlayerScore: function(playerId, playerScore) {
-            console.log("Player " + playerId + " current round score is " + playerScore);
             if (this.scoreCtrl[playerId]) {
                 this.scoreCtrl[playerId].toValue(playerScore);
             }
@@ -361,7 +341,6 @@ function (dojo, declare, domStyle) {
         },
 
         playCardOnTable: function(player_id, suit, value, card_id) {
-            console.log('playCardOnTable');
 
             dojo.place(
                 this.format_block('jstpl_cardontable', {
@@ -466,7 +445,6 @@ function (dojo, declare, domStyle) {
         */
 
         onPlayerHandSelectionChanged: function() {
-            console.log('onPlayerHandSelectionChanged');
             var items = this.playerHand.getSelectedItems();
 
             if (items.length > 0) {
@@ -504,9 +482,7 @@ function (dojo, declare, domStyle) {
         },
 
         onBidSelectionChanged: function() {
-            console.log('onBidSelectionChanged');
             if (!this.checkAction('submitBid')) {
-                console.log("Cannot make changes to bid now");
                 this.playerBid.unselectAll();
                 return;
             }
@@ -523,7 +499,6 @@ function (dojo, declare, domStyle) {
         },
 
         onBidCards: function() {
-            console.log('onBidCards');
             if (this.checkAction('submitBid')) {
                 var items = this.playerBid.getAllItems();
 
@@ -547,12 +522,10 @@ function (dojo, declare, domStyle) {
         },
 
         onNoDeclare: function() {
-            console.log('onNoDeclare');
             this.submitDeclareOrReveal(0);
         },
 
         onDeclare: function() {
-            console.log('onDeclare');
             this.confirmationDialog(_('Are you sure you want to declare?'),
                                     dojo.hitch(this, function() {
                 this.submitDeclareOrReveal(1);
@@ -560,7 +533,6 @@ function (dojo, declare, domStyle) {
         },
 
         onReveal: function() {
-            console.log('onReveal');
             this.confirmationDialog(_('Are you sure you want to reveal?'),
                                     dojo.hitch(this, function() {
                 this.submitDeclareOrReveal(2);
@@ -593,8 +565,6 @@ function (dojo, declare, domStyle) {
         */
 
         setupNotifications: function() {
-            console.log( 'notifications subscriptions setup');
-
             dojo.subscribe('newRound', this, "notif_newRound");
             dojo.subscribe('newHand', this, "notif_newHand");
             dojo.subscribe('playCard', this, "notif_playCard");
@@ -610,7 +580,6 @@ function (dojo, declare, domStyle) {
         // From this point and below, you can write your game notifications handling methods
 
         notif_newRound: function(notif) {
-            console.log('notif_newRound');
             this.showDealer(notif.args.dealer);
             this.showFirstPlayer(notif.args.firstPlayer);
             this.showTrump(null);
@@ -622,7 +591,6 @@ function (dojo, declare, domStyle) {
         },
 
         notif_newHand: function(notif) {
-            console.log('notif_newHand');
             // We received a new full hand of 12 cards.
             this.playerHand.removeAll();
             this.playerBid.removeAll();
@@ -640,7 +608,6 @@ function (dojo, declare, domStyle) {
         },
 
         notif_playCard: function(notif) {
-            console.log('notif_playCard');
             this.showFirstPlayer(notif.args.firstPlayer);
             // Play a card on the table
             this.playCardOnTable(notif.args.player_id, notif.args.suit,
@@ -648,12 +615,10 @@ function (dojo, declare, domStyle) {
         },
 
         notif_trickWin: function(notif) {
-            console.log('notif_trickWin');
             // We do nothing here (just wait in order players can view the cards played before they're gone.)
         },
 
         notif_points: function(notif) {
-            console.log('notif_points');
             var playerId = notif.args.player_id;
             var score = notif.args.roundScore;
             if (score) {
@@ -662,7 +627,6 @@ function (dojo, declare, domStyle) {
         },
 
         notif_giveAllCardsToPlayer: function(notif) {
-            console.log('notif_giveAllCardsToPlayer');
             // Move all cards on table to given table, then destroy them
             var winner_id = notif.args.playerId;
             this.showFirstPlayer(winner_id);
@@ -675,13 +639,11 @@ function (dojo, declare, domStyle) {
         },
 
         notif_newScores: function(notif) {
-            console.log('notif_newScores');
             // Update players' scores
             this.updateRoundScores(notif.args.newScores);
         },
 
         notif_bidCards: function(notif) {
-            console.log("Bid value: " + notif.args.bidValue);
             // Remove cards from the hand (they have been given)
             for (var i in notif.args.cards) {
                 var card_id = notif.args.cards[i];
