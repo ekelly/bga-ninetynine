@@ -26,9 +26,24 @@
 $game_options = array(
 
 		100 => array(
-            'name' => totranslate('Game style'),
+            'name' => totranslate('Scoring style'),
             'values' => array(
-                    1 => array('name' => totranslate('Standard game (3 rounds)')),
+                1 => array(
+                    'name' => totranslate('3 rounds with round bonuses'),
+                    'tmdisplay' => totranslate('3 rounds with round bonuses'),
+                    'description' => totranslate('Each round starts without trump,
+                        with subsequent trump being decided by how many players won
+                        the previous trick. A bonus will be given to each player
+                        who passes 100pts in each round. Winner is decided by total score')
+                ),
+                2 => array(
+                    'name' => totranslate('3 rounds'),
+                    'tmdisplay' => totranslate('3 rounds'),
+                    'description' => totranslate('Each round starts without trump,
+                        with subsequent trump being decided by how many players won
+                        the previous trick. Winner is the player to win the most
+                        rounds, ties decided by total points won')
+                ),
             ),
             'default' => 1,
             'startcondition' => array(
@@ -45,8 +60,6 @@ $game_options = array(
                     )
                 ),
             ),
-		)
-
+    )
 );
-
 

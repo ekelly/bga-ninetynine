@@ -221,6 +221,15 @@ class BgaNinetyNine extends Table {
         At this place, you can put any utility methods useful for your game logic
     */
 
+    // 1 = round bonuses, 2 = no round bonuses
+    function getScoringVariant() {
+        return $this->gamestate->table_globals[100];
+    }
+
+    function doesGameUseRoundBonuses() {
+        return $this->getScoringVariant() == 1;
+    }
+
     function getTrickCounts() {
         $tricksWon = array();
         $players = self::loadPlayersBasicInfos();
@@ -443,6 +452,10 @@ class BgaNinetyNine extends Table {
     // set score
     function dbSetScore($playerId, $count) {
         $this->DbQuery("UPDATE player SET player_score='$count' WHERE player_id='$playerId'");
+    }
+
+    function dbSetAuxScore($playerId, $count) {
+        $this->DbQuery("UPDATE player SET player_score_aux='$count' WHERE player_id='$playerId'");
     }
 
     function dbClearScores() {
@@ -991,12 +1004,15 @@ class BgaNinetyNine extends Table {
         foreach ($handScoreInfo['total'] as $player_id => $points) {
             if ($points != 0) {
 
-                // Add the round bonus to the total score
+                // Calculate the round score
                 $playerRoundScore = $handScoreInfo['currentScore'][$player_id] +
                     $handScoreInfo['total'][$player_id];
                 if ($playerRoundScore >= 100) {
                     self::incStat(1, "roundsWon", $player_id);
-                    $points += (40 - ($countPlayersExceeded100 * 10));
+
+                    if ($this->doesGameUseRoundBonuses()) {
+                        $points += (40 - ($countPlayersExceeded100 * 10));
+                    }
                 }
 
                 $this->dbSetScore($player_id, $playerRoundScore);
@@ -1066,8 +1082,16 @@ class BgaNinetyNine extends Table {
         // This will get the scores from Round 3
         $roundScoreInfo = $this->generateRoundScoreInfo();
 
-        foreach ($roundScoreInfo['gameScore'] as $playerId => $score) {
-            $this->dbSetScore($playerId, $score);
+        if ($this->doesGameUseRoundBonuses()) {
+            foreach ($roundScoreInfo['gameScore'] as $playerId => $score) {
+                $this->dbSetScore($playerId, $score);
+            }
+        } else {
+            foreach ($roundScoreInfo['roundWins'] as $playerId => $roundsWon) {
+                // Set the 'score' as rounds won, with a tiebreaker for total points
+                $this->dbSetScore($playerId, $roundsWon);
+                $this->dbSetAuxScore($playerId, $roundScoreInfo['gameScore'][$playerId]);
+            }
         }
 
         $newScores = $this->dbGetScores();
@@ -1267,6 +1291,7 @@ class BgaNinetyNine extends Table {
         $result = array();
         $result['name'] = array();
         $result['roundScore'] = array();
+        $result['roundWins'] = array();
         $result['gameScore'] = array();
         $round = $this->getCurrentRound();
         $playerBroke100 = array();
@@ -1274,6 +1299,7 @@ class BgaNinetyNine extends Table {
         foreach ($players as $playerId => $player) {
             $result['name'][$playerId] = $player['player_name'];
             $result['roundScore'][$playerId] = array();
+            $result['roundWins'][$playerId] = 0;
             $playerBroke100[$playerId] = array();
             for ($i = 0; $i < $round + 1; $i++) {
                 $roundScore = $this->dbGetRoundScore($playerId, $i);
@@ -1283,6 +1309,7 @@ class BgaNinetyNine extends Table {
                 if ($roundScore >= 100) {
                     $playerBroke100[$playerId][$i] = true;
                     $countBroke100[$i]++;
+                    $result['roundWins'][$playerId] += 1;
                 } else {
                     $playerBroke100[$playerId][$i] = false;
                 }
@@ -1290,25 +1317,35 @@ class BgaNinetyNine extends Table {
             }
         }
         // Calculate round bonuses
-        $result['roundBonus'] = array();
+        if ($this->doesGameUseRoundBonuses()) {
+            $result['roundBonus'] = array();
+            foreach ($players as $playerId => $player) {
+                $result['roundBonus'][$playerId] = array();
+                $playerGameScoreTotal = 0;
+                for ($i = 0; $i < $round + 1; $i++) {
+                    $roundBonusPoints = 0;
+                    if ($countBroke100[$i] > 0) {
+                        $roundBonusPoints = 40 - ($countBroke100[$i] * 10);
+                    }
+                    if ($playerBroke100[$playerId][$i]) {
+                        $result['roundBonus'][$playerId][$i] = $roundBonusPoints;
+                    } else {
+                        $result['roundBonus'][$playerId][$i] = 0;
+                    }
+                }
+            }
+        }
         $result['roundTotal'] = array();
         foreach ($players as $playerId => $player) {
-            $result['roundBonus'][$playerId] = array();
             $result['roundTotal'][$playerId] = array();
             $playerGameScoreTotal = 0;
             for ($i = 0; $i < $round + 1; $i++) {
                 $roundBonusPoints = 0;
-                if ($countBroke100[$i] > 0) {
-                    $roundBonusPoints = 40 - ($countBroke100[$i] * 10);
-                }
-                if ($playerBroke100[$playerId][$i]) {
-                    $result['roundBonus'][$playerId][$i] = $roundBonusPoints;
-                } else {
-                    $result['roundBonus'][$playerId][$i] = 0;
+                if ($this->doesGameUseRoundBonuses()) {
+                    $roundBonusPoints = $result['roundBonus'][$playerId][$i];
                 }
                 $result['roundTotal'][$playerId][$i] =
-                    $result['roundScore'][$playerId][$i] +
-                        $result['roundBonus'][$playerId][$i];
+                    $result['roundScore'][$playerId][$i] + $roundBonusPoints;
                 $playerGameScoreTotal += $result['roundTotal'][$playerId][$i];
             }
             $result['gameScore'][$playerId] = $playerGameScoreTotal;
@@ -1332,22 +1369,27 @@ class BgaNinetyNine extends Table {
             $roundScoreRow = array($translatedRoundName);
             foreach ($players as $player_id => $player) {
                 $roundScore = $roundScoreInfo['roundScore'][$player_id][$i];
-                // Since we're not showing the bonuses unless it's the current round,
-                // we need to add them to the previous round's score here
-                if ($i != $round) {
-                    $roundScore += $roundScoreInfo['roundBonus'][$player_id][$i];
+
+                if ($this->doesGameUseRoundBonuses()) {
+                    // Since we're not showing the bonuses unless it's the current round,
+                    // we need to add them to the previous round's score here
+                    if ($i != $round) {
+                        $roundScore += $roundScoreInfo['roundBonus'][$player_id][$i];
+                    }
                 }
                 $roundScoreRow[] = $roundScore;
             }
             $table[] = $roundScoreRow;
 
-            if ($i == $round) {
-                $translatedRoundBonus = sprintf(clienttranslate("Round %d bonus"), $roundName);
-                $roundBonusRow = array($translatedRoundBonus);
-                foreach ($players as $player_id => $player) {
-                    $roundBonusRow[] = $roundScoreInfo['roundBonus'][$player_id][$i];
+            if ($this->doesGameUseRoundBonuses()) {
+                if ($i == $round) {
+                    $translatedRoundBonus = sprintf(clienttranslate("Round %d bonus"), $roundName);
+                    $roundBonusRow = array($translatedRoundBonus);
+                    foreach ($players as $player_id => $player) {
+                        $roundBonusRow[] = $roundScoreInfo['roundBonus'][$player_id][$i];
+                    }
+                    $table[] = $roundBonusRow;
                 }
-                $table[] = $roundBonusRow;
             }
         }
         $totalRow = array(clienttranslate("Game Total"));
@@ -1420,7 +1462,6 @@ class BgaNinetyNine extends Table {
                     }
                 }
             }
-            $this->debug($cardId);
 
             $this->playCardFromPlayer($cardId, $activePlayer);
         } else {
