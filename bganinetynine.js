@@ -380,6 +380,30 @@ function (dojo, declare, domStyle) {
             }
         },
 
+        informUsersPlayerDeclaredOrRevealed: function(decRevInfo) {
+            if (!decRevInfo.playerId) {
+                return;
+            }
+            var reveal = Object.keys(decRevInfo.cards).length > 0;
+            var message;
+            if (decRevInfo.playerId != this.player_id) {
+                // Someone else declared or revealed
+                if (reveal) {
+                    message = decRevInfo.playerName + _(" has revealed");
+                } else {
+                    message = decRevInfo.playerName + _(" has declared");
+                }
+            } else {
+                // You have declared or revealed
+                if (reveal) {
+                    message = _("You have revealed");
+                } else {
+                    message = _("You have declared");
+                }
+            }
+            this.showMessage(message, "info");
+        },
+
         showActiveDeclareOrReveal: function(decRevInfo) {
             var playerNameSpan = dojo.byId("decrev_player_name");
             if (decRevInfo.playerId) {
@@ -653,6 +677,7 @@ function (dojo, declare, domStyle) {
 
         notif_biddingComplete: function(notif) {
             this.showActiveDeclareOrReveal(notif.args.declareReveal);
+            this.informUsersPlayerDeclaredOrRevealed(notif.args.declareReveal);
         }
    });
 });

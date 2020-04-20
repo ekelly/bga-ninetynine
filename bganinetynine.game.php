@@ -671,7 +671,7 @@ class BgaNinetyNine extends Table {
     }
 
     function declareOrReveal($declareOrReveal) {
-        self::checkAction( "submitDeclareOrReveal" );
+        self::checkAction("submitDeclareOrReveal");
 
         if ($declareOrReveal < 0 || $declareOrReveal > 2) {
             throw new feException(sprintf(_("Invalid declare or reveal: %d"), $declareOrReveal));
@@ -685,11 +685,25 @@ class BgaNinetyNine extends Table {
         $this->gamestate->setPlayerNonMultiactive($playerId, "declaringOrRevealingDone");
     }
 
-    // Play a card from player hand
+    // Play a card from the active player's hand
     function playCard($card_id) {
-        self::checkAction("playCard");
-
         $player_id = self::getActivePlayerId();
+        $this->playCardFromPlayer($card_id, $player_id);
+    }
+
+    function getFirstPlayedSuit() {
+        $firstPlayedSuit = null;
+        $firstCardOfTrick = $this->cards->countCardInLocation('cardsontable') == 0;
+
+        if (!$firstCardOfTrick) {
+            $firstPlayedSuit = $this->getCurrentTrickSuit();
+        }
+        return $firstPlayedSuit;
+    }
+
+    // Play a card from player hand
+    function playCardFromPlayer($card_id, $player_id) {
+        self::checkAction("playCard");
 
         // Get all cards in player hand
         // (note: we must get ALL cards in player's hand in order to check if the card played is correct)
@@ -697,16 +711,11 @@ class BgaNinetyNine extends Table {
         $playerhand = $this->cards->getPlayerHand($player_id);
 
         // This line may not be needed
-        // $currentTrickSuit = $this->getCurrentTrickSuit();
         $currentTrump = $this->getCurrentHandTrump();
 
         // Returns the 'bottom' card of the location
-        $firstPlayedSuit = null;
-        $firstCardOfTrick = $this->cards->countCardInLocation('cardsontable') == 0;
-
-        if (!$firstCardOfTrick) {
-            $firstPlayedSuit = $this->getCurrentTrickSuit();
-        }
+        $firstPlayedSuit = $this->getFirstPlayedSuit();
+        $firstCardOfTrick = $firstPlayedSuit == null;
 
         // Check that the card is in this hand
         $cardIsInPlayerHand = false;
@@ -834,8 +843,14 @@ class BgaNinetyNine extends Table {
         $declareRevealType = $declareReveal['decRev'];
         if ($declareRevealType == 1) {
             self::incStat(1, "declareCount", $declaringOrRevealingPlayer);
+            self::notifyAllPlayers('declare', clienttranslate('${playername} has declared'), array(
+                'playername' => $declareReveal['playerName']
+            ));
         } else if ($declareRevealType == 2) {
             self::incStat(1, "revealCount", $declaringOrRevealingPlayer);
+            self::notifyAllPlayers('reveal', clienttranslate('${playername} has revealed'), array(
+                'playername' => $declareReveal['playerName']
+            ));
         }
 
         // Inform people who goes first
@@ -1355,10 +1370,67 @@ class BgaNinetyNine extends Table {
         (ex: pass).
     */
 
-    function zombieTurn($state, $active_player) {
-        // Note: zombie mode has not be realized for BgaNinetyNine, as it is an example game and
-        //       that it can be complex to choose a right card to play.
-        throw new feException(_("Zombie mode not supported for BgaNinetyNine"));
+    function zombieTurn($state, $activePlayer) {
+        $statename = $state['name'];
+
+        if ($statename == 'bidding') {
+            // Bid a random 3 cards
+            $this->cards->moveAllCardsInLocation('hand', 'zombiehand', $activePlayer, $activePlayer);
+            $this->cards->shuffle('zombiehand');
+            $bidCards = $this->cards->pickCards(3, 'zombiehand', $activePlayer);
+            $bidValue = 0;
+            foreach ($bidCards as $bidCard) {
+                $this->cards->moveCard($bidCard['id'], 'bid', $activePlayer);
+                $bidValue += $this->getCardBidValue($bidCard);
+            }
+            $this->cards->moveAllCardsInLocation('zombiehand', 'hand', null, $activePlayer);
+            $this->persistPlayerBid($activePlayer, $bidValue);
+            $this->gamestate->setPlayerNonMultiactive($activePlayer, "biddingDone");
+        } else if ($statename == 'declareOrReveal') {
+            // Pass
+            $this->persistPlayerDeclareReveal($activePlayer, 0);
+            $this->gamestate->setPlayerNonMultiactive($activePlayer, "declaringOrRevealingDone");
+        } else if ($statename == 'playerTurn') {
+            // Play a card
+            $cardId = null;
+            $playerHand = $this->cards->getPlayerHand($activePlayer);
+
+            $firstPlayedSuit = $this->getFirstPlayedSuit();
+            if ($firstPlayedSuit == null) {
+                // Great - any card will do
+                foreach ($playerHand as $card) {
+                    $cardId = $card['id'];
+                    break;
+                }
+            } else {
+                // Check if there are any cards that match
+                // firstPlayedSuit in zombie player's hand
+                foreach ($playerHand as $card) {
+                    if ($card['type'] == $firstPlayedSuit) {
+                        $cardId = $card['id'];
+                        break;
+                    }
+                }
+
+                if ($cardId == null) {
+                    // If we can't follow suit, any card will do
+                    foreach ($playerHand as $card) {
+                        $cardId = $card['id'];
+                        break;
+                    }
+                }
+            }
+            $this->debug($cardId);
+
+            $this->playCardFromPlayer($cardId, $activePlayer);
+        } else {
+            throw new BgaVisibleSystemException("Zombie mode not supported at this game state: ".$statename);
+        }
+    }
+
+    function debug($val) {
+        $strVal = print_r($val, true);
+        $this->notifyAllPlayers("debugLog", "$strVal", array());
     }
 }
 
