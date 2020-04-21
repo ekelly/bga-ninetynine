@@ -50,22 +50,22 @@
     display: flex;
 }
 
-.container {
+.bgann_container {
     height: auto;
     display: flex;
 }
 
-.section {
+.bgann_section {
     flex-direction: row;
     width: auto;
     display: block;
 }
 
-.red {
+.bgann_red {
     color: red;
 }
 
-.hidden {
+.bgann_hidden {
     display: none;
 }
 
@@ -78,37 +78,37 @@
     min-width: 390px;
 }
 
-.playertablename {
+.bgann_playertablename {
     font-weight: bold;
 }
 
-.playertable {
+.bgann_playertable {
     position: absolute;
     text-align: center;
     width: 180px;
     height: 130px;
 }
 
-.playertable_S {
+.bgann_playertable_S {
     left: 50%;
     bottom: 0px;
     margin-left: -90px;
 }
 
-.playertable_W {
+.bgann_playertable_W {
     left: 0px;
     top: 50%;
     margin-top: -155px;
 }
 
-.playertable_E {
+.bgann_playertable_E {
     left: 100%;
     top: 50%;
     margin-top: -155px;
     margin-left: -180px;
 }
 
-.playertablecard {
+.bgann_playertablecard {
     display: inline-block;
     position: relative;
     margin-top: 5px;
@@ -127,27 +127,27 @@
     font-weight: bold;
 }
 
-.my_bid_container{
+#my_bid_container{
     position: absolute;
     right: 0%;
     bottom: 25.4%;
 }
 
-.dealerindicator {
+.bgann_dealerindicator {
     color: black;
 }
 
-.tricks {
+.bgann_tricks {
     color: black;
 }
 
-.playertable > .tricks {
+.bgann_playertable > .bgann_tricks {
     position: absolute;
     bottom: 10px;
     right: 10px;
 }
 
-.firstplayer {
+.bgann_firstplayer {
     border: 2px black dashed;
     width: 176px;
     height: 126px;
@@ -160,13 +160,10 @@
     font-weight: bold;
 }
 
-.declare {
+.bgann_declare {
 }
 
-.declaringplayer {
-}
-
-.reveal {
+.bgann_reveal {
     height: 130px;
 }
 
@@ -178,92 +175,92 @@
 
 /*** cards on table ***/
 
-.cardontable {
+.bgann_cardontable {
     position: absolute;
     width: 72px;
     height: 96px;
     background-image: url('img/cards.jpg');
 }
 
-.suit_spade {
+.bgann_suit_spade {
     background-position-y: -200%;
 }
 
-.suit_heart {
+.bgann_suit_heart {
     background-position-y: -300%;
 }
 
-.suit_club {
+.bgann_suit_club {
     background-position-y: 0%;
 }
 
-.suit_diamond {
+.bgann_suit_diamond {
     background-position-y: -100%;
 }
 
-.rank_2 {
+.bgann_rank_2 {
     background-position-x: 0%;
 }
 
-.rank_3 {
+.bgann_rank_3 {
     background-position-x: -100%;
 }
 
-.rank_4 {
+.bgann_rank_4 {
     background-position-x: -200%;
 }
 
-.rank_5 {
+.bgann_rank_5 {
     background-position-x: -300%;
 }
 
-.rank_6 {
+.bgann_rank_6 {
     background-position-x: -400%;
 }
 
-.rank_7 {
+.bgann_rank_7 {
     background-position-x: -500%;
 }
 
-.rank_8 {
+.bgann_rank_8 {
     background-position-x: -600%;
 }
 
-.rank_9 {
+.bgann_rank_9 {
     background-position-x: -700%;
 }
 
-.rank_10 {
+.bgann_rank_10 {
     background-position-x: -800%;
 }
 
-.rank_11 {
+.bgann_rank_11 {
     background-position-x: -900%;
 }
 
-.rank_12 {
+.bgann_rank_12 {
     background-position-x: -1000%;
 }
 
-.rank_13 {
+.bgann_rank_13 {
     background-position-x: -1100%;
 }
 
-.rank_14 {
+.bgann_rank_14 {
     background-position-x: -1200%;
 }
 
-.trump_red {
+.bgann_trump_red {
     color: red;
     font-size: 40px;
 }
 
-.trump_black {
+.bgann_trump_black {
     color: black;
     font-size: 40px;
 }
 
-.trump_none {
+.bgann_trump_none {
     color: black;
     font-size: 16px;
 }
@@ -282,12 +279,12 @@
     width: 100%;
 }
 
-.bid_container {
+.bgann_bid_container {
     min-width: 240px;
     height: 130px;
 }
 
-.bids {
+#bids {
     width: 100%;
     margin-left: 100px;
     display: flex;

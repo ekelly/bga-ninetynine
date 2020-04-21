@@ -110,7 +110,7 @@ function (dojo, declare, domStyle, lang, attr) {
             // Set scores
             this.updateRoundScores(this.gamedatas.roundScores);
 
-            this.addTooltipToClass("playertablecard", _("Card played on the table"), '');
+            this.addTooltipToClass("bgann_playertablecard", _("Card played on the table"), '');
             this.addTooltip("declaretable", _("Opponent's declared bid"), '');
             this.addTooltip("revealtable", _("Opponent's revealed hand"), '');
 
@@ -225,13 +225,13 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         showDealer: function(dealer_id) {
-            dojo.query(".dealerindicator").addClass("hidden");
+            dojo.query(".bgann_dealerindicator").addClass("bgann_hidden");
             this.setNodeHidden("dealerindicator_" + dealer_id, false);
         },
 
         showFirstPlayer: function(first_player) {
-            dojo.query(".playertable").removeClass("firstplayer");
-            dojo.addClass("playertable_" + first_player, "firstplayer");
+            dojo.query(".bgann_playertable").removeClass("bgann_firstplayer");
+            dojo.addClass("playertable_" + first_player, "bgann_firstplayer");
         },
 
         showTrump: function(trumpSuit) {
@@ -243,15 +243,15 @@ function (dojo, declare, domStyle, lang, attr) {
 
                 var redSuit = trumpSuit % 2 == 1;
                 trumpSuitSpan.textContent = ["♣", "♦", "♠", "♥"][trumpSuit];
-                dojo.query("#trumpSuit").removeClass("trump_red");
-                dojo.query("#trumpSuit").removeClass("trump_black");
-                dojo.query("#trumpSuit").removeClass("trump_none");
-                dojo.addClass(trumpSuitSpan, redSuit ? "trump_red" : "trump_black")
+                dojo.query("#trumpSuit").removeClass("bgann_trump_red");
+                dojo.query("#trumpSuit").removeClass("bgann_trump_black");
+                dojo.query("#trumpSuit").removeClass("bgann_trump_none");
+                dojo.addClass(trumpSuitSpan, redSuit ? "bgann_trump_red" : "bgann_trump_black")
             } else {
                 trumpSuitSpan.textContent = "none";
-                dojo.query("#trumpSuit").removeClass("trump_red");
-                dojo.query("#trumpSuit").removeClass("trump_black");
-                dojo.addClass(trumpSuitSpan, "trump_none")
+                dojo.query("#trumpSuit").removeClass("bgann_trump_red");
+                dojo.query("#trumpSuit").removeClass("bgann_trump_black");
+                dojo.addClass(trumpSuitSpan, "bgann_trump_none")
             }
         },
 
@@ -309,11 +309,11 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         displayTricksWon: function() {
-            dojo.query(".tricks").removeClass("hidden");
+            dojo.query(".bgann_tricks").removeClass("bgann_hidden");
         },
 
         clearTricksWon: function() {
-            dojo.query(".tricks").addClass("hidden");
+            dojo.query(".bgann_tricks").addClass("bgann_hidden");
             dojo.byId("myTricksWon").textContent = 0;
             for (var playerId in this.gamedatas.players) {
                 this.updateValueInNode("tricks_" + playerId, 0);
@@ -376,9 +376,9 @@ function (dojo, declare, domStyle, lang, attr) {
 
         setNodeHidden: function(nodeId, hidden) {
             if (hidden) {
-                dojo.addClass(nodeId, "hidden");
+                dojo.addClass(nodeId, "bgann_hidden");
             } else {
-                dojo.removeClass(nodeId, "hidden");
+                dojo.removeClass(nodeId, "bgann_hidden");
             }
         },
 
@@ -409,11 +409,10 @@ function (dojo, declare, domStyle, lang, attr) {
         showActiveDeclareOrReveal: function(decRevInfo) {
             var playerNameSpan = dojo.byId("decrev_player_name");
             if (decRevInfo.playerId) {
-                dojo.query(".declaringplayer").removeClass("hidden");
                 if (decRevInfo.playerId != this.player_id) {
-                    dojo.query(".declare").removeClass("hidden");
+                    dojo.query(".bgann_declare").removeClass("bgann_hidden");
                     if (Object.keys(decRevInfo.cards).length > 0) {
-                        dojo.query(".reveal").removeClass("hidden");
+                        dojo.query(".bgann_reveal").removeClass("bgann_hidden");
                     }
                     // Show Revealed cards
                     this.revealedHand.removeAll();
@@ -436,8 +435,8 @@ function (dojo, declare, domStyle, lang, attr) {
             } else {
                 playerNameSpan.textContent = "None";
                 domStyle.set(playerNameSpan, "color", "#000000");
-                dojo.query(".declare").addClass("hidden");
-                dojo.query(".reveal").addClass("hidden");
+                dojo.query(".bgann_declare").addClass("bgann_hidden");
+                dojo.query(".bgann_reveal").addClass("bgann_hidden");
                 // Hide Declare and reveal if there isn't a declaring or revealing player
                 this.setNodeHidden("declare_label", true);
                 this.setNodeHidden("reveal_label", true);
@@ -452,8 +451,8 @@ function (dojo, declare, domStyle, lang, attr) {
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
             this.setNodeHidden("declare_label", true);
             this.setNodeHidden("reveal_label", true);
-            dojo.query(".declare").addClass("hidden");
-            dojo.query(".reveal").addClass("hidden");
+            dojo.query(".bgann_declare").addClass("bgann_hidden");
+            dojo.query(".bgann_reveal").addClass("bgann_hidden");
         },
 
         ///////////////////////////////////////////////////
