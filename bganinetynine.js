@@ -24,11 +24,13 @@ define([
     "dojo",
     "dojo/_base/declare",
     "dojo/dom-style",
+    "dojo/_base/lang",
+    "dojo/dom-attr",
     "ebg/core/gamegui",
     "ebg/counter",
     "ebg/stock"
 ],
-function (dojo, declare, domStyle) {
+function (dojo, declare, domStyle, lang, attr) {
     return declare("bgagame.bganinetynine", ebg.core.gamegui, {
 
         constructor: function() {
@@ -655,8 +657,18 @@ function (dojo, declare, domStyle) {
             var winner_id = notif.args.playerId;
             this.showFirstPlayer(winner_id);
             this.updateTrickCounts(notif.args.playerTrickCounts, notif.args.decRevPlayerId);
+
             for (var player_id in this.gamedatas.players) {
-                var anim = this.slideToObject('cardontable_'+player_id, 'overall_player_board_'+winner_id);
+                // There's a race condition between cards leaving the table and cards
+                // being placed on the table. In order to avoid that, we clone the original
+                // card and replace it with one that has a different id.
+                var node = dojo.byId('cardontable_'+player_id);
+                var newnode = lang.clone(node);
+                attr.set(newnode, "id", 'cardfromtable_'+player_id);
+                dojo.place(newnode, 'playertablecard_'+player_id);
+                dojo.destroy(node);
+
+                var anim = this.slideToObject('cardfromtable_'+player_id, 'overall_player_board_'+winner_id);
                 dojo.connect(anim, 'onEnd', function(node) { dojo.destroy(node);});
                 anim.play();
             }

@@ -856,13 +856,13 @@ class BgaNinetyNine extends Table {
         $declareRevealType = $declareReveal['decRev'];
         if ($declareRevealType == 1) {
             self::incStat(1, "declareCount", $declaringOrRevealingPlayer);
-            self::notifyAllPlayers('declare', clienttranslate('${playername} has declared'), array(
-                'playername' => $declareReveal['playerName']
+            self::notifyAllPlayers('declare', clienttranslate('${player_name} has declared'), array(
+                'player_name' => $declareReveal['playerName']
             ));
         } else if ($declareRevealType == 2) {
             self::incStat(1, "revealCount", $declaringOrRevealingPlayer);
-            self::notifyAllPlayers('reveal', clienttranslate('${playername} has revealed'), array(
-                'playername' => $declareReveal['playerName']
+            self::notifyAllPlayers('reveal', clienttranslate('${player_name} has revealed'), array(
+                'player_name' => $declareReveal['playerName']
             ));
         }
 
