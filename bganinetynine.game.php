@@ -1452,14 +1452,7 @@ class BgaNinetyNine extends Table {
             }
 
             $this->playCardFromPlayer($cardId, $activePlayer);
-        } else {
-            throw new BgaVisibleSystemException("Zombie mode not supported at this game state: ".$statename);
         }
-    }
-
-    function debug($val) {
-        $strVal = print_r($val, true);
-        $this->notifyAllPlayers("debugLog", "$strVal", array());
     }
 }
 
