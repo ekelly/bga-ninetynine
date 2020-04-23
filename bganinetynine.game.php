@@ -454,10 +454,6 @@ class BgaNinetyNine extends Table {
         $this->DbQuery("UPDATE player SET player_score='$count' WHERE player_id='$playerId'");
     }
 
-    function dbSetAuxScore($playerId, $count) {
-        $this->DbQuery("UPDATE player SET player_score_aux='$count' WHERE player_id='$playerId'");
-    }
-
     function dbClearScores() {
         $this->DbQuery("UPDATE player SET player_score='0' WHERE 1");
     }
@@ -1082,16 +1078,8 @@ class BgaNinetyNine extends Table {
         // This will get the scores from Round 3
         $roundScoreInfo = $this->generateRoundScoreInfo();
 
-        if ($this->doesGameUseRoundBonuses()) {
-            foreach ($roundScoreInfo['gameScore'] as $playerId => $score) {
-                $this->dbSetScore($playerId, $score);
-            }
-        } else {
-            foreach ($roundScoreInfo['roundWins'] as $playerId => $roundsWon) {
-                // Set the 'score' as rounds won, with a tiebreaker for total points
-                $this->dbSetScore($playerId, $roundsWon);
-                $this->dbSetAuxScore($playerId, $roundScoreInfo['gameScore'][$playerId]);
-            }
+        foreach ($roundScoreInfo['gameScore'] as $playerId => $score) {
+            $this->dbSetScore($playerId, $score);
         }
 
         $newScores = $this->dbGetScores();
