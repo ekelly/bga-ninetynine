@@ -1,6 +1,8 @@
 <?php
 
 /*
+    BgaNinetyNine implementation : © Eric Kelly <boardgamearena@useric.com>
+
     From this file, you can edit the various meta-information of your game.
 
     Once you modified the file, don't forget to click on "Reload game informations" from the Control Panel in order in can be taken into account.
