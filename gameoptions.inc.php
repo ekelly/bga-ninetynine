@@ -29,20 +29,14 @@ $game_options = array(
             'name' => totranslate('Scoring style'),
             'values' => array(
                 1 => array(
-                    'name' => totranslate('3 rounds with round bonuses'),
-                    'tmdisplay' => totranslate('3 rounds with round bonuses'),
-                    'description' => totranslate('Each round starts without trump,
-                        with subsequent trump being decided by how many players won
-                        the previous trick. A bonus will be given to each player
-                        who passes 100pts in each round. Winner is decided by total score')
+                    'name' => totranslate('End of round bonuses'),
+                    'tmdisplay' => totranslate('End of round bonuses'),
+                    'description' => totranslate('Rounds end when at least one player reaches 100 points. Bonus points are awarded to the player(s) that reach or pass 100 (30, 20, or 10 points depending on number of players).')
                 ),
                 2 => array(
-                    'name' => totranslate('3 rounds'),
-                    'tmdisplay' => totranslate('3 rounds'),
-                    'description' => totranslate('Each round starts without trump,
-                        with subsequent trump being decided by how many players won
-                        the previous trick. Winner is the player to win the most
-                        rounds, ties decided by total points won')
+                    'name' => totranslate('No round bonuses'),
+                    'tmdisplay' => totranslate('No round bonuses'),
+                    'description' => totranslate('Rounds end when at least one player reaches 100 points.  No bonus points are awarded at end of round')
                 ),
             ),
             'default' => 1,
