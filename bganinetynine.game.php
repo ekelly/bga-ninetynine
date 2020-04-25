@@ -428,10 +428,17 @@ class BgaNinetyNine extends Table {
         if ($round < 0 || $round > 2) {
             throw new feException(_("Invalid round"));
         }
-        $roundScores = $this->getCollectionFromDB("SELECT player_id, player_score_round$round score FROM player", true);
+        $roundScores = $this->getCollectionFromDB("SELECT player_id, score FROM round_scores WHERE round_number='$round'", true);
         $result = array();
+        $players = self::loadPlayersBasicInfos();
         foreach ($roundScores as $playerId => $score) {
             $result[$playerId] = intval($score);
+        }
+        // Default to 0 if we have no values in the db
+        if (count($result) != count($players)) {
+            foreach ($players as $playerId => $player) {
+                $result[$playerId] = 0;
+            }
         }
         return $result;
     }
@@ -466,7 +473,7 @@ class BgaNinetyNine extends Table {
     // set score
     function dbSetRoundScore($playerId, $score) {
         $round = $this->getCurrentRound();
-        $this->DbQuery("UPDATE player SET player_score_round$round='$score' WHERE player_id='$playerId'");
+        $this->DbQuery("REPLACE INTO round_scores (round_number, player_id, score) VALUES ($round, $playerId, $score)");
     }
 
     // increment score (can be negative too)

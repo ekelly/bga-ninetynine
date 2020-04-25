@@ -38,9 +38,14 @@ ALTER TABLE `player` ADD `player_bid` int(11) DEFAULT 0;
 -- Keep track of whether or not the player has declared or revealed
 --     Valid options: 0 (none), 1 (declare), 2 (reveal)
 ALTER TABLE `player` ADD `player_declare_reveal` int(11) DEFAULT 0;
-ALTER TABLE `player` ADD `player_score_round0` int(11) DEFAULT 0;
-ALTER TABLE `player` ADD `player_score_round1` int(11) DEFAULT 0;
-ALTER TABLE `player` ADD `player_score_round2` int(11) DEFAULT 0;
+
+CREATE TABLE IF NOT EXISTS `round_scores` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `round_number` int(10) unsigned NOT NULL,
+  `player_id` int(10) unsigned NOT NULL,
+  `score` int(10) default 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `card` (
   `card_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
