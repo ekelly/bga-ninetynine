@@ -551,14 +551,14 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         onDeclare: function() {
-            this.confirmationDialog(_('Are you sure you want to declare?'),
+            this.confirmationDialog(_('Are you sure you want to declare your bid?'),
                                     dojo.hitch(this, function() {
                 this.submitDeclareOrReveal(1);
             }));
         },
 
         onReveal: function() {
-            this.confirmationDialog(_('Are you sure you want to reveal?'),
+            this.confirmationDialog(_('Are you sure you want to reveal your hand?'),
                                     dojo.hitch(this, function() {
                 this.submitDeclareOrReveal(2);
             }));
