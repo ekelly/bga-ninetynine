@@ -59,14 +59,24 @@ $game_options = array(
             'name' => totranslate('Scoring style'),
             'values' => array(
                 1 => array(
-                    'name' => totranslate('End of round bonuses'),
-                    'tmdisplay' => totranslate('End of round bonuses'),
-                    'description' => totranslate('Rounds end when at least one player reaches 100 points. Bonus points are awarded to the player(s) that reach or pass 100 (30, 20, or 10 points depending on number of players).')
+                    'name' => totranslate('3 Rounds (with end of round bonuses)'),
+                    'tmdisplay' => totranslate('3 Rounds (with end of round bonuses)'),
+                    'description' => totranslate('A game consists of 3 rounds. Rounds end when at least one player reaches 100 points. Bonus points are awarded to the player(s) that reach or pass 100 (30, 20, or 10 points depending on number of players).')
                 ),
                 2 => array(
-                    'name' => totranslate('No round bonuses'),
-                    'tmdisplay' => totranslate('No round bonuses'),
-                    'description' => totranslate('Rounds end when at least one player reaches 100 points.  No bonus points are awarded at end of round')
+                    'name' => totranslate('3 Rounds (no round bonuses)'),
+                    'tmdisplay' => totranslate('3 Rounds (no round bonuses)'),
+                    'description' => totranslate('A game consists of 3 rounds. Rounds end when at least one player reaches 100 points. No bonus points are awarded at end of round.')
+                ),
+                3 => array(
+                    'name' => totranslate('First to 3 rounds'),
+                    'tmdisplay' => totranslate('First to 3 rounds'),
+                    'description' => totranslate('Rounds end when at least one player reaches 100 points. The first player to win 3 rounds wins.')
+                ),
+                4 => array(
+                    'name' => totranslate('9 hands'),
+                    'tmdisplay' => totranslate('9 hands'),
+                    'description' => totranslate('A game consists of 9 hands. Highest score at the end wins')
                 ),
             ),
             'default' => 1,

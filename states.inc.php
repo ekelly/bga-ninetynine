@@ -157,6 +157,7 @@ $machinestates = array(
                 "updateGameProgression" => true,
                 "transitions" => array(
                     "endRound" => 50,
+                    "gameEnd" => 99,
                     "newHand" => 12)
         ),
 
