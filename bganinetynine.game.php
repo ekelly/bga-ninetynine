@@ -36,7 +36,9 @@ class BgaNinetyNine extends Table {
                          "firstDealer" => 14,
                          "firstPlayer" => 15,
                          "currentDealer" => 16,
-                         "gameStyle" => 100));
+                         "gameStyle" => 100,
+                         "scoringStyle" => 101
+        ));
 
         $this->cards = self::getNew("module.common.deck");
         $this->cards->init("card");
@@ -223,11 +225,15 @@ class BgaNinetyNine extends Table {
 
     // 1 = round bonuses, 2 = no round bonuses
     function getScoringVariant() {
-        return $this->gamestate->table_globals[100];
+        return $this->gamestate->table_globals[101];
     }
 
     function doesGameUseRoundBonuses() {
         return $this->getScoringVariant() == 1;
+    }
+
+    function doesGameUseDiamondsAsDefaultStartingTrump() {
+        return $this->gamestate->table_globals[100] == 1;
     }
 
     function getTrickCounts() {
@@ -303,7 +309,11 @@ class BgaNinetyNine extends Table {
     function getCurrentHandTrump() {
         $prevWinnerCount = self::getGameStateValue("previousHandWinnerCount");
         if ($prevWinnerCount < 0 || $prevWinnerCount > 3) {
-            return null;
+            if ($this->doesGameUseDiamondsAsDefaultStartingTrump()) {
+                return 1;
+            } else {
+                return null;
+            }
         }
         return ($prevWinnerCount + 1) % 4;
     }

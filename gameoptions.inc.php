@@ -26,6 +26,36 @@
 $game_options = array(
 
 		100 => array(
+            'name' => totranslate('Game style'),
+            'values' => array(
+                1 => array(
+                    'name' => totranslate('Junk the Joker'),
+                    'tmdisplay' => totranslate('Junk the Joker'),
+                    'description' => totranslate('The first deal in every round has diamonds as trump. Thereafter, the trump suit is determined by the number of players who correctly bid the last trick.')
+                ),
+                2 => array(
+                    'name' => totranslate('Junk the Joker (no starting trump)'),
+                    'tmdisplay' => totranslate('Junk the Joker (no starting trump)'),
+                    'description' => totranslate('The first deal in every round has no trump. Thereafter, the trump suit is determined by the number of players who correctly bid the last trick.')
+                )
+            ),
+            'default' => 1,
+            'startcondition' => array(
+                1 => array(
+                    array(
+                        'type' => 'maxplayers',
+                        'value' => 3,
+                        'message' => totranslate('This game is only available for 3 players.')
+                    ),
+                    array(
+                        'type' => 'minplayers',
+                        'value' => 3,
+                        'message' => totranslate('This game is only available for 3 players.')
+                    )
+                ),
+            ),
+    ),
+		101 => array(
             'name' => totranslate('Scoring style'),
             'values' => array(
                 1 => array(
