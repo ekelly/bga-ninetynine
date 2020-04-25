@@ -216,7 +216,7 @@ class BgaNinetyNine extends Table {
             return (11 * ($this->getHandCount() - 1)) + 1;
         }
 
-        if (!$this->doesGamePlayToThreeRounds()) {
+        if ($this->doesGamePlayToThreeRoundWins()) {
             // This means we're playing up to 3 rounds, not exactly 3 rounds
             $roundWins = $this->dbGetRoundWins();
             $maxWinCount = 0;
@@ -266,7 +266,7 @@ class BgaNinetyNine extends Table {
         return $this->getGameStyle() == 1;
     }
 
-    function doesGamePlayToThreeRounds() {
+    function doesGamePlayToThreeRoundWins() {
         return $this->getScoringVariant() == 3;
     }
 
@@ -512,19 +512,17 @@ class BgaNinetyNine extends Table {
     function dbGetRoundWins() {
         $result = array();
         $players = self::loadPlayersBasicInfos();
-        $roundScores = $this->getCollectionFromDB("SELECT player_id id, score, round_number round FROM round_scores WHERE 1", false);
+        $roundScores = $this->getObjectListFromDB("SELECT player_id, score, round_number round FROM round_scores WHERE 1");
 
         // Default to 0
-        if (count($result) != count($players)) {
-            foreach ($players as $playerId => $player) {
-                $result[$playerId] = 0;
-            }
+        foreach ($players as $playerId => $player) {
+            $result[$playerId] = 0;
         }
 
-        foreach ($roundScores as $playerId => $row) {
+        foreach ($roundScores as $row) {
             if (intval($row['score']) >= 100) {
                 // Increment the round win count
-                $result[$playerId] += 1;
+                $result[$row['player_id']] += 1;
             }
         }
 
@@ -553,7 +551,12 @@ class BgaNinetyNine extends Table {
     // set score
     function dbSetRoundScore($playerId, $score) {
         $round = $this->getCurrentRound();
-        $this->DbQuery("REPLACE INTO round_scores (round_number, player_id, score) VALUES ($round, $playerId, $score)");
+        $rowId = $this->getUniqueValueFromDB("SELECT id FROM round_scores WHERE player_id='$playerId' AND round_number='$round'");
+        if ($rowId == null) {
+            $this->DbQuery("INSERT INTO round_scores (round_number, player_id, score) VALUES ($round, $playerId, $score)");
+        } else {
+            $this->DbQuery("UPDATE round_scores SET score='$score' WHERE id='$rowId'");
+        }
     }
 
     // increment score (can be negative too)
@@ -1085,12 +1088,12 @@ class BgaNinetyNine extends Table {
 
         // Apply scores to player
         foreach ($handScoreInfo['total'] as $player_id => $points) {
+            // Calculate the round score
+            $playerRoundScore = $handScoreInfo['currentScore'][$player_id] +
+                $handScoreInfo['total'][$player_id];
+            $this->dbSetRoundScore($player_id, $playerRoundScore);
+
             if ($points != 0) {
-
-                // Calculate the round score
-                $playerRoundScore = $handScoreInfo['currentScore'][$player_id] +
-                    $handScoreInfo['total'][$player_id];
-
                 if ($this->doesScoringVariantUseRounds()) {
                     if ($playerRoundScore >= 100) {
                         self::incStat(1, "roundsWon", $player_id);
@@ -1102,7 +1105,6 @@ class BgaNinetyNine extends Table {
                 }
 
                 $this->dbSetScore($player_id, $playerRoundScore);
-                $this->dbSetRoundScore($player_id, $playerRoundScore);
 
                 self::notifyAllPlayers("points", clienttranslate('${player_name} gets ${points} points'), array(
                     'player_id' => $player_id,
@@ -1160,7 +1162,7 @@ class BgaNinetyNine extends Table {
         $round = $this->getCurrentRound();
 
         $isEndOfGame = false;
-        if ($this->doesGamePlayToThreeRounds()) {
+        if ($this->doesGamePlayToThreeRoundWins()) {
             $roundWins = $this->dbGetRoundWins();
             foreach ($roundWins as $playerId => $winCount) {
                 if ($winCount == 3) {
@@ -1193,7 +1195,7 @@ class BgaNinetyNine extends Table {
 
         if ($this->doesScoringVariantUseRounds()) {
             foreach ($roundScoreInfo['gameScore'] as $playerId => $score) {
-                if ($this->doesGamePlayToThreeRounds()) {
+                if ($this->doesGamePlayToThreeRoundWins()) {
                     // I'm arbitrarily deciding that each round is worth exactly
                     // 100 points here so that the scores between game variants are
                     // somewhat similar. Ties are of course broken by total score
@@ -1211,6 +1213,7 @@ class BgaNinetyNine extends Table {
         // Calculate statistics
         $handCount = self::getStat("handCount");
         $totalTrickCount = $handCount * 9;
+        $roundCount = $this->getCurrentRound() + 1;
         $players = self::loadPlayersBasicInfos();
         foreach ($players as $playerId => $player) {
             // trickWinPercentage
@@ -1221,7 +1224,7 @@ class BgaNinetyNine extends Table {
             if ($this->doesScoringVariantUseRounds()) {
                 // roundWinPercentage
                 $roundsWon = self::getStat("roundsWon", $playerId);
-                $roundWinPerc = round(($roundsWon / 3) * 100, 1);
+                $roundWinPerc = round(($roundsWon / $roundCount) * 100, 1);
                 self::setStat($roundWinPerc, "roundWinPercentage", $playerId);
             }
 
