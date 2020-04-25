@@ -57,8 +57,16 @@ function (dojo, declare, domStyle, lang, attr) {
         */
         setup: function(gamedatas) {
             dojo.destroy('debug_output');
-            for (var player_id in gamedatas.players) {
-                var player = gamedatas.players[player_id];
+
+            // Setting up player boards
+            if (this.gamedatas.usesRounds) {
+                for (var player_id in gamedatas.players) {
+                    var player = gamedatas.players[player_id];
+
+                    // Setting up players boards if needed
+                    var player_score_div = $('player_board_'+player_id);
+                    dojo.place(this.format_block('jstpl_player_round_score', player), player_score_div);
+                }
             }
 
             // Player hand
@@ -109,6 +117,7 @@ function (dojo, declare, domStyle, lang, attr) {
 
             // Set scores
             this.updateRoundScores(this.gamedatas.roundScores);
+            this.updateGameScores(this.gamedatas.gameScores);
 
             this.addTooltipToClass("bgann_playertablecard", _("Card played on the table"), '');
             this.addTooltip("declaretable", _("Opponent's declared bid"), '');
@@ -321,9 +330,28 @@ function (dojo, declare, domStyle, lang, attr) {
             this.clearDeclareTrickCount();
         },
 
+        updateGameScores: function(gameScores) {
+            for (var playerId in gameScores) {
+                this.updatePlayerScore(parseInt(playerId), parseInt(gameScores[parseInt(playerId)]));
+            }
+        },
+
+        clearRoundScores: function() {
+            for (var playerId in this.gamedatas.players) {
+                this.updateRoundScore(parseInt(playerId), 0);
+            }
+        },
+
         updateRoundScores: function(roundScores) {
             for (var playerId in roundScores) {
-                this.updatePlayerScore(parseInt(playerId), parseInt(roundScores[parseInt(playerId)]));
+                this.updateRoundScore(parseInt(playerId), parseInt(roundScores[parseInt(playerId)]));
+            }
+        },
+
+        updateRoundScore: function(playerId, playerRoundScore) {
+            var roundScoreSpan = dojo.byId("player_round_score_" + playerId);
+            if (roundScoreSpan) {
+                roundScoreSpan.textContent = playerRoundScore;
             }
         },
 
@@ -608,11 +636,7 @@ function (dojo, declare, domStyle, lang, attr) {
             this.showDealer(notif.args.dealer);
             this.showFirstPlayer(notif.args.firstPlayer);
             this.showTrump(null);
-
-            // Clear everyone's scores
-            for (var playerId in this.gamedatas.players) {
-                this.updatePlayerScore(playerId, 0);
-            }
+            this.clearRoundScores();
         },
 
         notif_newHand: function(notif) {
@@ -647,7 +671,7 @@ function (dojo, declare, domStyle, lang, attr) {
             var playerId = notif.args.player_id;
             var score = notif.args.roundScore;
             if (score) {
-                this.updatePlayerScore(playerId, score);
+                this.updateRoundScore(playerId, score);
             }
         },
 
@@ -676,6 +700,7 @@ function (dojo, declare, domStyle, lang, attr) {
         notif_newScores: function(notif) {
             // Update players' scores
             this.updateRoundScores(notif.args.newScores);
+            this.updateGameScores(notif.args.gameScores);
         },
 
         notif_bidCards: function(notif) {

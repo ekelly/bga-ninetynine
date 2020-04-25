@@ -69,6 +69,43 @@
     display: none;
 }
 
+/** Player Score Area **/
+
+.bgann_round_score {
+    padding-left: 46px;
+}
+
+.bgann_round_score_icon:before {
+    background-color: blue;
+    border-radius: 50px;
+}
+
+.bgann_badge_ribbon {
+    display: inline-block;
+    position: relative;
+    background: #f9a11a;
+    height: 10px;
+    width: 10px;
+    border-radius: 50px;
+    top: -3px;
+}
+.bgann_badge_ribbon:before,
+.bgann_badge_ribbon:after {
+    content: '';
+    position: absolute;
+    border-bottom: 5px solid #f9a11a;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    top: 9px;
+    left: 0px;
+    transform: rotate(-140deg);
+}
+.bgann_badge_ribbon:after {
+    left: auto;
+    right: 0px;
+    transform: rotate(140deg);
+}
+
 /** Table layout **/
 
 #playertables {

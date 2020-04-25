@@ -92,6 +92,10 @@
 <script type="text/javascript">
 
 var jstpl_cardontable = '<div class="bgann_cardontable bgann_suit_${suit} bgann_rank_${rank}" id="cardontable_${player_id}"></div>';
+var jstpl_player_round_score = '\<div class="bgann_round_score">\
+    \<span id="player_round_score_${id}" class="player_score_value">0\</span>\
+    \<span class="fa fa-star bgann_round_score_icon"/>\
+</div>';
 
 </script>
 
