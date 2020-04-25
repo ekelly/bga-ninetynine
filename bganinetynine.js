@@ -67,6 +67,7 @@ function (dojo, declare, domStyle, lang, attr) {
                     var player_score_div = $('player_board_'+player_id);
                     dojo.place(this.format_block('jstpl_player_round_score', player), player_score_div);
                 }
+                this.addTooltipToClass("bgann_round_score", _("Round Score"), '');
             }
 
             // Player hand
@@ -122,6 +123,7 @@ function (dojo, declare, domStyle, lang, attr) {
             this.addTooltipToClass("bgann_playertablecard", _("Card played on the table"), '');
             this.addTooltip("declaretable", _("Opponent's declared bid"), '');
             this.addTooltip("revealtable", _("Opponent's revealed hand"), '');
+            this.addTooltipToClass("player_score", _("Game Score"), '');
 
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
