@@ -1205,7 +1205,7 @@ class BgaNinetyNine extends Table {
             }
         }
 
-        $roundScores = $this->dbGetCurrentRoundScores();
+        $roundScores = $this->getCurrentRoundScores();
         $gameScores = $this->dbGetScores();
         self::notifyAllPlayers("newScores", '', array('newScores' => $roundScores, 'gameScores' => $gameScores));
 
