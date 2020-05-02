@@ -37,9 +37,14 @@ $game_options = array(
                     'name' => totranslate('Junk the Joker (no starting trump)'),
                     'tmdisplay' => totranslate('Junk the Joker (no starting trump)'),
                     'description' => totranslate('The first deal in every round has no trump. Thereafter, the trump suit is determined by the number of players who correctly bid the last trick.')
-                )
+                ),
+                3 => array(
+                    'name' => totranslate('Standard'),
+                    'tmdisplay' => totranslate('Standard'),
+                    'description' => totranslate('The trump suit is determined by a random card draw. If the card is a nine or joker, the round has no trump.')
+                ),
             ),
-            'default' => 1,
+            'default' => 3,
             'startcondition' => array(
                 1 => array(
                     array(

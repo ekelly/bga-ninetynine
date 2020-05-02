@@ -269,6 +269,10 @@ class NinetyNine extends Table {
         return $this->getGameStyle() == 1;
     }
 
+    function doesGameUseRandomCardDrawToDetermineTrump() {
+        return $this->getGameStyle() == 3;
+    }
+
     function doesGamePlayToThreeRoundWins() {
         return $this->getScoringVariant() == 3;
     }
@@ -353,6 +357,14 @@ class NinetyNine extends Table {
           null = none
     **/
     function getCurrentHandTrump() {
+        if ($this->doesGameUseRandomCardDrawToDetermineTrump()) {
+            $currentTrump = self::getGameStateValue("currentHandTrump");
+            if ($currentTrump >= 4 || $currentTrump < 0) {
+                return null;
+            } else {
+                return $currentTrump;
+            }
+        }
         $prevWinnerCount = self::getGameStateValue("previousHandWinnerCount");
         if ($prevWinnerCount < 0 || $prevWinnerCount > 3) {
             if ($this->doesGameUseDiamondsAsDefaultStartingTrump()) {
@@ -362,6 +374,37 @@ class NinetyNine extends Table {
             }
         }
         return ($prevWinnerCount + 1) % 4;
+    }
+
+    // Chose a random trump suit. null is no trump
+    function setRandomTrump() {
+        // There are 36 normal cards, and 1 joker
+        // The first 9 normal cards are clubs, the second 9 normal cards are diamonds...
+        $randomCard = bga_rand(0, 36);
+
+        // Using 36 to represent the joker
+        if ($randomCard == 36) {
+            self::notifyAllPlayers('trumpSelected', clienttranslate('Joker was selected. This is a no trump hand.'), array());
+            self::setGameStateValue("currentHandTrump", -1);
+        } else {
+            $suit = intdiv($randomCard, 9);
+            $suitName = $this->getPluralSuitName($suit);
+            $trump = $suitName;
+            // 9s are also considered to be no trump
+            $cardVal = ($randomCard % 9) + 6;
+            $cardRank = $this->rank_name[$cardVal];
+            if ($cardVal == 9) {
+                self::setGameStateValue("currentHandTrump", -1);
+                $trump = "None";
+            } else {
+                self::setGameStateValue("currentHandTrump", $suit);
+            }
+            self::notifyAllPlayers('trumpSelected', clienttranslate('${trump_rank} of ${trump_suit} selected. Trump is ${trump}'), array(
+                'trump_suit' => $suitName,
+                'trump_rank' => $cardRank,
+                'trump' => $trump
+            ));
+        }
     }
 
     function setPreviousWinnerCount($prevWinnerCount) {
@@ -420,6 +463,10 @@ class NinetyNine extends Table {
 
     function getSuitName($suit) {
         return $this->suits[$suit]['nametr'];
+    }
+
+    function getPluralSuitName($suit) {
+        return $this->suits[$suit]['pluralname'];
     }
 
     /**
@@ -929,6 +976,10 @@ class NinetyNine extends Table {
     function stNewHand() {
 
         $this->incrementHandCount();
+
+        if ($this->doesGameUseRandomCardDrawToDetermineTrump()) {
+            $this->setRandomTrump();
+        }
 
         // Take back all cards (from any location => null) to deck
         $this->cards->moveAllCardsInLocation(null, "deck");
