@@ -152,6 +152,7 @@ function (dojo, declare, domStyle, lang, attr) {
 
                 case 'playerTurn':
                     this.addTooltip('myhand', _('Cards in my hand'), _('Play a card'));
+                    this.playerHand.setSelectionMode(1);
                     this.displayTricksWon();
                     if (this.getActivePlayerId() != null) {
                         this.showFirstPlayer(this.getActivePlayerId());
@@ -162,6 +163,12 @@ function (dojo, declare, domStyle, lang, attr) {
                     this.playerBid.setSelectionMode(1);
                     this.addTooltipsToEachCard(this.playerHand, _('Add to bid'));
                     break;
+
+                case 'declareOrReveal':
+                    this.clearTooltipsFromCards(this.playerHand);
+                    this.clearTooltipsFromCards(this.playerBid);
+                    this.playerHand.setSelectionMode(0);
+                    break;
             }
         },
 
@@ -171,10 +178,13 @@ function (dojo, declare, domStyle, lang, attr) {
         onLeavingState: function(stateName) {
             switch (stateName) {
                 case 'bidding':
-                    this.playerBid.setSelectionMode(0);
                     this.clearTooltipsFromCards(this.playerHand);
                     this.clearTooltipsFromCards(this.playerBid);
+                    this.playerBid.setSelectionMode(0);
                     this.displayTricksWon();
+                    break;
+                case 'declareOrReveal':
+                    this.playerHand.setSelectionMode(1);
                     break;
             }
         },
@@ -237,7 +247,8 @@ function (dojo, declare, domStyle, lang, attr) {
         clearTooltipsFromCards: function(stock) {
             console.log("Clearing tooltips from each card");
             var allCards = stock.getAllItems();
-            for (var cardData in allCards) {
+            for (var i = 0; i < allCards.length; i++) {
+                var cardData = allCards[i];
                 var divId = stock.getItemDivId(cardData.id);
                 this.removeTooltip(divId);
             }
