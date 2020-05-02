@@ -567,7 +567,7 @@ class NinetyNine extends Table {
     }
 
     function assignDeclareRevealPlayer() {
-        $result = $this->getNonEmptyCollectionFromDB("SELECT player_id id, player_declare_reveal_request decrev FROM player");
+        $result = $this->getNonEmptyCollectionFromDB("SELECT player_id id, player_name name, player_declare_reveal_request decrev FROM player");
 
         $dealer = $this->getDealer();
         $firstPlayer = $this->getPlayerAfter($dealer);
@@ -598,6 +598,36 @@ class NinetyNine extends Table {
         } else if ($firstPlayerToDeclare != 0) {
             $this->setDeclareReveal($firstPlayerToDeclare, 1);
         }
+
+        // Inform everyone who attempted a declare or reveal
+        foreach ($result as $playerId => $row) {
+            $decRevRequest = intval($row['decrev']);
+            if ($decRevRequest <= 0) {
+                continue;
+            }
+            if ($decRevRequest == 1) {
+                if ($firstPlayerToDeclare != $playerId || $firstPlayerToReveal != 0) {
+                    self::notifyAllPlayers('declareRevealResult', clienttranslate('${player_name} attempted to declare their bid'), array(
+                        'player_name' => $row['name']
+                    ));
+                } else if ($firstPlayerToDeclare == $playerId && $firstPlayerToReveal == 0) {
+                    self::notifyAllPlayers('declareRevealResult', clienttranslate('${player_name} declared his bid'), array(
+                        'player_name' => $row['name']
+                    ));
+                }
+            } else {
+                if ($firstPlayerToReveal == $playerId) {
+                    self::notifyAllPlayers('declareRevealResult', clienttranslate('${player_name} revealed their hand and bid'), array(
+                        'player_name' => $row['name']
+                    ));
+                } else {
+                    self::notifyAllPlayers('declareRevealResult', clienttranslate('${player_name} attempted to reveal'), array(
+                        'player_name' => $row['name']
+                    ));
+                }
+            }
+        }
+
     }
 
     function getDeclareRevealPlayerInfo() {
@@ -938,14 +968,8 @@ class NinetyNine extends Table {
         $declareRevealType = $declareReveal['decRev'];
         if ($declareRevealType == 1) {
             self::incStat(1, "declareCount", $declaringOrRevealingPlayer);
-            self::notifyAllPlayers('declare', clienttranslate('${player_name} has declared'), array(
-                'player_name' => $declareReveal['playerName']
-            ));
         } else if ($declareRevealType == 2) {
             self::incStat(1, "revealCount", $declaringOrRevealingPlayer);
-            self::notifyAllPlayers('reveal', clienttranslate('${player_name} has revealed'), array(
-                'player_name' => $declareReveal['playerName']
-            ));
         }
 
         // Inform people who goes first
