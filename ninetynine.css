@@ -69,6 +69,10 @@
     display: none;
 }
 
+#round_name_container {
+    margin-right: 20px;
+}
+
 /** Player Score Area **/
 
 .bgann_round_score {

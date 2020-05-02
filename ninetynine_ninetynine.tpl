@@ -25,6 +25,10 @@
 <div id="table">
     <div id="declarerevealtable">
         <h3 class="whiteblock">
+            <span id="round_name_container" class="bgann_hidden">
+                <span class="to_translate">Round </span>
+                <span id="round_name">1</span>
+           </span>
             <span class="to_translate">Revealing/Declaring Player: </span>
             <!-- PLAYER_NAME should say none for rounds with no declaring/revealing player -->
             <span class="to_translate" id="decrev_player_name">None</span>

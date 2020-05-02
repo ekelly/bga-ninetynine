@@ -68,6 +68,10 @@ function (dojo, declare, domStyle, lang, attr) {
                     dojo.place(this.format_block('jstpl_player_round_score', player), player_score_div);
                 }
                 this.addTooltipToClass("bgann_round_score", _("Round Score"), '');
+
+                // Show round number
+                this.setNodeHidden("round_name_container", false);
+                this.updateRoundNum(this.gamedatas.roundNum);
             }
 
             // Player hand
@@ -357,6 +361,13 @@ function (dojo, declare, domStyle, lang, attr) {
             }
         },
 
+        updateRoundNum: function(roundNum) {
+            var roundNumSpan = dojo.byId("round_name");
+            if (roundNumSpan) {
+                roundNumSpan.textContent = roundNum;
+            }
+        },
+
         updatePlayerScore: function(playerId, playerScore) {
             if (this.scoreCtrl[playerId]) {
                 this.scoreCtrl[playerId].toValue(playerScore);
@@ -637,6 +648,11 @@ function (dojo, declare, domStyle, lang, attr) {
         notif_newRound: function(notif) {
             this.showDealer(notif.args.dealer);
             this.showFirstPlayer(notif.args.firstPlayer);
+            if (notif.args.round_num) {
+                // If this game actually uses rounds
+                this.setNodeHidden("round_name_container", false);
+                this.updateRoundNum(notif.args.round_num);
+            }
             this.showTrump(null);
             this.clearRoundScores();
         },

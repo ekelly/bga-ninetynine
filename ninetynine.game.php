@@ -197,6 +197,7 @@ class NinetyNine extends Table {
         $result['roundScores'] = $this->getCurrentRoundScores();
         $result['gameScores'] = $this->dbGetScores();
         $result['usesRounds'] = $this->doesScoringVariantUseRounds();
+        $result['roundNum'] = $this->getCurrentRound() + 1;
 
         return $result;
     }
@@ -907,10 +908,21 @@ class NinetyNine extends Table {
         $dealer = $this->getDealer();
         $firstPlayer = $this->getPlayerAfter($dealer);
         $this->setFirstPlayer($firstPlayer);
-        self::notifyAllPlayers('newRound', clienttranslate('Starting a new round'), array(
-            'dealer' => $dealer,
-            'firstPlayer' => $firstPlayer
-        ));
+        if ($this->doesScoringVariantUseRounds()) {
+            $currentRoundName = $this->getCurrentRound() + 1;
+            self::notifyAllPlayers('newRound', clienttranslate('Starting round ${round_num}'), array(
+                'dealer' => $dealer,
+                'round_num' => $currentRoundName,
+                'firstPlayer' => $firstPlayer
+            ));
+        } else {
+            if ($this->doesScoringVariantUseRounds()) {
+                self::notifyAllPlayers('newRound', '', array(
+                    'dealer' => $dealer,
+                    'firstPlayer' => $firstPlayer
+                ));
+            }
+        }
         $this->gamestate->nextState("");
     }
 
