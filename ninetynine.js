@@ -159,8 +159,8 @@ function (dojo, declare, domStyle, lang, attr) {
                     break;
 
                 case 'bidding':
-                    this.addTooltip('mybid', _('Cards in my bid'), _('Remove from bid'));
                     this.playerBid.setSelectionMode(1);
+                    this.addTooltipsToEachCard(this.playerHand, _('Add to bid'));
                     break;
             }
         },
@@ -172,8 +172,9 @@ function (dojo, declare, domStyle, lang, attr) {
             switch (stateName) {
                 case 'bidding':
                     this.playerBid.setSelectionMode(0);
+                    this.clearTooltipsFromCards(this.playerHand);
+                    this.clearTooltipsFromCards(this.playerBid);
                     this.displayTricksWon();
-                    this.addTooltip('mybid', _('Cards in my bid'), '');
                     break;
             }
         },
@@ -214,6 +215,31 @@ function (dojo, declare, domStyle, lang, attr) {
                 // card.id is the SERVER's id of the card
                 // getCardUniqueId is the ID composed of the rank and suit
                 stock.addToStockWithId(this.getCardUniqueId(color, rank), card.id);
+            }
+        },
+
+        addTooltipsToEachCard: function(stock, actionString) {
+            console.log("Adding tooltips to each card");
+            var allCards = stock.getAllItems();
+            for (var i = 0; i < allCards.length; i++) {
+                var cardData = allCards[i];
+                this.addTooltipToCard(stock, cardData, actionString);
+            }
+        },
+
+        addTooltipToCard: function(stock, cardData, actionString) {
+            var suit = this.getCardSuitFromId(cardData.type);
+            var divId = stock.getItemDivId(cardData.id);
+            var bidValue = this.getBidValueFromSuit(suit);
+            this.addTooltip(divId, _('Bid value: ') + bidValue, actionString);
+        },
+
+        clearTooltipsFromCards: function(stock) {
+            console.log("Clearing tooltips from each card");
+            var allCards = stock.getAllItems();
+            for (var cardData in allCards) {
+                var divId = stock.getItemDivId(cardData.id);
+                this.removeTooltip(divId);
             }
         },
 
@@ -533,9 +559,10 @@ function (dojo, declare, domStyle, lang, attr) {
 
                     var divId = this.playerHand.getItemDivId(items[0].id);
 
-                    // Remove that card from the bid and return it to the hand
+                    // Remove that card from the hand and add it to the bid
                     this.playerBid.addToStockWithId(items[0].type, items[0].id, divId);
                     this.playerHand.removeFromStockById(items[0].id);
+                    this.addTooltipToCard(this.playerBid, items[0], _('Remove from bid'));
 
                     this.playerHand.unselectAll();
 
@@ -558,6 +585,8 @@ function (dojo, declare, domStyle, lang, attr) {
             // Remove that card from the bid and return it to the hand
             this.playerHand.addToStockWithId(items[0].type, items[0].id, divId);
             this.playerBid.removeFromStockById(items[0].id);
+
+            this.addTooltipToCard(this.playerHand, items[0], _('Add to bid'));
 
             this.playerBid.unselectAll();
 
