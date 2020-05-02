@@ -153,6 +153,8 @@ function (dojo, declare, domStyle, lang, attr) {
                 case 'playerTurn':
                     this.addTooltip('myhand', _('Cards in my hand'), _('Play a card'));
                     this.playerHand.setSelectionMode(1);
+                    this.addHoverEffectToCards("myhand", true);
+                    this.addHoverEffectToCards("mybid", false);
                     this.displayTricksWon();
                     if (this.getActivePlayerId() != null) {
                         this.showFirstPlayer(this.getActivePlayerId());
@@ -161,12 +163,16 @@ function (dojo, declare, domStyle, lang, attr) {
 
                 case 'bidding':
                     this.playerBid.setSelectionMode(1);
+                    this.addHoverEffectToCards("myhand", true);
+                    this.addHoverEffectToCards("mybid", true);
                     this.addTooltipsToEachCard(this.playerHand, _('Add to bid'));
                     break;
 
                 case 'declareOrReveal':
                     this.clearTooltipsFromCards(this.playerHand);
                     this.clearTooltipsFromCards(this.playerBid);
+                    this.addHoverEffectToCards("myhand", false);
+                    this.addHoverEffectToCards("mybid", false);
                     this.playerHand.setSelectionMode(0);
                     break;
             }
@@ -229,7 +235,6 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         addTooltipsToEachCard: function(stock, actionString) {
-            console.log("Adding tooltips to each card");
             var allCards = stock.getAllItems();
             for (var i = 0; i < allCards.length; i++) {
                 var cardData = allCards[i];
@@ -245,12 +250,19 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         clearTooltipsFromCards: function(stock) {
-            console.log("Clearing tooltips from each card");
             var allCards = stock.getAllItems();
             for (var i = 0; i < allCards.length; i++) {
                 var cardData = allCards[i];
                 var divId = stock.getItemDivId(cardData.id);
                 this.removeTooltip(divId);
+            }
+        },
+
+        addHoverEffectToCards: function(containingId, enable) {
+            if (enable) {
+                dojo.addClass(containingId, "bgann_cardhover");
+            } else {
+                dojo.removeClass(containingId, "bgann_cardhover");
             }
         },
 

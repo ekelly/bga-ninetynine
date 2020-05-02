@@ -314,6 +314,11 @@
     width: 100%;
 }
 
+/** Add hover effect to cards in hand or bid **/
+.bgann_cardhover > .stockitem:hover {
+    border: 2px red solid;
+}
+
 #mybid {
     position: relative;
     display: inline-block;
