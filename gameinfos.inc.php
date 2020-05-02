@@ -1,7 +1,7 @@
 <?php
 
 /*
-    BgaNinetyNine implementation : © Eric Kelly <boardgamearena@useric.com>
+    NinetyNine implementation : © Eric Kelly <boardgamearena@useric.com>
 
     From this file, you can edit the various meta-information of your game.
 

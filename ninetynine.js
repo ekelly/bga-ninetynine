@@ -1,15 +1,15 @@
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * BgaNinetyNine implementation : © Eric Kellye <boardgamearena@useric.com>
+ * NinetyNine implementation : © Eric Kellye <boardgamearena@useric.com>
  *
  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
  * -----
  *
- * bganinetynine.js
+ * ninetynine.js
  *
- * BgaNinetyNine user interface script
+ * NinetyNine user interface script
  *
  * In this file, you are describing the logic of your user interface, in Javascript language.
  *
@@ -31,7 +31,7 @@ define([
     "ebg/stock"
 ],
 function (dojo, declare, domStyle, lang, attr) {
-    return declare("bgagame.bganinetynine", ebg.core.gamegui, {
+    return declare("bgagame.ninetynine", ebg.core.gamegui, {
 
         constructor: function() {
             // Here, you can init the global variables of your user interface
@@ -506,7 +506,7 @@ function (dojo, declare, domStyle, lang, attr) {
                 if (this.checkAction('playCard', true)) {
                     // Can play a card
                     var card_id = items[0].id;
-                    this.ajaxcall("/bganinetynine/bganinetynine/playCard.html", {
+                    this.ajaxcall("/ninetynine/ninetynine/playCard.html", {
                         id: card_id,
                         lock: true
                     }, this, function(result) {}, function(is_error) {});
@@ -567,7 +567,7 @@ function (dojo, declare, domStyle, lang, attr) {
                 for (var i in items) {
                     to_give += items[i].id+';';
                 }
-                this.ajaxcall( "/bganinetynine/bganinetynine/submitBid.html", {
+                this.ajaxcall( "/ninetynine/ninetynine/submitBid.html", {
                     cards: to_give,
                     lock: true
                 }, this, function (result) {
@@ -597,7 +597,7 @@ function (dojo, declare, domStyle, lang, attr) {
         // decrev should be 0 = none, 1 = declare, 2 = reveal
         submitDeclareOrReveal: function(decrev) {
             if (this.checkAction('submitDeclareOrReveal')) {
-                this.ajaxcall( "/bganinetynine/bganinetynine/submitDeclareOrReveal.html", {
+                this.ajaxcall( "/ninetynine/ninetynine/submitDeclareOrReveal.html", {
                     declareOrReveal: decrev,
                     lock: true
                 }, this, function(result) {

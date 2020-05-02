@@ -1,14 +1,14 @@
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * BgaNinetyNine implementation : © Eric Kelly <boardgamearena@useric.com> & Alex Greenberg
+ * NinetyNine implementation : © Eric Kelly <boardgamearena@useric.com> & Alex Greenberg
  *
  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
  * -----
  *
   *
- * BgaNinetyNine stylesheet
+ * NinetyNine stylesheet
  *
  */
 
@@ -17,8 +17,8 @@
     This is the CSS stylesheet of your game User Interface.
 
     Styles defined on this file will be applied to the HTML elements you defined in your
-    HTML template (bganinetynine_bganinetynine.tpl), and to HTML elements you create dynamically
-    (in bganinetynine.js).
+    HTML template (ninetynine_ninetynine.tpl), and to HTML elements you create dynamically
+    (in ninetynine.js).
 
     Usually, you are using CSS to:
 

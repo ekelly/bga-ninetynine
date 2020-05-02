@@ -1,1 +1,1 @@
-<?php $game_version_bganinetynine='999999-9999'; ?>
+<?php $game_version_ninetynine='999999-9999'; ?>

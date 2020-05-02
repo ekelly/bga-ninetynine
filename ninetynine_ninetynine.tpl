@@ -3,13 +3,13 @@
 <!--
 --------
 -- BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
--- BgaNinetyNine implementation : © Eric Kelly <boardgamearena@useric.com> & Alex Greenberg
+-- NinetyNine implementation : © Eric Kelly <boardgamearena@useric.com> & Alex Greenberg
 --
 -- This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
 -- See http://en.boardgamearena.com/#!doc/Studio for more information.
 -------
 
-    bganinetynine_bganinetynine.tpl
+    ninetynine_ninetynine.tpl
 
     This is the HTML template of your game.
 

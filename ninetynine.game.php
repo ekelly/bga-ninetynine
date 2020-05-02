@@ -2,13 +2,13 @@
 /**
   *------
   * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
-  * BgaNinetyNine implementation : © Eric Kelly <boardgamearena@useric.com>
+  * NinetyNine implementation : © Eric Kelly <boardgamearena@useric.com>
   *
   * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
   * See http://en.boardgamearena.com/#!doc/Studio for more information.
   * -----
   *
-  * bganinetynine.game.php
+  * ninetynine.game.php
   *
   * This is the main file for your game logic.
   *
@@ -19,7 +19,7 @@
 require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
 
 
-class BgaNinetyNine extends Table {
+class NinetyNine extends Table {
     function __construct() {
 
         // Your global variables labels:
@@ -46,7 +46,7 @@ class BgaNinetyNine extends Table {
     }
 
     protected function getGameName() {
-        return "bganinetynine";
+        return "ninetynine";
     }
 
     /*
@@ -725,7 +725,7 @@ class BgaNinetyNine extends Table {
 
     /*
         Each time a player is doing some game action, one of this method below is called.
-        (note: each method below correspond to an input method in bganinetynine.action.php)
+        (note: each method below correspond to an input method in ninetynine.action.php)
     */
 
     function submitBid($card_ids) {

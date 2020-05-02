@@ -2,13 +2,13 @@
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * BgaNinetyNine implementation : © Eric Kelly <boardgamearena@useric.com>
+ * NinetyNine implementation : © Eric Kelly <boardgamearena@useric.com>
  *
  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
  * -----
  *
- * bganinetynine.view.php
+ * ninetynine.view.php
  *
  * This is your "view" file.
  *
@@ -26,10 +26,10 @@
   
   require_once( APP_BASE_PATH."view/common/game.view.php" );
   
-  class view_bganinetynine_bganinetynine extends game_view
+  class view_ninetynine_ninetynine extends game_view
   {
     function getGameName() {
-        return "bganinetynine";
+        return "ninetynine";
     }    
   	function build_page( $viewArgs )
   	{
@@ -43,7 +43,7 @@
         // Arrange players so that I am on south
         $player_to_dir = $this->game->getPlayersToDirection();
 
-        $this->page->begin_block( "bganinetynine_bganinetynine", "player" );
+        $this->page->begin_block( "ninetynine_ninetynine", "player" );
         foreach( $player_to_dir as $player_id => $dir )
         {
             $this->page->insert_block( "player", array( "PLAYER_ID" => $player_id,

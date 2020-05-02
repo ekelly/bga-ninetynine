@@ -2,15 +2,15 @@
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * BgaNinetyNine implementation : © Eric Kelly <boardgamearena@useric.com>
+ * NinetyNine implementation : © Eric Kelly <boardgamearena@useric.com>
  *
  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
  * -----
  * 
- * bganinetynine.action.php
+ * ninetynine.action.php
  *
- * BgaNinetyNine main action entry point
+ * NinetyNine main action entry point
  *
  *
  * In this file, you are describing all the methods that can be called from your
@@ -21,14 +21,14 @@
  *
  */
   
-  class action_bganinetynine extends APP_GameAction
+  class action_ninetynine extends APP_GameAction
   { 
    	public function __default() {
   	    if (self::isArg('notifwindow')) {
             $this->view = "common_notifwindow";
   	        $this->viewArgs['table'] = self::getArg("table", AT_posint, true);
   	    } else {
-            $this->view = "bganinetynine_bganinetynine";
+            $this->view = "ninetynine_ninetynine";
             self::trace( "Complete reinitialization of board game" );
         }
   	}
