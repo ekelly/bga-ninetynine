@@ -259,7 +259,7 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         addHoverEffectToCards: function(containingId, enable) {
-            if (enable) {
+            if (enable && this.prefs[100].value == 2) {
                 dojo.addClass(containingId, "bgann_cardhover");
             } else {
                 dojo.removeClass(containingId, "bgann_cardhover");
