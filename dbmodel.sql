@@ -38,6 +38,9 @@ ALTER TABLE `player` ADD `player_bid` int(11) DEFAULT 0;
 -- Keep track of whether or not the player has declared or revealed
 --     Valid options: 0 (none), 1 (declare), 2 (reveal)
 ALTER TABLE `player` ADD `player_declare_reveal` int(11) DEFAULT 0;
+-- Keep track of whether or not the player wants to declare or reveal
+--     Valid options: 0 (none), 1 (declare), 2 (reveal)
+ALTER TABLE `player` ADD `player_declare_reveal_request` int(11) DEFAULT 0;
 
 CREATE TABLE IF NOT EXISTS `round_scores` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,

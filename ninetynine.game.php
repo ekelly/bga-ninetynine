@@ -460,17 +460,16 @@ class NinetyNine extends Table {
     }
 
     function persistPlayerDeclareReveal($playerId, $decRev) {
-        $sql = "UPDATE player SET player_declare_reveal=$decRev WHERE player_id='$playerId'";
-        $this->DbQuery( $sql );
+        $sql = "UPDATE player SET player_declare_reveal_request=$decRev WHERE player_id='$playerId'";
+        $this->DbQuery($sql);
     }
 
     function clearAllDeclareReveal() {
-        $sql = "UPDATE player SET player_declare_reveal=0 WHERE 1";
-        $this->DbQuery( $sql );
+        $sql = "UPDATE player SET player_declare_reveal=0, player_declare_reveal_request=0 WHERE 1";
+        $this->DbQuery($sql);
     }
 
     function setDeclareReveal($playerId, $decRev) {
-        $this->clearAllDeclareReveal();
         $sql = "UPDATE player SET player_declare_reveal=$decRev WHERE player_id='$playerId'";
         $this->DbQuery($sql);
     }
@@ -568,7 +567,7 @@ class NinetyNine extends Table {
     }
 
     function assignDeclareRevealPlayer() {
-        $result = $this->getNonEmptyCollectionFromDB("SELECT player_id id, player_declare_reveal decrev FROM player");
+        $result = $this->getNonEmptyCollectionFromDB("SELECT player_id id, player_declare_reveal_request decrev FROM player");
 
         $dealer = $this->getDealer();
         $firstPlayer = $this->getPlayerAfter($dealer);
