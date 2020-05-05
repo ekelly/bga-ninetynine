@@ -124,7 +124,6 @@ function (dojo, declare, domStyle, lang, attr) {
             this.updateRoundScores(this.gamedatas.roundScores);
             this.updateGameScores(this.gamedatas.gameScores);
 
-            this.addTooltipToClass("bgann_playertablecard", _("Card played on the table"), '');
             this.addTooltip("declaretable", _("Opponent's declared bid"), '');
             this.addTooltip("revealtable", _("Opponent's revealed hand"), '');
             this.addTooltipToClass("player_score", _("Game Score"), '');
@@ -249,12 +248,16 @@ function (dojo, declare, domStyle, lang, attr) {
             this.addTooltip(divId, _('Bid value: ') + bidValue, actionString);
         },
 
+        clearTooltipFromCard: function(stock, cardData) {
+            var divId = stock.getItemDivId(cardData.id);
+            this.removeTooltip(divId);
+        },
+
         clearTooltipsFromCards: function(stock) {
             var allCards = stock.getAllItems();
             for (var i = 0; i < allCards.length; i++) {
                 var cardData = allCards[i];
-                var divId = stock.getItemDivId(cardData.id);
-                this.removeTooltip(divId);
+                this.clearTooltipFromCard(stock, cardData);
             }
         },
 
@@ -585,6 +588,9 @@ function (dojo, declare, domStyle, lang, attr) {
                     // Remove that card from the hand and add it to the bid
                     this.playerBid.addToStockWithId(items[0].type, items[0].id, divId);
                     this.playerHand.removeFromStockById(items[0].id);
+
+                    this.clearTooltipFromCard(this.playerHand, items[0]);
+
                     this.addTooltipToCard(this.playerBid, items[0], _('Remove from bid'));
 
                     this.playerHand.unselectAll();
@@ -608,6 +614,8 @@ function (dojo, declare, domStyle, lang, attr) {
             // Remove that card from the bid and return it to the hand
             this.playerHand.addToStockWithId(items[0].type, items[0].id, divId);
             this.playerBid.removeFromStockById(items[0].id);
+
+            this.clearTooltipFromCard(this.playerBid, items[0]);
 
             this.addTooltipToCard(this.playerHand, items[0], _('Add to bid'));
 
