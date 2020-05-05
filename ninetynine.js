@@ -761,7 +761,12 @@ function (dojo, declare, domStyle, lang, attr) {
                 dojo.place(newnode, 'playertablecard_'+player_id);
                 dojo.destroy(node);
 
-                var anim = this.slideToObject('cardfromtable_'+player_id, 'overall_player_board_'+winner_id);
+                var anim;
+                if (winner_id == this.player_id && dojo.byId("maingameview_menufooter")) {
+                    anim = this.slideToObject('cardfromtable_'+player_id, "maingameview_menufooter");
+                } else {
+                    anim = this.slideToObject('cardfromtable_'+player_id, 'overall_player_board_'+winner_id);
+                }
                 dojo.connect(anim, 'onEnd', function(node) { dojo.destroy(node);});
                 anim.play();
             }
