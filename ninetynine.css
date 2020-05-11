@@ -65,12 +65,16 @@
     color: red;
 }
 
+.bgann_invisible {
+    visibility: hidden;
+}
+
 .bgann_hidden {
     display: none;
 }
 
-#round_name_container {
-    margin-right: 420px;
+#declaring_revealing_player_container {
+    margin-left: 420px;
 }
 
 /** Player Score Area **/

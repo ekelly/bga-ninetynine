@@ -66,7 +66,7 @@ $machinestates = array(
         // New Round
         10 => array(
                 "name" => "newRound",
-                "description" => clienttranslate("Starting the round"),
+                "description" => "",
                 "type" => "game",
                 "action" => "stNewRound",
                 "updateGameProgression" => true,
@@ -77,7 +77,7 @@ $machinestates = array(
 
         12 => array(
                 "name" => "newHand",
-                "description" => clienttranslate("Starting the hand"),
+                "description" => "",
                 "type" => "game",
                 "action" => "stNewHand",
                 "updateGameProgression" => true,
@@ -94,15 +94,7 @@ $machinestates = array(
                 "action" => "stBidding",
                 "possibleactions" => array("submitBid"),
                 "updateGameProgression" => false,
-                "transitions" => array("biddingDone" => 14)
-        ),
-        14 => array(
-                "name" => "checkBids",
-                "description" => "",
-                "type" => "game",
-                "action" => "stCheckBids",
-                "updateGameProgression" => false,
-                "transitions" => array("declareOrReveal" => 15)
+                "transitions" => array("biddingDone" => 15)
         ),
         15 => array(
                 "name" => "declareOrReveal",
@@ -120,18 +112,11 @@ $machinestates = array(
                 "type" => "game",
                 "action" => "stCheckDeclareOrReveal",
                 "updateGameProgression" => false,
-                "transitions" => array("startTrickTaking" => 30)
+                "transitions" => array("startTrickTaking" => 31)
         ),
 
         // Trick
 
-        30 => array(
-                "name" => "newTrick",
-                "description" => "",
-                "type" => "game",
-                "action" => "stNewTrick",
-                "transitions" => array("" => 31)
-        ),
         31 => array(
                 "name" => "playerTurn",
                 "description" => clienttranslate('${actplayer} must play a card'),
@@ -145,7 +130,7 @@ $machinestates = array(
                 "description" => "",
                 "type" => "game",
                 "action" => "stNextPlayer",
-                "transitions" => array("nextPlayer" => 31, "nextTrick" => 30, "endHand" => 40)
+                "transitions" => array("nextPlayer" => 31, "nextTrick" => 31, "endHand" => 40)
         ),
 
         // End of the hand (scoring, etc...)

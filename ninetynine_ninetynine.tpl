@@ -25,13 +25,15 @@
 <div id="table">
     <div id="declarerevealtable">
         <h3 class="whiteblock">
-            <span id="round_name_container" class="bgann_hidden">
+            <span id="round_name_container" class="bgann_invisible">
                 <span class="to_translate">Round </span>
                 <span id="round_name">1</span>
-           </span>
-            <span class="to_translate">Revealing/Declaring Player: </span>
-            <!-- PLAYER_NAME should say none for rounds with no declaring/revealing player -->
-            <span class="to_translate" id="decrev_player_name">None</span>
+            </span>
+            <span id="declaring_revealing_player_container">
+                <span class="to_translate">Revealing/Declaring Player: </span>
+                <!-- PLAYER_NAME should say none for rounds with no declaring/revealing player -->
+                <span class="to_translate" id="decrev_player_name">None</span>
+            </span>
         </h3>
     </div>
     <div id="middleRow">
@@ -66,7 +68,6 @@
                 <h3 id="revealed_label" class="to_translate">Revealed Hand:</h3>
                 <div id="revealedHand"></div>
             </div>
-
         </div>
     </div>
 </div>

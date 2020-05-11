@@ -34,7 +34,7 @@ class NinetyNine extends Table {
                          "previousHandWinnerCount" => 12,
                          "currentRound" => 13,
                          "firstDealer" => 14,
-                         "firstPlayer" => 15,
+                         "currentPlayer" => 15,
                          "currentDealer" => 16,
                          "handCount" => 17,
                          "gameStyle" => 100,
@@ -107,7 +107,7 @@ class NinetyNine extends Table {
         self::setGameStateInitialValue('currentDealer', $dealer);
 
         // Player with the first action (starts left of dealer, then winner of trick)
-        self::setGameStateInitialValue('firstPlayer', $firstPlayer);
+        self::setGameStateInitialValue('currentPlayer', $firstPlayer);
 
         // Init game statistics
         self::initStat("table", "handCount", 0);
@@ -192,7 +192,7 @@ class NinetyNine extends Table {
 
         $result['trump'] = $this->getCurrentHandTrump();
         $result['dealer'] = $this->getDealer();
-        $result['firstPlayer'] = $this->getFirstPlayer();
+        $result['currentPlayer'] = $this->getCurrentPlayer();
         $result['trickCounts'] = $this->getTrickCounts();
         $result['roundScores'] = $this->getCurrentRoundScores();
         $result['gameScores'] = $this->dbGetScores();
@@ -333,17 +333,17 @@ class NinetyNine extends Table {
     }
 
     /**
-        Gets the first player to play a card
+        Gets the current player whose turn it is to play a card
     **/
-    function getFirstPlayer() {
-        return intval(self::getGameStateValue("firstPlayer"));
+    function getCurrentPlayer() {
+        return intval(self::getGameStateValue("currentPlayer"));
     }
 
     /**
-        Sets the first player to play a card
+        Sets the current player
     **/
-    function setFirstPlayer($playerID) {
-        self::setGameStateValue("firstPlayer", $playerID);
+    function setCurrentPlayer($playerID) {
+        self::setGameStateValue("currentPlayer", $playerID);
     }
 
     /**
@@ -930,7 +930,7 @@ class NinetyNine extends Table {
             'rank_displayed' => $this->rank_label[$currentCard['type_arg']],
             'suit' => $currentCard['type'],
             'suit_displayed' => $this->suits[$currentCard['type']]['name'],
-            'firstPlayer' => $this->getFirstPlayer()
+            'currentPlayer' => $this->getCurrentPlayer()
         ));
 
         // Next player
@@ -947,14 +947,14 @@ class NinetyNine extends Table {
     */
 
     function stGameSetup() {
-        $this->gamestate->nextState("");
+        $this->gamestate->nextState();
     }
 
     function stNewRound() {
         $this->setDealer($this->getRoundDealer());
         $dealer = $this->getDealer();
         $firstPlayer = $this->getPlayerAfter($dealer);
-        $this->setFirstPlayer($firstPlayer);
+        $this->setCurrentPlayer($firstPlayer);
         if ($this->doesScoringVariantUseRounds()) {
             $currentRoundName = $this->getCurrentRound() + 1;
             self::notifyAllPlayers('newRound', clienttranslate('Starting round ${round_num}'), array(
@@ -963,14 +963,12 @@ class NinetyNine extends Table {
                 'firstPlayer' => $firstPlayer
             ));
         } else {
-            if ($this->doesScoringVariantUseRounds()) {
-                self::notifyAllPlayers('newRound', '', array(
-                    'dealer' => $dealer,
-                    'firstPlayer' => $firstPlayer
-                ));
-            }
+            self::notifyAllPlayers('newRound', '', array(
+                'dealer' => $dealer,
+                'firstPlayer' => $firstPlayer
+            ));
         }
-        $this->gamestate->nextState("");
+        $this->gamestate->nextState();
     }
 
     function stNewHand() {
@@ -989,7 +987,7 @@ class NinetyNine extends Table {
         $players = self::loadPlayersBasicInfos();
         $dealer = $this->getDealer();
         $firstPlayer = $this->getPlayerAfter($dealer);
-        $this->setFirstPlayer($firstPlayer);
+        $this->setCurrentPlayer($firstPlayer);
         $trump = $this->getCurrentHandTrump();
         foreach ($players as $player_id => $player) {
             $cards = $this->cards->pickCards(12, 'deck', $player_id);
@@ -998,7 +996,7 @@ class NinetyNine extends Table {
               'dealer' => $dealer, 'firstPlayer' => $firstPlayer, 'trump' => $trump));
         }
 
-        $this->gamestate->nextState("");
+        $this->gamestate->nextState();
     }
 
     function stBidding() {
@@ -1007,10 +1005,6 @@ class NinetyNine extends Table {
             $this->giveExtraTime($player_id);
         }
         $this->gamestate->setAllPlayersMultiactive();
-    }
-
-    function stCheckBids() {
-        $this->gamestate->nextState("declareOrReveal");
     }
 
     function stDeclareOrReveal() {
@@ -1038,7 +1032,7 @@ class NinetyNine extends Table {
         // Inform people who goes first
         $dealerId = $this->getDealer();
         $firstPlayer = $this->getPlayerAfter($dealerId);
-        $this->setFirstPlayer($firstPlayer);
+        $this->setCurrentPlayer($firstPlayer);
 
         $players = self::loadPlayersBasicInfos();
         foreach ($players as $playerId => $player) {
@@ -1071,13 +1065,6 @@ class NinetyNine extends Table {
         $this->gamestate->nextState("startTrickTaking");
     }
 
-    function stNewTrick() {
-
-        $this->clearCurrentTrickSuit();
-
-        $this->gamestate->nextState("");
-    }
-
     function stNextPlayer() {
         // Active next player OR end the trick and go to the next trick OR end the hand
         if ($this->cards->countCardInLocation('cardsontable') == 3) {
@@ -1089,7 +1076,7 @@ class NinetyNine extends Table {
 
             // Active this player => he's the one who starts the next trick
             $this->gamestate->changeActivePlayer($winningPlayer);
-            $this->setFirstPlayer($winningPlayer);
+            $this->setCurrentPlayer($winningPlayer);
 
             // Move all cards to "cardswon" of the given player
             $this->cards->moveAllCardsInLocation('cardsontable', 'cardswon', null, $winningPlayer);
@@ -1099,17 +1086,12 @@ class NinetyNine extends Table {
             $decRevPlayerId = $declareReveal['playerId'];
 
             // Notify
-            // Note: we use 2 notifications here in order we can pause the display during the first notification
-            //  before we move all cards to the winner (during the second)
             $players = self::loadPlayersBasicInfos();
             self::notifyAllPlayers('trickWin', clienttranslate('${player_name} wins the trick'), array(
                     'player_id' => $winningPlayer,
-                    'player_name' => $players[$winningPlayer]['player_name']
-            ));
-            self::notifyAllPlayers('giveAllCardsToPlayer','', array(
-                'playerId' => $winningPlayer,
-                'decRevPlayerId' => $decRevPlayerId,
-                'playerTrickCounts' => $trickCounts
+                    'player_name' => $players[$winningPlayer]['player_name'],
+                    'decRevPlayerId' => $decRevPlayerId,
+                    'playerTrickCounts' => $trickCounts
             ));
 
             $this->clearCurrentTrickSuit();
@@ -1125,9 +1107,9 @@ class NinetyNine extends Table {
             // Standard case (not the end of the trick)
             // => just active the next player
             $player_id = self::activeNextPlayer();
-            $this->setFirstPlayer($player_id);
+            $this->setCurrentPlayer($player_id);
             self::notifyAllPlayers('currentPlayer', '', array(
-                'currentPlayer' => $this->getFirstPlayer()
+                'currentPlayer' => $this->getCurrentPlayer()
             ));
             self::giveExtraTime($player_id);
             $this->gamestate->nextState('nextPlayer');
