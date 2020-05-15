@@ -301,6 +301,14 @@ function (dojo, declare, domStyle, lang, attr) {
             dojo.addClass("playertable_" + first_player, "bgann_firstplayer");
         },
 
+        showActivePlayer: function(expectedActivePlayer) {
+            var activePlayer = this.getActivePlayerId();
+            if (activePlayer == null) {
+                activePlayer = expectedActivePlayer;
+            }
+            this.showCurrentPlayer(activePlayer);
+        },
+
         showTrump: function(trumpSuit) {
             var trumpSuitSpan = dojo.byId("trumpSuit");
             if (trumpSuit != undefined &&
@@ -380,7 +388,6 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         clearTricksWon: function() {
-            console.log("Clearing tricks won");
             dojo.query(".bgann_tricks").addClass("bgann_hidden");
             this.updateValueInNode("myTricksWon", "0");
             for (var playerId in this.gamedatas.players) {
@@ -560,7 +567,6 @@ function (dojo, declare, domStyle, lang, attr) {
         giveAllCardsToPlayer: function(args) {
             // Move all cards on table to given table, then destroy them
             var winner_id = args.player_id;
-            this.showCurrentPlayer(winner_id);
             this.updateTrickCounts(args.playerTrickCounts, args.decRevPlayerId);
 
             for (var player_id in this.gamedatas.players) {
@@ -730,6 +736,7 @@ function (dojo, declare, domStyle, lang, attr) {
             dojo.subscribe('newRound', this, "notif_newRound");
             dojo.subscribe('newHand', this, "notif_newHand");
             dojo.subscribe('playCard', this, "notif_playCard");
+            dojo.subscribe('currentPlayer', this, "notif_currentPlayer");
             dojo.subscribe('trickWin', this, "notif_trickWin");
             this.notifqueue.setSynchronous('trickWin', 1500);
             dojo.subscribe('points', this, "notif_points");
@@ -742,7 +749,7 @@ function (dojo, declare, domStyle, lang, attr) {
 
         notif_newRound: function(notif) {
             this.showDealer(notif.args.dealer);
-            this.showCurrentPlayer(notif.args.firstPlayer);
+            this.showActivePlayer(notif.args.firstPlayer);
             if (notif.args.round_num) {
                 // If this game actually uses rounds
                 this.setNodeInvisible("round_name_container", false);
@@ -758,7 +765,7 @@ function (dojo, declare, domStyle, lang, attr) {
             this.playerBid.removeAll();
             this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
             this.showDealer(notif.args.dealer);
-            this.showCurrentPlayer(notif.args.firstPlayer);
+            this.showActivePlayer(notif.args.firstPlayer);
             this.showTrump(notif.args.trump);
 
             for (var i in notif.args.cards) {
@@ -770,10 +777,14 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         notif_playCard: function(notif) {
-            this.showCurrentPlayer(notif.args.currentPlayer);
+            this.showActivePlayer(notif.args.currentPlayer);
             // Play a card on the table
             this.playCardOnTable(notif.args.player_id, notif.args.suit,
                                  notif.args.rank, notif.args.card_id);
+        },
+
+        notif_currentPlayer: function(notif) {
+            this.showActivePlayer(notif.args.currentPlayer);
         },
 
         notif_trickWin: function(notif) {
