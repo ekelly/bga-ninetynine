@@ -23,14 +23,14 @@
  * Note: if the HTML of your game interface is always the same, you don't have to place anything here.
  *
  */
-  
+
   require_once( APP_BASE_PATH."view/common/game.view.php" );
-  
+
   class view_ninetynine_ninetynine extends game_view
   {
     function getGameName() {
         return "ninetynine";
-    }    
+    }
   	function build_page( $viewArgs )
   	{
   	    // Get players & players number
@@ -51,11 +51,25 @@
                                                         "PLAYER_COLOR" => $players[$player_id]['player_color'],
                                                         "DIR" => $dir ) );
         }
-        
+
         $this->tpl['MY_HAND'] = self::_("My hand");
+
+        // Translateable strings
+        $this->tpl['ROUND_LABEL'] = self::_("Round ");
+        $this->tpl['DECREV_PLAYER_LABEL'] = self::_("Declaring/Revealing Player: ");
+        $this->tpl['TRUMP_LABEL'] = self::_("Trump Suit:");
+        $this->tpl['DECLARED_BID_LABEL'] = self::_("Declared Bid: ");
+        $this->tpl['MY_BID_LABEL'] = self::_("My Bid: ");
+        $this->tpl['TRICKS_WON_LABEL'] = self::_("Tricks Won: ");
+        $this->tpl['REVEALED_HAND_LABEL'] = self::_("Revealed Hand:");
+        $this->tpl['MY_HAND_LABEL'] = self::_("My Hand");
+        $this->tpl['REVEALED_LABEL'] = self::_("Revealed");
+        $this->tpl['DECLARED_LABEL'] = self::_("Declared");
+
+        $this->tpl['NONE'] = self::_("None");
 
         /*********** Do not change anything below this line  ************/
   	}
   }
-  
+
 

@@ -26,13 +26,13 @@
     <div id="declarerevealtable">
         <h3 class="whiteblock">
             <span id="round_name_container" class="bgann_invisible">
-                <span class="to_translate">Round </span>
+                <span class="to_translate">{ROUND_LABEL} </span>
                 <span id="round_name">1</span>
             </span>
             <span id="declaring_revealing_player_container">
-                <span class="to_translate">Revealing/Declaring Player: </span>
+                <span class="to_translate">{DECREV_PLAYER_LABEL}</span>
                 <!-- PLAYER_NAME should say none for rounds with no declaring/revealing player -->
-                <span class="to_translate" id="decrev_player_name">None</span>
+                <span class="to_translate" id="decrev_player_name">{NONE}</span>
             </span>
         </h3>
     </div>
@@ -52,20 +52,20 @@
             <!-- END player -->
 
             <div class="whiteblock" id="trumpContainer">
-                <div class="to_translate">Trump Suit:</div>
-                <div class="to_translate" id="trumpSuit">none</div>
+                <div class="to_translate">{TRUMP_LABEL}</div>
+                <div class="to_translate" id="trumpSuit">{NONE}</div>
             </div>
         </div>
         <div id="bids">
             <div id="declaretable" class="whiteblock bgann_bid_container bgann_declare bgann_hidden">
-                <h3 class="to_translate">Declared Bid: <span id="declaredBidValue"></span>
-                    <span class="bgann_tricks to_translate"> / Tricks Won: </span>
+                <h3 class="to_translate">{DECLARED_BID_LABEL}<span id="declaredBidValue"></span>
+                    <span class="bgann_tricks to_translate"> / {TRICKS_WON_LABEL}</span>
                     <span id="declaredTricksWon" class="bgann_tricks">0</span>
                 </h3>
                 <div id="declaredBid"></div>
             </div>
             <div id="revealtable" class="whiteblock bgann_reveal bgann_hidden">
-                <h3 id="revealed_label" class="to_translate">Revealed Hand:</h3>
+                <h3 id="revealed_label" class="to_translate">{REVEALED_HAND_LABEL}</h3>
                 <div id="revealedHand"></div>
             </div>
         </div>
@@ -75,19 +75,19 @@
 <div class="whiteblock bgann_container">
     <div class="bgann_section" style="flex-grow: 1;">
         <div style="width: auto; display: flex">
-            <h3 id="myhandlabel" class="to_translate">My Hand</h3>
-            <h3 id="reveal_label" class="bgann_hidden to_translate" style="margin-left: 5px;color: red;">(Revealed)</h3>
+            <h3 id="myhandlabel" class="to_translate">{MY_HAND_LABEL}</h3>
+            <h3 id="reveal_label" class="bgann_hidden to_translate" style="margin-left: 5px;color: red;">({REVEALED_LABEL})</h3>
         </div>
         <div id="myhand"></div>
     </div>
 </div>
 <div id="my_bid_container" class="bgann_section whiteblock bgann_bid_container">
     <h3>
-        <span class="to_translate" style="display: inline-block;">My Bid: </span>
+        <span class="to_translate" style="display: inline-block;">{MY_BID_LABEL}</span>
         <span id="bidValue"></span>
-        <span class="bgann_tricks bgann_hidden to_translate"> / Tricks Taken: </span>
+        <span class="bgann_tricks bgann_hidden to_translate"> / {TRICKS_WON_LABEL}</span>
         <span id="myTricksWon" class="bgann_tricks bgann_hidden"></span>
-        <span id="declare_label" class="bgann_hidden to_translate" style="margin-left: 5px;color: red;">(Declared)</span>
+        <span id="declare_label" class="bgann_hidden to_translate" style="margin-left: 5px;color: red;">({DECLARED_LABEL})</span>
     </h3>
     <div id="mybid"></div>
 </div>

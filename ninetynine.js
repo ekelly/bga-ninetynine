@@ -323,7 +323,7 @@ function (dojo, declare, domStyle, lang, attr) {
                 dojo.query("#trumpSuit").removeClass("bgann_trump_none");
                 dojo.addClass(trumpSuitSpan, redSuit ? "bgann_trump_red" : "bgann_trump_black")
             } else {
-                trumpSuitSpan.textContent = "none";
+                trumpSuitSpan.textContent = _("None");
                 dojo.query("#trumpSuit").removeClass("bgann_trump_red");
                 dojo.query("#trumpSuit").removeClass("bgann_trump_black");
                 dojo.addClass(trumpSuitSpan, "bgann_trump_none")
@@ -542,7 +542,7 @@ function (dojo, declare, domStyle, lang, attr) {
                 var playerColor = decRevInfo.playerColor;
                 domStyle.set(playerNameSpan, "color", "#" + playerColor);
             } else {
-                playerNameSpan.textContent = "None";
+                playerNameSpan.textContent = _("None");
                 domStyle.set(playerNameSpan, "color", "#000000");
                 dojo.query(".bgann_declare").addClass("bgann_hidden");
                 dojo.query(".bgann_reveal").addClass("bgann_hidden");
