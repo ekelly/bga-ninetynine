@@ -164,14 +164,6 @@ function (dojo, declare, domStyle, lang, attr) {
                     this.addHoverEffectToCards("mybid", true);
                     this.addTooltipsToEachCard(this.playerHand, _('Add to bid'));
                     break;
-
-                case 'declareOrReveal':
-                    this.clearTooltipsFromCards(this.playerHand);
-                    this.clearTooltipsFromCards(this.playerBid);
-                    this.addHoverEffectToCards("myhand", false);
-                    this.addHoverEffectToCards("mybid", false);
-                    this.playerHand.setSelectionMode(0);
-                    break;
             }
         },
 
@@ -184,11 +176,11 @@ function (dojo, declare, domStyle, lang, attr) {
                 case 'bidding':
                     this.clearTooltipsFromCards(this.playerHand);
                     this.clearTooltipsFromCards(this.playerBid);
+                    this.addHoverEffectToCards("myhand", false);
+                    this.addHoverEffectToCards("mybid", false);
                     this.playerBid.setSelectionMode(0);
                     this.clearTricksWon();
                     this.displayTricksWon();
-                    break;
-                case 'declareOrReveal':
                     this.playerHand.setSelectionMode(1);
                     break;
             }
@@ -201,9 +193,6 @@ function (dojo, declare, domStyle, lang, attr) {
             if (this.isCurrentPlayerActive()) {
                 switch (stateName) {
                     case 'bidding':
-                        this.addActionButton('bidCards_button', _('Bid selected cards'), 'onBidCards');
-                        break;
-                    case 'declareOrReveal':
                         this.addActionButton('reveal_button', _('Reveal'), 'onReveal');
                         this.addActionButton('declare_button', _('Declare'), 'onDeclare');
                         this.addActionButton('none_button', _('Neither'), 'onNoDeclare');
@@ -666,7 +655,26 @@ function (dojo, declare, domStyle, lang, attr) {
             this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
         },
 
-        onBidCards: function() {
+        onNoDeclare: function() {
+            this.submitBid(0);
+        },
+
+        onDeclare: function() {
+            this.confirmationDialog(_('Are you sure you want to declare your bid?'),
+                                    dojo.hitch(this, function() {
+                this.submitBid(1);
+            }));
+        },
+
+        onReveal: function() {
+            this.confirmationDialog(_('Are you sure you want to reveal your hand?'),
+                                    dojo.hitch(this, function() {
+                this.submitBid(2);
+            }));
+        },
+
+        // decrev should be 0 = none, 1 = declare, 2 = reveal
+        submitBid: function(decrev) {
             if (this.checkAction('submitBid')) {
                 var items = this.playerBid.getAllItems();
 
@@ -680,40 +688,11 @@ function (dojo, declare, domStyle, lang, attr) {
                 for (var i in items) {
                     to_give += items[i].id+';';
                 }
-                this.ajaxcall( "/ninetynine/ninetynine/submitBid.html", {
+                this.ajaxcall("/ninetynine/ninetynine/submitBid.html", {
                     cards: to_give,
-                    lock: true
-                }, this, function (result) {
-                }, function(is_error) {
-                });
-            }
-        },
-
-        onNoDeclare: function() {
-            this.submitDeclareOrReveal(0);
-        },
-
-        onDeclare: function() {
-            this.confirmationDialog(_('Are you sure you want to declare your bid?'),
-                                    dojo.hitch(this, function() {
-                this.submitDeclareOrReveal(1);
-            }));
-        },
-
-        onReveal: function() {
-            this.confirmationDialog(_('Are you sure you want to reveal your hand?'),
-                                    dojo.hitch(this, function() {
-                this.submitDeclareOrReveal(2);
-            }));
-        },
-
-        // decrev should be 0 = none, 1 = declare, 2 = reveal
-        submitDeclareOrReveal: function(decrev) {
-            if (this.checkAction('submitDeclareOrReveal')) {
-                this.ajaxcall( "/ninetynine/ninetynine/submitDeclareOrReveal.html", {
                     declareOrReveal: decrev,
                     lock: true
-                }, this, function(result) {
+                }, this, function (result) {
                 }, function(is_error) {
                 });
             }

@@ -805,7 +805,7 @@ class NinetyNine extends Table {
         (note: each method below correspond to an input method in ninetynine.action.php)
     */
 
-    function submitBid($card_ids) {
+    function submitBid($card_ids, $decrev) {
         self::checkAction("submitBid");
 
         // Check that the cards are actually in the current user's hands.
@@ -840,13 +840,12 @@ class NinetyNine extends Table {
         ));
 
         $this->persistPlayerBid($player_id, $bidValue);
+        $this->declareOrReveal($decrev);
 
         $this->gamestate->setPlayerNonMultiactive($player_id, "biddingDone");
     }
 
     function declareOrReveal($declareOrReveal) {
-        self::checkAction("submitDeclareOrReveal");
-
         if ($declareOrReveal < 0 || $declareOrReveal > 2) {
             throw new feException(sprintf(_("Invalid declare or reveal: %d"), $declareOrReveal));
         }
@@ -855,8 +854,6 @@ class NinetyNine extends Table {
         $playerId = self::getCurrentPlayerId();
 
         $this->persistPlayerDeclareReveal($playerId, $declareOrReveal);
-
-        $this->gamestate->setPlayerNonMultiactive($playerId, "declaringOrRevealingDone");
     }
 
     // Play a card from the active player's hand
@@ -1614,11 +1611,8 @@ class NinetyNine extends Table {
             }
             $this->cards->moveAllCardsInLocation('zombiehand', 'hand', null, $activePlayer);
             $this->persistPlayerBid($activePlayer, $bidValue);
-            $this->gamestate->setPlayerNonMultiactive($activePlayer, "biddingDone");
-        } else if ($statename == 'declareOrReveal') {
-            // Pass
             $this->persistPlayerDeclareReveal($activePlayer, 0);
-            $this->gamestate->setPlayerNonMultiactive($activePlayer, "declaringOrRevealingDone");
+            $this->gamestate->setPlayerNonMultiactive($activePlayer, "biddingDone");
         } else if ($statename == 'playerTurn') {
             // Play a card
             $cardId = null;

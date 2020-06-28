@@ -89,22 +89,12 @@ $machinestates = array(
         13 => array(
                 "name" => "bidding",
                 "description" => clienttranslate("Waiting for other players to bid"),
-                "descriptionmyturn" => clienttranslate("You must choose 3 cards to bid"),
+                "descriptionmyturn" => clienttranslate("You must choose 3 cards and a type of bid"),
                 "type" => "multipleactiveplayer",
                 "action" => "stBidding",
                 "possibleactions" => array("submitBid"),
                 "updateGameProgression" => false,
-                "transitions" => array("biddingDone" => 15)
-        ),
-        15 => array(
-                "name" => "declareOrReveal",
-                "description" => clienttranslate("Waiting for players to declare or reveal"),
-                "descriptionmyturn" => clienttranslate("Would you like to declare or reveal?"),
-                "type" => "multipleactiveplayer",
-                "action" => "stDeclareOrReveal",
-                "possibleactions" => array( "submitDeclareOrReveal"),
-                "updateGameProgression" => false,
-                "transitions" => array("declaringOrRevealingDone" => 16)
+                "transitions" => array("biddingDone" => 16)
         ),
         16 => array(
                 "name" => "checkDeclareOrReveal",
