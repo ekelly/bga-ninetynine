@@ -198,6 +198,7 @@ class NinetyNine extends Table {
         $result['gameScores'] = $this->dbGetScores();
         $result['usesRounds'] = $this->doesScoringVariantUseRounds();
         $result['roundNum'] = $this->getCurrentRound() + 1;
+        $result['handNum'] = $this->getHandCount();
 
         return $result;
     }
@@ -962,6 +963,7 @@ class NinetyNine extends Table {
         } else {
             self::notifyAllPlayers('newRound', '', array(
                 'dealer' => $dealer,
+                'hand_num' => $this->getHandCount(),
                 'firstPlayer' => $firstPlayer
             ));
         }
@@ -971,6 +973,8 @@ class NinetyNine extends Table {
     function stNewHand() {
 
         $this->incrementHandCount();
+
+        $handCount = $this->getHandCount();
 
         if ($this->doesGameUseRandomCardDrawToDetermineTrump()) {
             $this->setRandomTrump();
@@ -989,8 +993,12 @@ class NinetyNine extends Table {
         foreach ($players as $player_id => $player) {
             $cards = $this->cards->pickCards(12, 'deck', $player_id);
             // Notify player about his cards
-            self::notifyPlayer($player_id, 'newHand', '', array('cards' => $cards,
-              'dealer' => $dealer, 'firstPlayer' => $firstPlayer, 'trump' => $trump));
+            self::notifyPlayer($player_id, 'newHand', '', array(
+              'cards' => $cards,
+              'dealer' => $dealer,
+              'firstPlayer' => $firstPlayer,
+              'hand_num' => $handCount,
+              'trump' => $trump));
         }
 
         $this->gamestate->nextState();

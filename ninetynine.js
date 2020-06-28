@@ -72,6 +72,10 @@ function (dojo, declare, domStyle, lang, attr) {
                 // Show round number
                 this.setNodeInvisible("round_name_container", false);
                 this.updateRoundNum(this.gamedatas.roundNum);
+            } else {
+                // Show hand number
+                this.setNodeInvisible("round_name_container", false);
+                this.updateRoundNum(this.gamedatas.handNum);
             }
 
             // Player hand
@@ -730,9 +734,13 @@ function (dojo, declare, domStyle, lang, attr) {
             this.showDealer(notif.args.dealer);
             this.showActivePlayer(notif.args.firstPlayer);
             if (notif.args.round_num) {
-                // If this game actually uses rounds
-                this.setNodeInvisible("round_name_container", false);
+                // if this game uses rounds
+                this.setnodeinvisible("round_name_container", false);
                 this.updateRoundNum(notif.args.round_num);
+            } else if (notif.args.hand_num) {
+                // if this game uses hands
+                this.setnodeinvisible("round_name_container", false);
+                this.updateRoundNum(notif.args.hand_num);
             }
             this.showTrump(null);
             this.clearRoundScores();
@@ -746,6 +754,10 @@ function (dojo, declare, domStyle, lang, attr) {
             this.showDealer(notif.args.dealer);
             this.showActivePlayer(notif.args.firstPlayer);
             this.showTrump(notif.args.trump);
+
+            if (notif.args.hand_num) {
+                this.updateRoundNum(notif.args.hand_num);
+            }
 
             for (var i in notif.args.cards) {
                 var card = notif.args.cards[i];

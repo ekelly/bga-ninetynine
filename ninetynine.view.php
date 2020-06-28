@@ -31,11 +31,11 @@
     function getGameName() {
         return "ninetynine";
     }
-  	function build_page( $viewArgs )
+  	function build_page($viewArgs)
   	{
   	    // Get players & players number
         $players = $this->game->loadPlayersBasicInfos();
-        $players_nbr = count( $players );
+        $players_nbr = count($players);
 
         /*********** Place your code below:  ************/
 
@@ -43,19 +43,22 @@
         // Arrange players so that I am on south
         $player_to_dir = $this->game->getPlayersToDirection();
 
-        $this->page->begin_block( "ninetynine_ninetynine", "player" );
-        foreach( $player_to_dir as $player_id => $dir )
-        {
-            $this->page->insert_block( "player", array( "PLAYER_ID" => $player_id,
-                                                        "PLAYER_NAME" => $players[$player_id]['player_name'],
-                                                        "PLAYER_COLOR" => $players[$player_id]['player_color'],
-                                                        "DIR" => $dir ) );
+        $this->page->begin_block("ninetynine_ninetynine", "player");
+        foreach ($player_to_dir as $player_id => $dir) {
+            $this->page->insert_block("player", array("PLAYER_ID" => $player_id,
+                                                      "PLAYER_NAME" => $players[$player_id]['player_name'],
+                                                      "PLAYER_COLOR" => $players[$player_id]['player_color'],
+                                                      "DIR" => $dir));
         }
 
         $this->tpl['MY_HAND'] = self::_("My hand");
 
         // Translateable strings
-        $this->tpl['ROUND_LABEL'] = self::_("Round ");
+        if ($this->game->doesScoringVariantUseRounds()) {
+            $this->tpl['ROUND_LABEL'] = self::_("Round ");
+        } else {
+            $this->tpl['ROUND_LABEL'] = self::_("Hand ");
+        }
         $this->tpl['DECREV_PLAYER_LABEL'] = self::_("Declaring/Revealing Player: ");
         $this->tpl['TRUMP_LABEL'] = self::_("Trump Suit:");
         $this->tpl['DECLARED_BID_LABEL'] = self::_("Declared Bid: ");
