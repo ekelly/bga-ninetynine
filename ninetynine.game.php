@@ -1176,16 +1176,18 @@ class NinetyNine extends Table {
 
                 $this->dbIncScore($player_id, $points);
 
-                self::notifyAllPlayers("points", clienttranslate('${player_name} gets ${points} points'), array(
+                self::notifyAllPlayers("points", clienttranslate('${player_name} bid ${bid} and gets ${points} points'), array(
                     'player_id' => $player_id,
                     'player_name' => $players[$player_id]['player_name'],
+                    'bid' => $handScoreInfo['bid'][$player_id],
                     'points' => $points,
                     'roundScore' => $playerRoundScore
                 ));
             } else {
                 // No point lost (just notify)
-                self::notifyAllPlayers("points", clienttranslate('${player_name} did not get any points'), array (
+                self::notifyAllPlayers("points", clienttranslate('${player_name} bid ${bid} but did not get any points'), array (
                     'player_id' => $player_id,
+                    'bid' => $handScoreInfo['bid'][$player_id],
                     'player_name' => $players[$player_id]['player_name']));
             }
         }
