@@ -41,6 +41,7 @@ function (dojo, declare, domStyle, lang, attr) {
             this.playerHand = null;
             this.cardwidth = 72;
             this.cardheight = 96;
+            this.preselectedCard = null;
         },
 
         /*
@@ -163,6 +164,7 @@ function (dojo, declare, domStyle, lang, attr) {
                     if (this.getActivePlayerId() != null) {
                         this.showCurrentPlayer(this.getActivePlayerId());
                     }
+                    this.playPreselectedCard();
                     break;
 
                 case 'bidding':
@@ -621,14 +623,8 @@ function (dojo, declare, domStyle, lang, attr) {
             if (items.length > 0) {
                 if (this.checkAction('playCard', true)) {
                     // Can play a card
-                    var card_id = items[0].id;
-                    this.ajaxcall("/ninetynine/ninetynine/playCard.html", {
-                        id: card_id,
-                        lock: true
-                    }, this, function(result) {}, function(is_error) {});
-
-                    this.playerHand.unselectAll();
-                } else if (this.checkAction('submitBid')) {
+                    this.playCard(items[0]);
+                } else if (this.checkAction('submitBid', true)) {
 
                     if (this.playerBid.getAllItems().length == 3) {
                         // Disallow adding more than three cards to the bid
@@ -651,9 +647,42 @@ function (dojo, declare, domStyle, lang, attr) {
                     this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
 
                 } else {
+                    // Just 'preselect' the selected card for play
+                    this.preselectCard(items[items.length - 1]);
                     this.playerHand.unselectAll();
                 }
             }
+        },
+
+        playCard: function(card) {
+            this.ajaxcall("/ninetynine/ninetynine/playCard.html", {
+                id: card.id,
+                lock: true
+            }, this, function(result) {}, function(is_error) {});
+
+            this.playerHand.unselectAll();
+        },
+
+        playPreselectedCard: function() {
+            if (this.preselectedCard != null) {
+                dojo.removeClass("myhand_item_" + this.preselectedCard.id, "bgann_preselect");
+                this.playCard(this.preselectedCard);
+            }
+            this.preselectedCard = null;
+        },
+
+        preselectCard: function(card) {
+            if (this.preselectedCard != null) {
+                dojo.removeClass("myhand_item_" + this.preselectedCard.id, "bgann_preselect");
+                if (this.preselectedCard.id == card.id) {
+                    this.preselectedCard = null;
+                    return;
+                }
+            }
+
+            this.preselectedCard = card;
+
+            dojo.addClass("myhand_item_" + card.id, "bgann_preselect");
         },
 
         onBidSelectionChanged: function() {

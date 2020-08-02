@@ -320,7 +320,11 @@
 
 /** Add hover effect to cards in hand or bid **/
 .bgann_cardhover > .stockitem:hover {
-    border: 2px red solid;
+    border: 1px red solid;
+}
+
+.bgann_preselect {
+    border: 1px black solid;
 }
 
 #mybid {
