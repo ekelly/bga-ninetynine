@@ -284,7 +284,8 @@ function (dojo, declare, domStyle, lang, attr) {
                 for (var rank = 2; rank <= 14; rank++) {
                     // Build card type id
                     var card_type_id = this.getCardUniqueId(color, rank);
-                    stock.addItemType(card_type_id, card_type_id, g_gamethemeurl+'img/cards.jpg', card_type_id);
+                    var card_weight = this.getCardWeight(color, rank);
+                    stock.addItemType(card_type_id, card_weight, g_gamethemeurl+'img/cards.jpg', card_type_id);
                 }
             }
             return stock;
@@ -436,6 +437,17 @@ function (dojo, declare, domStyle, lang, attr) {
         // Get card unique identifier based on its color and value
         getCardUniqueId: function(color, value) {
             return parseInt(color) * 13 + (parseInt(value) - 2);
+        },
+
+        // This is the order that cards are sorted
+        // Order of color: ["club", "diamond", "spade", "heart"] (passed to this function as an int)
+        getCardWeight: function(color, value) {
+            var heartsOrder = this.prefs[101].value == 2;
+            var adjustedColor = color;
+            if (!heartsOrder) {
+                adjustedColor = (color + 3) % 4;
+            }
+            return parseInt(adjustedColor) * 13 + (parseInt(value) - 2);
         },
 
         getCardSuit: function(suit) {

@@ -105,12 +105,20 @@ $game_options = array(
 
 $game_preferences = array(
     100 => array(
-			'name' => totranslate('Card hover effect'),
-			'needReload' => true, // after user changes this preference game interface would auto-reload
-			'values' => array(
-					1 => array('name' => totranslate('None')),
-					2 => array('name' => totranslate('Highlight'), 'cssPref' => 'bgann_card_highlight')
-			)
-	)
+			  'name' => totranslate('Card hover effect'),
+			  'needReload' => true, // after user changes this preference game interface would auto-reload
+			  'values' => array(
+            1 => array('name' => totranslate('None')),
+            2 => array('name' => totranslate('Highlight'), 'cssPref' => 'bgann_card_highlight')
+			  )
+    ),
+    101 => array(
+			  'name' => totranslate('Card sort order'),
+			  'needReload' => true, // after user changes this preference game interface would auto-reload
+			  'values' => array(
+            1 => array('name' => totranslate('Bid Value Order')),
+            2 => array('name' => totranslate('Hearts Order'))
+			  )
+  	)
 );
 
