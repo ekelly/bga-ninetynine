@@ -743,11 +743,11 @@ function (dojo, declare, domStyle, lang, attr) {
             this.showActivePlayer(notif.args.firstPlayer);
             if (notif.args.round_num) {
                 // if this game uses rounds
-                this.setnodeinvisible("round_name_container", false);
+                this.setNodeInvisible("round_name_container", false);
                 this.updateRoundNum(notif.args.round_num);
             } else if (notif.args.hand_num) {
                 // if this game uses hands
-                this.setnodeinvisible("round_name_container", false);
+                this.setNodeInvisible("round_name_container", false);
                 this.updateRoundNum(notif.args.hand_num);
             }
             this.showTrump(null);
