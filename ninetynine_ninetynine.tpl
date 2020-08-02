@@ -72,7 +72,7 @@
     </div>
 </div>
 
-<div class="whiteblock bgann_container">
+<div class="whiteblock bgann_container" id="my_hand_container">
     <div class="bgann_section" style="flex-grow: 1;">
         <div style="width: auto; display: flex">
             <h3 id="myhandlabel" class="to_translate">{MY_HAND_LABEL}</h3>

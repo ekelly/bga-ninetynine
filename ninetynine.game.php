@@ -1002,6 +1002,13 @@ class NinetyNine extends Table {
               'usesRounds' => $usesRounds,
               'trump' => $trump));
         }
+        self::notifyAllPlayers('newHandState', '', array(
+              'dealer' => $dealer,
+              'firstPlayer' => $firstPlayer,
+              'hand_num' => $handCount,
+              'usesRounds' => $usesRounds,
+              'trump' => $trump
+        ));
 
         $this->gamestate->nextState();
     }
@@ -1059,12 +1066,16 @@ class NinetyNine extends Table {
                     "bid" => $bid,
                     "declare" => $declaring,
                     "reveal" => $revealing
-                ),
-                "declareReveal" => $declareReveal,
-                "dealer" => $dealerId,
-                "firstPlayer" => $firstPlayer
+                )
             ));
         }
+
+        // Update everyone with current cards & visibility
+        self::notifyAllPlayers("biddingCompleteState", "", array(
+            "declareReveal" => $declareReveal,
+            "dealer" => $dealerId,
+            "firstPlayer" => $firstPlayer
+        ));
 
         $this->gamestate->changeActivePlayer($firstPlayer);
         $this->giveExtraTime($firstPlayer);

@@ -78,6 +78,12 @@ function (dojo, declare, domStyle, lang, attr) {
                 this.updateRoundNum(this.gamedatas.handNum);
             }
 
+            // Remove elements which spectators do not need
+            if (this.isSpectator) {
+                this.setNodeHidden("my_bid_container", true);
+                this.setNodeHidden("my_hand_container", true);
+            }
+
             // Player hand
             this.playerHand = this.setupCardStocks('myhand', 'onPlayerHandSelectionChanged');
 
@@ -718,6 +724,7 @@ function (dojo, declare, domStyle, lang, attr) {
         setupNotifications: function() {
             dojo.subscribe('newRound', this, "notif_newRound");
             dojo.subscribe('newHand', this, "notif_newHand");
+            dojo.subscribe('newHandState', this, "notif_newHandState");
             dojo.subscribe('playCard', this, "notif_playCard");
             dojo.subscribe('currentPlayer', this, "notif_currentPlayer");
             dojo.subscribe('trickWin', this, "notif_trickWin");
@@ -726,6 +733,7 @@ function (dojo, declare, domStyle, lang, attr) {
             dojo.subscribe('newScores', this, "notif_newScores");
             dojo.subscribe('bidCards', this, "notif_bidCards");
             dojo.subscribe('biddingComplete' , this, "notif_biddingComplete");
+            dojo.subscribe('biddingCompleteState' , this, "notif_biddingCompleteState");
         },
 
         // From this point and below, you can write your game notifications handling methods
@@ -746,11 +754,8 @@ function (dojo, declare, domStyle, lang, attr) {
             this.clearRoundScores();
         },
 
-        notif_newHand: function(notif) {
+        notif_newHandState: function(notif) {
             // We received a new full hand of 12 cards.
-            this.playerHand.removeAll();
-            this.playerBid.removeAll();
-            this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
             this.showDealer(notif.args.dealer);
             this.showActivePlayer(notif.args.firstPlayer);
             this.showTrump(notif.args.trump);
@@ -758,6 +763,13 @@ function (dojo, declare, domStyle, lang, attr) {
             if (!notif.args.usesRounds) {
                 this.updateRoundNum(notif.args.hand_num);
             }
+        },
+
+        notif_newHand: function(notif) {
+            // We received a new full hand of 12 cards.
+            this.playerHand.removeAll();
+            this.playerBid.removeAll();
+            this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
 
             for (var i in notif.args.cards) {
                 var card = notif.args.cards[i];
@@ -809,6 +821,10 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         notif_biddingComplete: function(notif) {
+            // This may not be a useful function
+        },
+
+        notif_biddingCompleteState: function(notif) {
             this.showActiveDeclareOrReveal(notif.args.declareReveal);
             this.informUsersPlayerDeclaredOrRevealed(notif.args.declareReveal);
         }
