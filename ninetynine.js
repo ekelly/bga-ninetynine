@@ -755,7 +755,7 @@ function (dojo, declare, domStyle, lang, attr) {
             this.showActivePlayer(notif.args.firstPlayer);
             this.showTrump(notif.args.trump);
 
-            if (notif.args.hand_num) {
+            if (!notif.args.usesRounds) {
                 this.updateRoundNum(notif.args.hand_num);
             }
 

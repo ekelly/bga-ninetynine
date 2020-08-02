@@ -990,6 +990,7 @@ class NinetyNine extends Table {
         $firstPlayer = $this->getPlayerAfter($dealer);
         $this->setCurrentPlayer($firstPlayer);
         $trump = $this->getCurrentHandTrump();
+        $usesRounds = $this->doesScoringVariantUseRounds();
         foreach ($players as $player_id => $player) {
             $cards = $this->cards->pickCards(12, 'deck', $player_id);
             // Notify player about his cards
@@ -998,6 +999,7 @@ class NinetyNine extends Table {
               'dealer' => $dealer,
               'firstPlayer' => $firstPlayer,
               'hand_num' => $handCount,
+              'usesRounds' => $usesRounds,
               'trump' => $trump));
         }
 
