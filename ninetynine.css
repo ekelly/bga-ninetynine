@@ -310,6 +310,33 @@
     font-size: 16px;
 }
 
+/*** for notifications ***/
+.bgann_icon {
+    background: no-repeat;
+    display: inline-block;
+    margin: 0px 2px;
+    vertical-align: text-bottom;
+    width: 16px;
+    height: 16px;
+    background-position: center;
+}
+
+.bgann_suit2 {
+    background-image: url("img/spade-icon.png");
+}
+
+.bgann_suit3 {
+    background-image: url("img/heart-icon.png");
+}
+
+.bgann_suit0 {
+    background-image: url("img/club-icon.png");
+}
+
+.bgann_suit1 {
+    background-image: url("img/diamond-icon.png");
+}
+
 /*** hand layout ***/
 
 #myhand {

@@ -927,12 +927,17 @@ class NinetyNine extends Table {
             'rank' => $currentCard['type_arg'],
             'rank_displayed' => $this->rank_label[$currentCard['type_arg']],
             'suit' => $currentCard['type'],
-            'suit_displayed' => $this->suits[$currentCard['type']]['name'],
+            'suit_displayed' => $this->formatSuitText($currentCard),
             'currentPlayer' => $this->getCurrentPlayer()
         ));
 
         // Next player
         $this->gamestate->nextState('playCard');
+    }
+
+    // format an html string, ready to display in a notif_
+    function formatSuitText($card) {
+        return '<span class="bgann_icon bgann_suit'.$card['type'] . '"></span>';
     }
 
 //////////////////////////////////////////////////////////////////////////////

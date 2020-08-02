@@ -23,16 +23,20 @@
 $this->suits = array(
     0 => array('name' => clienttranslate('club'),
                'pluralname' => clienttranslate('Clubs'),
-               'nametr' => self::_('club')),
+               'nametr' => self::_('club'),
+               'symbol' => clienttranslate('♣')),
     1 => array('name' => clienttranslate('diamond'),
                'pluralname' => clienttranslate('Diamonds'),
-               'nametr' => self::_('diamond')),
+               'nametr' => self::_('diamond'),
+               'symbol' => clienttranslate('♦')),
     2 => array('name' => clienttranslate('spade'),
                'pluralname' => clienttranslate('Spades'),
-               'nametr' => self::_('spade')),
+               'nametr' => self::_('spade'),
+               'symbol' => clienttranslate('♠')),
     3 => array('name' => clienttranslate('heart'),
                'pluralname' => clienttranslate('Hearts'),
-               'nametr' => self::_('heart'))
+               'nametr' => self::_('heart'),
+               'symbol' => clienttranslate('♥'))
 );
 
 $this->rank_label = array(
