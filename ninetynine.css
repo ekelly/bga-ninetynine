@@ -337,6 +337,22 @@
     background-image: url("img/diamond-icon.png");
 }
 
+.bgann_trump {
+    z-index: 0;
+}
+
+.bgann_trump::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: yellow;
+    opacity: 0.2;
+    z-index: -1;
+}
+
 /*** hand layout ***/
 
 #myhand {

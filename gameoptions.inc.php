@@ -119,6 +119,14 @@ $game_preferences = array(
             1 => array('name' => totranslate('Bid Value Order')),
             2 => array('name' => totranslate('Hearts Order'))
 			  )
+    ),
+    102 => array(
+			  'name' => totranslate('Highlight trump'),
+			  'needReload' => true, // after user changes this preference game interface would auto-reload
+			  'values' => array(
+            1 => array('name' => totranslate('No')),
+            2 => array('name' => totranslate('Yes'), 'cssPref' => 'bgann_highlight_trump')
+			  )
   	)
 );
 

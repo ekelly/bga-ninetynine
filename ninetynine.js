@@ -282,30 +282,43 @@ function (dojo, declare, domStyle, lang, attr) {
             }
         },
 
+        highlightTrump: function(enable, trumpSuit) {
+            if (this.prefs[102].value == 1) {
+                console.log("Not highlighting trump");
+                return;
+            }
+            var allCards = this.playerHand.getAllItems();
+            for (var i = 0; i < allCards.length; i++) {
+                var cardData = allCards[i];
+                var suit = this.getCardSuitNumFromId(cardData.type);
+                var divId = this.playerHand.getItemDivId(cardData.id);
+                if (enable && suit == trumpSuit) {
+                    dojo.addClass(divId, "bgann_trump");
+                } else {
+                    dojo.removeClass(divId, "bgann_trump");
+                }
+            }
+        },
+
         markCardsUnplayable: function(playableCards) {
             var playableCardArray = Object.entries(playableCards).map(entry => entry[1])
             var mappingFunction = this.getCardType.bind(this);
             var playableCardTypes = playableCardArray.map(mappingFunction);
-            console.log("Playable cards:");
-            console.log(playableCardTypes);
             var allCards = this.playerHand.getAllItems();
             for (var i = 0; i < allCards.length; i++) {
                 var cardData = allCards[i];
                 if (!playableCardTypes.includes(cardData.type)) {
                     var divId = this.playerHand.getItemDivId(cardData.id);
-                    console.log("Adding unplayable to card: " + divId);
                     dojo.addClass(divId, "bgann_unplayable");
                 }
             }
         },
 
         unmarkUnplayableCards: function() {
-            console.log("Unmarking unplayable cards");
             var allCards = this.playerHand.getAllItems();
             for (var i = 0; i < allCards.length; i++) {
                 var cardData = allCards[i];
                 var divId = this.playerHand.getItemDivId(cardData.id);
-                console.log("Removing unplayable class from " + divId);
                 dojo.removeClass(divId, "bgann_unplayable");
             }
         },
@@ -364,16 +377,22 @@ function (dojo, declare, domStyle, lang, attr) {
                 dojo.query("#trumpSuit").removeClass("bgann_trump_black");
                 dojo.query("#trumpSuit").removeClass("bgann_trump_none");
                 dojo.addClass(trumpSuitSpan, redSuit ? "bgann_trump_red" : "bgann_trump_black")
+                this.highlightTrump(true, trumpSuit);
             } else {
                 trumpSuitSpan.textContent = _("None");
                 dojo.query("#trumpSuit").removeClass("bgann_trump_red");
                 dojo.query("#trumpSuit").removeClass("bgann_trump_black");
                 dojo.addClass(trumpSuitSpan, "bgann_trump_none")
+                this.highlightTrump(false);
             }
         },
 
         getCardSuitFromId: function(card_id) {
             return ["club", "diamond", "spade", "heart"][Math.floor(card_id / 13)];
+        },
+
+        getCardSuitNumFromId: function(card_id) {
+            return Math.floor(card_id / 13);
         },
 
         getCardRankFromId: function(card_id) {
