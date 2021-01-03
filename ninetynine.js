@@ -41,7 +41,6 @@ function (dojo, declare, domStyle, lang, attr) {
             this.playerHand = null;
             this.cardwidth = 72;
             this.cardheight = 96;
-            this.preselectedCard = null;
         },
 
         /*
@@ -168,7 +167,8 @@ function (dojo, declare, domStyle, lang, attr) {
                     if (this.getActivePlayerId() != null) {
                         this.showCurrentPlayer(this.getActivePlayerId());
                     }
-                    this.playPreselectedCard();
+                    // TODO: This is probably the place where we want to
+                    // automatically play the card, as opposed to notif_yourTurn
                     break;
 
                 case 'bidding':
@@ -704,11 +704,6 @@ function (dojo, declare, domStyle, lang, attr) {
                     this.playerHand.unselectAll();
 
                     this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
-
-                } else {
-                    // Just 'preselect' the selected card for play
-                    this.preselectCard(items[items.length - 1]);
-                    this.playerHand.unselectAll();
                 }
             }
         },
@@ -720,28 +715,6 @@ function (dojo, declare, domStyle, lang, attr) {
             }, this, function(result) {}, function(is_error) {});
 
             this.playerHand.unselectAll();
-        },
-
-        playPreselectedCard: function() {
-            if (this.preselectedCard != null) {
-                dojo.removeClass("myhand_item_" + this.preselectedCard.id, "bgann_preselect");
-                this.playCard(this.preselectedCard);
-            }
-            this.preselectedCard = null;
-        },
-
-        preselectCard: function(card) {
-            if (this.preselectedCard != null) {
-                dojo.removeClass("myhand_item_" + this.preselectedCard.id, "bgann_preselect");
-                if (this.preselectedCard.id == card.id) {
-                    this.preselectedCard = null;
-                    return;
-                }
-            }
-
-            this.preselectedCard = card;
-
-            dojo.addClass("myhand_item_" + card.id, "bgann_preselect");
         },
 
         onBidSelectionChanged: function() {
