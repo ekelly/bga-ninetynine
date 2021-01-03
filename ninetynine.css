@@ -172,12 +172,6 @@
     font-weight: bold;
 }
 
-#my_bid_container{
-    position: absolute;
-    right: 0%;
-    bottom: 25.4%;
-}
-
 .bgann_dealerindicator {
     color: black;
 }
@@ -337,11 +331,11 @@
     background-image: url("img/diamond-icon.png");
 }
 
-.bgann_trump {
+.bgann_highlight_trump .bgann_trump {
     z-index: 0;
 }
 
-.bgann_trump::after {
+.bgann_highlight_trump .bgann_trump::after {
     content: '';
     position: absolute;
     top: 0;
@@ -355,24 +349,27 @@
 
 /*** hand layout ***/
 
+.my_cards {
+    display: flex;
+    flex-direction: row;
+}
+
+#my_hand_container {
+    display: flex;
+    min-width: fit-content;
+    flex-grow: 1;
+}
+
 #myhand {
     position: relative;
     display: inline-block;
     width: 100%;
 }
 
-/** Add hover effect to cards in hand or bid **/
-.bgann_cardhover > .stockitem:hover:not(.bgann_unplayable) {
-    top: -16px !important;
-}
-
-.stockitem.bgann_unplayable {
-    filter: brightness(.8);
-}
-
-.stockitem_selected {
-    top: -16px !important;
-    border: 0px !important;
+#my_bid_container {
+    min-width: 240px;
+    height: 130px;
+    margin-left: 10px;
 }
 
 #mybid {
@@ -381,9 +378,18 @@
     width: 100%;
 }
 
-.bgann_bid_container {
-    min-width: 240px;
-    height: 130px;
+/** Add hover effect to cards in hand or bid **/
+.notouch-device .bgann_cardhover .stockitem:hover:not(.bgann_unplayable) {
+    margin-top: -16px !important;
+}
+
+.bgann_card_highlight .stockitem.bgann_unplayable {
+    filter: brightness(.8);
+}
+
+.stockitem_selected {
+    margin-top: -16px !important;
+    border: 0px !important;
 }
 
 #bids {

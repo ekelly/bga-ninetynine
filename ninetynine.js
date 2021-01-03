@@ -59,6 +59,8 @@ function (dojo, declare, domStyle, lang, attr) {
         setup: function(gamedatas) {
             dojo.destroy('debug_output');
 
+            window.keleric = this;
+
             // Setting up player boards
             if (this.gamedatas.usesRounds) {
                 for (var player_id in gamedatas.players) {
@@ -121,6 +123,9 @@ function (dojo, declare, domStyle, lang, attr) {
 
             // Cards in the player's bid
             this.addCardsToStock(this.playerBid, this.gamedatas.bid.cards);
+            if (Object.entries(this.gamedatas.bid.cards).length == 3) {
+                this.setNodeHidden("my_bid_container", false);
+            }
             this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
             this.showActiveDeclareOrReveal(this.gamedatas.declareReveal);
 
@@ -752,6 +757,7 @@ function (dojo, declare, domStyle, lang, attr) {
                 }
 
                 // Move those items to the bid
+                this.setNodeHidden("my_bid_container", false);
                 var that = this;
                 items.forEach(function(item) {
                     var divId = that.playerHand.getItemDivId(item.id);
@@ -842,6 +848,7 @@ function (dojo, declare, domStyle, lang, attr) {
             this.playerHand.removeAll();
             this.playerBid.removeAll();
             this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
+            this.setNodeHidden("my_bid_container", true);
 
             for (var i in notif.args.cards) {
                 var card = notif.args.cards[i];

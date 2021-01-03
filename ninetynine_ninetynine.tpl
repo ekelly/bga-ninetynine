@@ -72,24 +72,26 @@
     </div>
 </div>
 
-<div class="whiteblock bgann_container" id="my_hand_container">
-    <div class="bgann_section" style="flex-grow: 1;">
-        <div style="width: auto; display: flex">
-            <h3 id="myhandlabel" class="">{MY_HAND_LABEL}</h3>
-            <h3 id="reveal_label" class="bgann_hidden" style="margin-left: 5px;color: red;">({REVEALED_LABEL})</h3>
+<div class="my_cards">
+    <div class="whiteblock bgann_container" id="my_hand_container">
+        <div class="bgann_section" style="flex-grow: 1;">
+            <div style="width: auto; display: flex">
+                <h3 id="myhandlabel" class="">{MY_HAND_LABEL}</h3>
+                <h3 id="reveal_label" class="bgann_hidden" style="margin-left: 5px;color: red;">({REVEALED_LABEL})</h3>
+            </div>
+            <div id="myhand"></div>
         </div>
-        <div id="myhand"></div>
     </div>
-</div>
-<div id="my_bid_container" class="bgann_section whiteblock bgann_bid_container">
-    <h3>
-        <span class="" style="display: inline-block;">{MY_BID_LABEL}</span>
-        <span id="bidValue"></span>
-        <span class="bgann_tricks bgann_hidden"> / {TRICKS_WON_LABEL}</span>
-        <span id="myTricksWon" class="bgann_tricks bgann_hidden"></span>
-        <span id="declare_label" class="bgann_hidden" style="margin-left: 5px;color: red;">({DECLARED_LABEL})</span>
-    </h3>
-    <div id="mybid"></div>
+    <div id="my_bid_container" class="bgann_section whiteblock bgann_bid_container bgann_hidden">
+        <h3>
+            <span class="" style="display: inline-block;">{MY_BID_LABEL}</span>
+            <span id="bidValue"></span>
+            <span class="bgann_tricks bgann_hidden"> / {TRICKS_WON_LABEL}</span>
+            <span id="myTricksWon" class="bgann_tricks bgann_hidden"></span>
+            <span id="declare_label" class="bgann_hidden" style="margin-left: 5px;color: red;">({DECLARED_LABEL})</span>
+        </h3>
+        <div id="mybid"></div>
+    </div>
 </div>
 
 
