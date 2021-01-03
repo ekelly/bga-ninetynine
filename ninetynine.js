@@ -98,7 +98,7 @@ function (dojo, declare, domStyle, lang, attr) {
             this.markCardsUnplayable(this.gamedatas.playableCards);
 
             // Player bid
-            this.playerBid = this.setupCardStocks('mybid', 'onBidSelectionChanged');
+            this.playerBid = this.setupCardStocks('mybid');
             // The selection mode should start as 0 and only become
             // selectable during bidding
             this.playerBid.setSelectionMode(0);
@@ -109,9 +109,6 @@ function (dojo, declare, domStyle, lang, attr) {
             // Revealed Hand
             this.revealedHand = this.setupCardStocks('revealedHand');
             this.revealedHand.setOverlap(20, 0);
-
-            console.log("Playable cards");
-            console.log(this.gamedatas.playableCards);
 
             // Cards played on table
             for (i in this.gamedatas.cardsontable) {
@@ -166,9 +163,8 @@ function (dojo, declare, domStyle, lang, attr) {
             switch (stateName) {
                 case 'playerTurn':
                     this.addTooltip('myhand', _('Cards in my hand'), _('Play a card'));
-                    this.playerHand.setSelectionMode(1);
+                    this.playerHand.setSelectionMode(2);
                     this.addHoverEffectToCards("myhand", true);
-                    this.addHoverEffectToCards("mybid", false);
                     this.displayTricksWon();
                     if (this.getActivePlayerId() != null) {
                         this.showCurrentPlayer(this.getActivePlayerId());
@@ -178,12 +174,10 @@ function (dojo, declare, domStyle, lang, attr) {
                     break;
 
                 case 'bidding':
-                    this.playerBid.setSelectionMode(1);
                     this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
                     this.clearTricksWon();
                     this.clearActiveDeclareOrReveal();
                     this.addHoverEffectToCards("myhand", true);
-                    this.addHoverEffectToCards("mybid", true);
                     this.addTooltipsToEachCard(this.playerHand, _('Add to bid'));
                     break;
             }
@@ -199,8 +193,6 @@ function (dojo, declare, domStyle, lang, attr) {
                     this.clearTooltipsFromCards(this.playerHand);
                     this.clearTooltipsFromCards(this.playerBid);
                     this.addHoverEffectToCards("myhand", false);
-                    this.addHoverEffectToCards("mybid", false);
-                    this.playerBid.setSelectionMode(0);
                     this.clearTricksWon();
                     this.displayTricksWon();
                     this.playerHand.setSelectionMode(1);
@@ -334,8 +326,8 @@ function (dojo, declare, domStyle, lang, attr) {
             stock.create(this, $(id), this.cardwidth, this.cardheight);
             stock.image_items_per_row = 13;
             if (selectionChangeFunctionName != undefined && selectionChangeFunctionName.length > 0) {
-                stock.setSelectionMode(1);
-                stock.setSelectionAppearance('disappear');
+                stock.setSelectionMode(2);
+                stock.setSelectionAppearance('class');
                 dojo.connect(stock, 'onChangeSelection', this, selectionChangeFunctionName);
             } else {
                 stock.setSelectionMode(0);
@@ -410,8 +402,11 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         updateCurrentBidFromBidStock: function(bidStock, divId) {
+            this.updateCurrentBidFromCards(bidStock.getAllItems(), divId);
+        },
+
+        updateCurrentBidFromCards: function(cardList, divId) {
             var bid = 0;
-            var cardList = bidStock.getAllItems();
             for (var x = 0; x < cardList.length; x++) {
                 var card = cardList[x];
                 var id = card.type;
@@ -690,25 +685,28 @@ function (dojo, declare, domStyle, lang, attr) {
                     this.playCard(items[0]);
                 } else if (this.checkAction('submitBid', true)) {
 
-                    if (this.playerBid.getAllItems().length == 3) {
+                    var that = this;
+                    if (items.length > 3) {
                         // Disallow adding more than three cards to the bid
-                        this.playerHand.unselectAll();
+                        var excessiveItems = items.slice(3);
+                        excessiveItems.forEach(function(item) {
+                            console.log("Unselecting:" + item.id);
+                            that.playerHand.unselectItem(item.id);
+                        });
                         return;
                     }
 
-                    var divId = this.playerHand.getItemDivId(items[0].id);
+                    // Add the proper tooltips
+                    items.forEach(function(item) {
+                        that.clearTooltipFromCard(that.playerHand, item);
+                        that.addTooltipToCard(that.playerHand, item, _('Remove from bid'));
+                    });
+                    this.playerHand.getUnselectedItems().forEach(function(item) {
+                        that.clearTooltipFromCard(that.playerHand, item);
+                        that.addTooltipToCard(that.playerHand, item, _('Add to bid'));
+                    })
 
-                    // Remove that card from the hand and add it to the bid
-                    this.playerBid.addToStockWithId(items[0].type, items[0].id, divId);
-                    this.playerHand.removeFromStockById(items[0].id);
-
-                    this.clearTooltipFromCard(this.playerHand, items[0]);
-
-                    this.addTooltipToCard(this.playerBid, items[0], _('Remove from bid'));
-
-                    this.playerHand.unselectAll();
-
-                    this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
+                    this.updateCurrentBidFromCards(items, "bidValue");
                 }
             }
         },
@@ -723,24 +721,6 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         onBidSelectionChanged: function() {
-            if (!this.checkAction('submitBid')) {
-                this.playerBid.unselectAll();
-                return;
-            }
-            var items = this.playerBid.getSelectedItems();
-            var divId = this.playerBid.getItemDivId(items[0].id);
-
-            // Remove that card from the bid and return it to the hand
-            this.playerHand.addToStockWithId(items[0].type, items[0].id, divId);
-            this.playerBid.removeFromStockById(items[0].id);
-
-            this.clearTooltipFromCard(this.playerBid, items[0]);
-
-            this.addTooltipToCard(this.playerHand, items[0], _('Add to bid'));
-
-            this.playerBid.unselectAll();
-
-            this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
         },
 
         onNoDeclare: function() {
@@ -764,12 +744,24 @@ function (dojo, declare, domStyle, lang, attr) {
         // decrev should be 0 = none, 1 = declare, 2 = reveal
         submitBid: function(decrev) {
             if (this.checkAction('submitBid')) {
-                var items = this.playerBid.getAllItems();
+                var items = this.playerHand.getSelectedItems();
 
                 if (items.length != 3) {
                     this.showMessage(_("You must select exactly 3 cards"), 'error');
                     return;
                 }
+
+                // Move those items to the bid
+                var that = this;
+                items.forEach(function(item) {
+                    var divId = that.playerHand.getItemDivId(item.id);
+                    that.playerBid.addToStockWithId(item.type, item.id, divId);
+                    that.playerHand.removeFromStockById(item.id);
+                    that.clearTooltipFromCard(that.playerHand, item);
+                    that.addTooltipToCard(that.playerBid, items[0], _('Remove from bid'));
+                });
+                this.playerHand.unselectAll();
+                this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
 
                 // Give these 3 cards
                 var to_give = '';
