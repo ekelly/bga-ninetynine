@@ -918,6 +918,13 @@ function (dojo, declare, domStyle, lang, attr) {
             console.log("Playable cards");
             console.log(notif.args.playableCards);
             this.markCardsUnplayable(notif.args.playableCards);
+            var playableCardArray = Object.entries(notif.args.playableCards).map(entry => entry[1])
+            if (playableCardArray.length == 1) {
+                var that = this;
+                setTimeout(function() {
+                    that.playCard(playableCardArray[0]);
+                }, 500);
+            }
         }
    });
 });

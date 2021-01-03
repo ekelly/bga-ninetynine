@@ -346,8 +346,8 @@
 }
 
 /** Add hover effect to cards in hand or bid **/
-.bgann_cardhover > .stockitem:hover {
-    border: 1px red solid;
+.bgann_cardhover > .stockitem:hover:not(.bgann_unplayable) {
+    top: -10px !important;
 }
 
 .stockitem.bgann_unplayable {
