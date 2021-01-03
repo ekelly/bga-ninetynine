@@ -87,6 +87,10 @@ function (dojo, declare, domStyle, lang, attr) {
 
             // Player hand
             this.playerHand = this.setupCardStocks('myhand', 'onPlayerHandSelectionChanged');
+            // Cards in player's hand
+            this.addCardsToStock(this.playerHand, this.gamedatas.hand);
+            this.unmarkUnplayableCards();
+            this.markCardsUnplayable(this.gamedatas.playableCards);
 
             // Player bid
             this.playerBid = this.setupCardStocks('mybid', 'onBidSelectionChanged');
@@ -101,8 +105,8 @@ function (dojo, declare, domStyle, lang, attr) {
             this.revealedHand = this.setupCardStocks('revealedHand');
             this.revealedHand.setOverlap(20, 0);
 
-            // Cards in player's hand
-            this.addCardsToStock(this.playerHand, this.gamedatas.hand);
+            console.log("Playable cards");
+            console.log(this.gamedatas.playableCards);
 
             // Cards played on table
             for (i in this.gamedatas.cardsontable) {
@@ -223,6 +227,12 @@ function (dojo, declare, domStyle, lang, attr) {
 
         */
 
+        getCardType: function(serverCard) {
+            var color = serverCard.type;
+            var rank = serverCard.type_arg;
+            return this.getCardUniqueId(color, rank);
+        },
+
         addCardsToStock: function(stock, cards) {
             for (var i in cards) {
                 var card = cards[i];
@@ -230,7 +240,9 @@ function (dojo, declare, domStyle, lang, attr) {
                 var rank = card.type_arg;
                 // card.id is the SERVER's id of the card
                 // getCardUniqueId is the ID composed of the rank and suit
-                stock.addToStockWithId(this.getCardUniqueId(color, rank), card.id);
+
+                // addToStockWithId(type, id)
+                stock.addToStockWithId(this.getCardType(card), card.id);
             }
         },
 
@@ -267,6 +279,34 @@ function (dojo, declare, domStyle, lang, attr) {
                 dojo.addClass(containingId, "bgann_cardhover");
             } else {
                 dojo.removeClass(containingId, "bgann_cardhover");
+            }
+        },
+
+        markCardsUnplayable: function(playableCards) {
+            var playableCardArray = Object.entries(playableCards).map(entry => entry[1])
+            var mappingFunction = this.getCardType.bind(this);
+            var playableCardTypes = playableCardArray.map(mappingFunction);
+            console.log("Playable cards:");
+            console.log(playableCardTypes);
+            var allCards = this.playerHand.getAllItems();
+            for (var i = 0; i < allCards.length; i++) {
+                var cardData = allCards[i];
+                if (!playableCardTypes.includes(cardData.type)) {
+                    var divId = this.playerHand.getItemDivId(cardData.id);
+                    console.log("Adding unplayable to card: " + divId);
+                    dojo.addClass(divId, "bgann_unplayable");
+                }
+            }
+        },
+
+        unmarkUnplayableCards: function() {
+            console.log("Unmarking unplayable cards");
+            var allCards = this.playerHand.getAllItems();
+            for (var i = 0; i < allCards.length; i++) {
+                var cardData = allCards[i];
+                var divId = this.playerHand.getItemDivId(cardData.id);
+                console.log("Removing unplayable class from " + divId);
+                dojo.removeClass(divId, "bgann_unplayable");
             }
         },
 
@@ -775,6 +815,8 @@ function (dojo, declare, domStyle, lang, attr) {
             dojo.subscribe('bidCards', this, "notif_bidCards");
             dojo.subscribe('biddingComplete' , this, "notif_biddingComplete");
             dojo.subscribe('biddingCompleteState' , this, "notif_biddingCompleteState");
+
+            dojo.subscribe('yourTurn' , this, "notif_yourTurn");
         },
 
         // From this point and below, you can write your game notifications handling methods
@@ -825,10 +867,12 @@ function (dojo, declare, domStyle, lang, attr) {
             // Play a card on the table
             this.playCardOnTable(notif.args.player_id, notif.args.suit,
                                  notif.args.rank, notif.args.card_id);
+            this.unmarkUnplayableCards();
         },
 
         notif_currentPlayer: function(notif) {
             this.showActivePlayer(notif.args.currentPlayer);
+            this.unmarkUnplayableCards();
         },
 
         notif_trickWin: function(notif) {
@@ -868,6 +912,12 @@ function (dojo, declare, domStyle, lang, attr) {
         notif_biddingCompleteState: function(notif) {
             this.showActiveDeclareOrReveal(notif.args.declareReveal);
             this.informUsersPlayerDeclaredOrRevealed(notif.args.declareReveal);
+        },
+
+        notif_yourTurn: function(notif) {
+            console.log("Playable cards");
+            console.log(notif.args.playableCards);
+            this.markCardsUnplayable(notif.args.playableCards);
         }
    });
 });

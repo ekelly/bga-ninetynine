@@ -350,6 +350,10 @@
     border: 1px red solid;
 }
 
+.stockitem.bgann_unplayable {
+    filter: brightness(.8);
+}
+
 .bgann_preselect {
     border: 1px black solid;
 }

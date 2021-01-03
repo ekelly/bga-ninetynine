@@ -80,7 +80,7 @@ class NinetyNine extends Table {
         self::setGameStateInitialValue("handCount", 0);
 
         // Initialize dealer and first player
-        $this->setupDealer();
+        $this->setupDealer($players);
 
         // Init game statistics
         $this->initializeStatistics();
@@ -118,7 +118,7 @@ class NinetyNine extends Table {
         self::setGameStateValue("playerCount", count($players));
     }
 
-    function setupDealer() {
+    function setupDealer($players) {
         $dealer = array_keys($players)[0];
         $firstPlayer = self::getPlayerAfter($dealer);
 
@@ -198,6 +198,7 @@ class NinetyNine extends Table {
 
         // Cards in player hand
         $result['hand'] = $this->cards->getPlayerHand($player_id);
+        $result['playableCards'] = $this->getPlayableCards($player_id);
 
         // Cards played on the table
         $result['cardsontable'] = $this->cards->getCardsInLocation('cardsontable');
@@ -341,7 +342,7 @@ class NinetyNine extends Table {
     // Rotates the dealer
     function rotateDealer() {
         $dealer = $this->getPlayerAfter($this->getDealer());
-        $this->setDealer("currentDealer", $dealer);
+        $this->setDealer($dealer);
     }
 
     // Gets the current player whose turn it is to play a card
@@ -361,7 +362,7 @@ class NinetyNine extends Table {
 
     // Set the number of players who correctly bid the number of tricks they won
     function setHandWinnerCount($winnerCountOfPreviousHand) {
-        $this->validatePlayerNum($prevWinnerCount);
+        $this->validatePlayerNum($winnerCountOfPreviousHand);
         self::setGameStateValue("previousHandWinnerCount", $winnerCountOfPreviousHand);
     }
 
@@ -811,6 +812,24 @@ class NinetyNine extends Table {
         }
     }
 
+    // Return the list of valid playable cards in the given player's hand
+    function getPlayableCards($playerId) {
+        $cardsInHand = $this->cards->getPlayerHand($playerId);
+        $currentTrickSuit = $this->getFirstPlayedSuit();
+        if ($currentTrickSuit == null) {
+            // All cards in the hand are valid to play
+            return $cardsInHand;
+        }
+        // If we have cards in our hand of the led suit, return those
+        $cardsOfLedSuit = array_filter($cardsInHand, function ($card) use ($currentTrickSuit) {
+            return $card['type'] == $currentTrickSuit;
+        });
+        if (count($cardsOfLedSuit) == 0) {
+            return $cardsInHand;
+        }
+        return $cardsOfLedSuit;
+    }
+
     // Return players => direction (N/S/E/W) from the point of view
     //  of current player (current player must be on south)
     function getPlayersToDirection() {
@@ -890,10 +909,6 @@ class NinetyNine extends Table {
         $this->declareOrReveal($decrev);
 
         $this->gamestate->setPlayerNonMultiactive($player_id, "biddingDone");
-    }
-
-    function showScores($scores) {
-        // TODO: Show the scores
     }
 
     function declareOrReveal($declareOrReveal) {
@@ -1205,6 +1220,7 @@ class NinetyNine extends Table {
                 // End of the hand
                 $this->gamestate->nextState("endHand");
             } else {
+                $this->informNextTurn($winningPlayer);
                 // End of the trick
                 $this->gamestate->nextState("nextTrick");
             }
@@ -1218,7 +1234,16 @@ class NinetyNine extends Table {
             ));
             self::giveExtraTime($player_id);
             $this->gamestate->nextState('nextPlayer');
+            $this->informNextTurn($player_id);
         }
+    }
+
+    function informNextTurn($player_id) {
+        // Notify the current player that it is their turn, and let them know
+        // which cards are valid to play
+        self::notifyPlayer($player_id, "yourTurn", "", array(
+            'playableCards' => $this->getPlayableCards($player_id)
+        ));
     }
 
     function stEndHand() {
@@ -1534,7 +1559,7 @@ class NinetyNine extends Table {
         }
         $result['bid'] = array();
         foreach ($bid as $playerId => $playerBid) {
-            $result['bid'][$playerId] = $playerBid;
+            $result['bid'][$playerId] = intval($playerBid);
         }
         $madeBid = array();
         $result['tricks'] = array();
@@ -1891,34 +1916,10 @@ class NinetyNine extends Table {
             $this->gamestate->setPlayerNonMultiactive($activePlayer, "biddingDone");
         } else if ($statename == 'playerTurn') {
             // Play a card
-            $cardId = null;
-            $playerHand = $this->cards->getPlayerHand($activePlayer);
-
-            $firstPlayedSuit = $this->getFirstPlayedSuit();
-            if ($firstPlayedSuit == null) {
-                // Great - any card will do
-                foreach ($playerHand as $card) {
-                    $cardId = $card['id'];
-                    break;
-                }
-            } else {
-                // Check if there are any cards that match
-                // firstPlayedSuit in zombie player's hand
-                foreach ($playerHand as $card) {
-                    if ($card['type'] == $firstPlayedSuit) {
-                        $cardId = $card['id'];
-                        break;
-                    }
-                }
-
-                if ($cardId == null) {
-                    // If we can't follow suit, any card will do
-                    foreach ($playerHand as $card) {
-                        $cardId = $card['id'];
-                        break;
-                    }
-                }
-            }
+            $playableCards = $this->getPlayableCards($activePlayer);
+            $randomCard = bga_rand(0, count($playableCards) - 1);
+            $keys = array_keys($playableCards);
+            $cardId = $playableCards[$keys[$randomCard]]['id'];
 
             $this->playCardFromPlayer($cardId, $activePlayer);
         }

@@ -56,13 +56,6 @@ class action_ninetynine extends APP_GameAction {
         self::ajaxResponse();
     }
 
-    public function showScores() {
-        self::setAjaxMode();
-        $gamestate = self::getArg("gamestate", AT_base64, true);
-        $this->game->showScores(base64url_decode($gamestate));
-        self::ajaxResponse();
-    }
-
     private function base64url_decode($data) {
         return base64_decode(str_replace(array('-', '_'), array('+', '/'), $data));
     }
