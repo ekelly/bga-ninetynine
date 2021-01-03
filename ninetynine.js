@@ -41,6 +41,7 @@ function (dojo, declare, domStyle, lang, attr) {
             this.playerHand = null;
             this.cardwidth = 72;
             this.cardheight = 96;
+            this.roundScoreCtrl = {};
         },
 
         /*
@@ -66,6 +67,11 @@ function (dojo, declare, domStyle, lang, attr) {
                     // Setting up players boards if needed
                     var player_score_div = $('player_board_'+player_id);
                     dojo.place(this.format_block('jstpl_player_round_score', player), player_score_div);
+
+                    var targetId = "player_round_score_" + player_id;
+                    var counter = new ebg.counter();
+                    counter.create(targetId);
+                    this.roundScoreCtrl[player_id] = counter;
                 }
                 this.addTooltipToClass("bgann_round_score", _("Round Score"), '');
 
@@ -476,9 +482,8 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         updateRoundScore: function(playerId, playerRoundScore) {
-            var roundScoreSpan = dojo.byId("player_round_score_" + playerId);
-            if (roundScoreSpan) {
-                roundScoreSpan.textContent = playerRoundScore;
+            if (this.roundScoreCtrl[playerId]) {
+                this.roundScoreCtrl[playerId].toValue(playerRoundScore);
             }
         },
 
