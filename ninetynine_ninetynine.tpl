@@ -47,10 +47,10 @@
                 </div>
                 <div class="bgann_playertablecard" id="playertablecard_{PLAYER_ID}">
                 </div>
-                <span class="bgann_tricks bgann_hidden bgann_playertable_tricks" id="trick_info_{PLAYER_ID}">
-                    <span class="bgann_tricks">Tricks taken: </span>
-                    <span id="tricks_{PLAYER_ID}" class="bgann_tricks">0</span>
-                    <span class="bgann_bid bgann_bid_{PLAYER_ID}"> / </span>
+                <span class="bgann_hidden bgann_playertable_tricks" id="trick_info_{PLAYER_ID}">
+                    <span class="">Tricks taken: </span>
+                    <span id="tricks_{PLAYER_ID}">0</span>
+                    <span class="bgann_bid"> / </span>
                     <span id="bid_{PLAYER_ID}" class="bgann_bid bgann_bid_value">?</span>
                 </span>
             </div>

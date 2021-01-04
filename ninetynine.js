@@ -86,6 +86,8 @@ function (dojo, declare, domStyle, lang, attr) {
                 this.updateRoundNum(this.gamedatas.handNum);
             }
 
+            this.clearTricksWon();
+
             // Remove elements which spectators do not need
             if (this.isSpectator) {
                 this.setNodeHidden("my_bid_container", true);
@@ -101,9 +103,6 @@ function (dojo, declare, domStyle, lang, attr) {
 
             // Player bid
             this.playerBid = this.setupCardStocks('mybid');
-            // The selection mode should start as 0 and only become
-            // selectable during bidding
-            this.playerBid.setSelectionMode(0);
 
             // Declared Bid
             this.declaredBid = this.setupCardStocks('declaredBid');
@@ -126,7 +125,7 @@ function (dojo, declare, domStyle, lang, attr) {
             if (Object.entries(this.gamedatas.bid.cards).length == 3) {
                 this.setNodeHidden("my_bid_container", false);
             }
-            this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
+            this.updateSelfBid();
             this.showActiveDeclareOrReveal(this.gamedatas.declareReveal);
 
             // Current dealer
@@ -170,7 +169,7 @@ function (dojo, declare, domStyle, lang, attr) {
                     this.addTooltip('myhand', _('Cards in my hand'), _('Play a card'));
                     this.playerHand.setSelectionMode(2);
                     this.addHoverEffectToCards("myhand", true);
-                    this.displayTricksWon();
+                    this.showTrickLabels();
                     if (this.getActivePlayerId() != null) {
                         this.showCurrentPlayer(this.getActivePlayerId());
                     }
@@ -179,9 +178,11 @@ function (dojo, declare, domStyle, lang, attr) {
                     break;
 
                 case 'bidding':
-                    this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
-                    this.clearTricksWon();
+                    this.updateSelfBid();
+                    // This also clears tricks won
                     this.clearActiveDeclareOrReveal();
+                    // It looks nicer if we use ? instead of 0
+                    dojo.byId("tricks_" + this.player_id).textContent = "?";
                     this.addHoverEffectToCards("myhand", true);
                     this.addTooltipsToEachCard(this.playerHand, _('Add to bid'));
                     break;
@@ -198,8 +199,7 @@ function (dojo, declare, domStyle, lang, attr) {
                     this.clearTooltipsFromCards(this.playerHand);
                     this.clearTooltipsFromCards(this.playerBid);
                     this.addHoverEffectToCards("myhand", false);
-                    this.clearTricksWon();
-                    this.displayTricksWon();
+                    this.showTrickLabels();
                     this.playerHand.setSelectionMode(1);
                     break;
             }
@@ -422,6 +422,18 @@ function (dojo, declare, domStyle, lang, attr) {
             return {club: 3, diamond: 0, spade: 1, heart: 2}[suit];
         },
 
+        updateSelfBid: function() {
+            var cards = null;
+            if (this.checkAction('submitBid', true)) {
+                // If we still need to submit our bid
+                cards = this.playerHand.getSelectedItems();
+            } else {
+                cards = this.playerBid.getAllItems();
+            }
+            this.updateCurrentBidFromCards(cards, "bidValue");
+            this.updateCurrentBidFromCards(cards, "bid_" + this.player_id);
+        },
+
         updateCurrentBidFromBidStock: function(bidStock, divId) {
             this.updateCurrentBidFromCards(bidStock.getAllItems(), divId);
         },
@@ -433,6 +445,9 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         getBidValueFromCards: function(cardList) {
+            if (cardList.length == 0) {
+                return "?";
+            }
             var bid = 0;
             for (var x = 0; x < cardList.length; x++) {
                 var card = cardList[x];
@@ -458,6 +473,7 @@ function (dojo, declare, domStyle, lang, attr) {
 
         showTrickLabels: function(playerId, bidValue, reveal) {
             dojo.query(".bgann_tricks").removeClass("bgann_hidden");
+            dojo.query(".bgann_playertable_tricks").removeClass("bgann_hidden");
             if (playerId) {
                 this.updateValueInNode("bid_" + playerId, bidValue);
                 dojo.addClass("trick_info_" + playerId, "bgann_declare");
@@ -468,16 +484,34 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         resetTrickLabels: function() {
-            dojo.query(".bgann_tricks").removeClass("bgann_declare bgann_reveal");
-            dojo.query(".bgann_tricks").forEach(function(node) {
+            console.log("Resetting trick labels");
+            // No labels should be declared or revealed
+            dojo.query(".bgann_playertable_tricks").removeClass("bgann_declare bgann_reveal");
+
+            // Make sure our tricks are visible
+            this.setNodeHidden("trick_info_" + this.player_id, false);
+
+            // Other players should be hidden
+            var queryStr = ":not(#trick_info_" + this.player_id + ").bgann_playertable_tricks";
+            dojo.query(queryStr).forEach(function(node) {
                 node.classList.add("bgann_hidden");
             });
+
+            // All bids should be reset to ?
             dojo.query(".bgann_bid_value").forEach(function(node) {
                 node.innerHTML = "?";
             });
+
+            // Our own label should be shown, but reset the values
+            dojo.byId("bid_" + this.player_id).textContent = "?";
         },
 
         updateCurrentTricksWon: function(playerId, tricksWon, declaringPlayerTricks) {
+            if (this.checkAction('submitBid', true)) {
+                // We should skip this if we're bidding
+                return;
+            }
+
             if (playerId == this.player_id) {
                 this.updateValueInNode("myTricksWon", tricksWon);
             }
@@ -492,17 +526,15 @@ function (dojo, declare, domStyle, lang, attr) {
             }
         },
 
-        displayTricksWon: function() {
-            dojo.query(".bgann_tricks").removeClass("bgann_hidden");
-        },
-
         clearTricksWon: function() {
-            dojo.query(".bgann_tricks").addClass("bgann_hidden");
+            console.log("Clearing tricks won");
+            dojo.query("#my_bid_container .bgann_tricks").addClass("bgann_hidden");
             this.updateValueInNode("myTricksWon", "0");
             for (var playerId in this.gamedatas.players) {
                 this.updateValueInNode("tricks_" + playerId, "0");
             }
             this.clearDeclareTrickCount();
+            this.resetTrickLabels();
         },
 
         updateGameScores: function(gameScores) {
@@ -692,7 +724,7 @@ function (dojo, declare, domStyle, lang, attr) {
             this.setNodeHidden("reveal_label", true);
             this.setNodeHidden("declaretable", true);
             this.setNodeHidden("revealtable", true);
-            this.resetTrickLabels();
+            this.clearTricksWon();
         },
 
         giveAllCardsToPlayer: function(args) {
@@ -743,7 +775,6 @@ function (dojo, declare, domStyle, lang, attr) {
                     // Can play a card
                     this.playCard(items[0]);
                 } else if (this.checkAction('submitBid', true)) {
-
                     var that = this;
                     if (items.length > 3) {
                         // Disallow adding more than three cards to the bid
@@ -765,8 +796,11 @@ function (dojo, declare, domStyle, lang, attr) {
                         that.addTooltipToCard(that.playerHand, item, _('Add to bid'));
                     })
 
-                    this.updateCurrentBidFromCards(items, "bidValue");
+                    this.updateSelfBid();
                 }
+            } else if (this.checkAction('submitBid', true)) {
+                // We still need to update the bid if we unselect all our cards
+                this.updateSelfBid();
             }
         },
 
@@ -821,7 +855,6 @@ function (dojo, declare, domStyle, lang, attr) {
                     that.addTooltipToCard(that.playerBid, items[0], _('Remove from bid'));
                 });
                 this.playerHand.unselectAll();
-                this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
 
                 // Give these 3 cards
                 var to_give = '';
@@ -902,7 +935,8 @@ function (dojo, declare, domStyle, lang, attr) {
             this.playerHand.removeAll();
             this.playerBid.removeAll();
             this.setNodeHidden("bids", true);
-            this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
+            this.clearTricksWon();
+            this.updateSelfBid();
             this.setNodeHidden("my_bid_container", true);
 
             for (var i in notif.args.cards) {
