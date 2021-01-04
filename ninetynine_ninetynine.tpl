@@ -22,7 +22,7 @@
 
     See your "view" PHP file to check how to set variables and control blocks
 -->
-<div id="table">
+<div id="table" class="player_count_{PLAYER_COUNT}">
     <div id="declarerevealtable">
         <h3 class="whiteblock">
             <span id="round_name_container" class="bgann_invisible">
@@ -47,24 +47,29 @@
                 </div>
                 <div class="bgann_playertablecard" id="playertablecard_{PLAYER_ID}">
                 </div>
-                <span class="bgann_tricks bgann_hidden">(<span id="tricks_{PLAYER_ID}" class="bgann_tricks bgann_hidden">0</span>)</span>
+                <span class="bgann_tricks bgann_hidden bgann_playertable_tricks" id="trick_info_{PLAYER_ID}">
+                    <span class="bgann_tricks">Tricks taken: </span>
+                    <span id="tricks_{PLAYER_ID}" class="bgann_tricks">0</span>
+                    <span class="bgann_bid bgann_bid_{PLAYER_ID}"> / </span>
+                    <span id="bid_{PLAYER_ID}" class="bgann_bid bgann_bid_value">?</span>
+                </span>
             </div>
             <!-- END player -->
 
             <div class="whiteblock" id="trumpContainer">
                 <div class="">{TRUMP_LABEL}</div>
-                <div class="" id="trumpSuit">{NONE}</div>
+                <div class="bgann_trump_suit" id="trumpSuit">{NONE}</div>
             </div>
         </div>
-        <div id="bids">
-            <div id="declaretable" class="whiteblock bgann_bid_container bgann_declare bgann_hidden">
+        <div id="bids" class="bgann_hidden">
+            <div id="declaretable" class="whiteblock bgann_bid_container bgann_hidden">
                 <h3 class="">{DECLARED_BID_LABEL}<span id="declaredBidValue"></span>
                     <span class="bgann_tricks"> / {TRICKS_WON_LABEL}</span>
                     <span id="declaredTricksWon" class="bgann_tricks">0</span>
                 </h3>
                 <div id="declaredBid"></div>
             </div>
-            <div id="revealtable" class="whiteblock bgann_reveal bgann_hidden">
+            <div id="revealtable" class="whiteblock bgann_hidden">
                 <h3 id="revealed_label" class="">{REVEALED_HAND_LABEL}</h3>
                 <div id="revealedHand"></div>
             </div>

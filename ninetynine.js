@@ -236,17 +236,24 @@ function (dojo, declare, domStyle, lang, attr) {
             return this.getCardUniqueId(color, rank);
         },
 
-        addCardsToStock: function(stock, cards) {
-            for (var i in cards) {
-                var card = cards[i];
+        serverCardsToClientCards: function(serverCards) {
+            var that = this;
+            return Object.entries(serverCards).map(function(serverCard) {
+                var card = serverCard[1];
                 var color = card.type;
                 var rank = card.type_arg;
-                // card.id is the SERVER's id of the card
-                // getCardUniqueId is the ID composed of the rank and suit
+                return {
+                  type: that.getCardType(card),
+                  id: card.id
+                };
+            });
+        },
 
+        addCardsToStock: function(stock, cards) {
+            this.serverCardsToClientCards(cards).forEach(function(card) {
                 // addToStockWithId(type, id)
-                stock.addToStockWithId(this.getCardType(card), card.id);
-            }
+                stock.addToStockWithId(card.type, card.id);
+            });
         },
 
         addTooltipsToEachCard: function(stock, actionString) {
@@ -359,6 +366,15 @@ function (dojo, declare, domStyle, lang, attr) {
             dojo.addClass("playertable_" + first_player, "bgann_firstplayer");
         },
 
+        showTrickCounters: function(showTrickCounters) {
+            var counters = dojo.query(".bgann_playertable_tricks");
+            if (showTrickCounters) {
+                counters.removeClass("bgann_hidden");
+            } else {
+                counters.addClass("bgann_hidden");
+            }
+        },
+
         showActivePlayer: function(expectedActivePlayer) {
             var activePlayer = this.getActivePlayerId();
             if (activePlayer == null) {
@@ -411,6 +427,12 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         updateCurrentBidFromCards: function(cardList, divId) {
+            var bid = this.getBidValueFromCards(cardList);
+            var bidValueSpan = dojo.byId(divId);
+            bidValueSpan.textContent = bid;
+        },
+
+        getBidValueFromCards: function(cardList) {
             var bid = 0;
             for (var x = 0; x < cardList.length; x++) {
                 var card = cardList[x];
@@ -419,8 +441,7 @@ function (dojo, declare, domStyle, lang, attr) {
                 var bidValue = this.getBidValueFromSuit(suit);
                 bid += bidValue;
             }
-            var bidValueSpan = dojo.byId(divId);
-            bidValueSpan.textContent = bid;
+            return bid;
         },
 
         updateTrickCounts: function(trickCounts, declaringPlayerId) {
@@ -433,6 +454,27 @@ function (dojo, declare, domStyle, lang, attr) {
 
         clearDeclareTrickCount: function() {
             this.updateValueInNode("declaredTricksWon", "0");
+        },
+
+        showTrickLabels: function(playerId, bidValue, reveal) {
+            dojo.query(".bgann_tricks").removeClass("bgann_hidden");
+            if (playerId) {
+                this.updateValueInNode("bid_" + playerId, bidValue);
+                dojo.addClass("trick_info_" + playerId, "bgann_declare");
+                if (reveal) {
+                    dojo.addClass("trick_info_" + playerId, "bgann_reveal");
+                }
+            }
+        },
+
+        resetTrickLabels: function() {
+            dojo.query(".bgann_tricks").removeClass("bgann_declare bgann_reveal");
+            dojo.query(".bgann_tricks").forEach(function(node) {
+                node.classList.add("bgann_hidden");
+            });
+            dojo.query(".bgann_bid_value").forEach(function(node) {
+                node.innerHTML = "?";
+            });
         },
 
         updateCurrentTricksWon: function(playerId, tricksWon, declaringPlayerTricks) {
@@ -595,11 +637,15 @@ function (dojo, declare, domStyle, lang, attr) {
         showActiveDeclareOrReveal: function(decRevInfo) {
             var playerNameSpan = dojo.byId("decrev_player_name");
             if (decRevInfo.playerId) {
+                var clientCards = this.serverCardsToClientCards(decRevInfo.bid);
+                var bidValue = this.getBidValueFromCards(clientCards);
+                var didReveal = Object.keys(decRevInfo.cards).length > 0;
                 if (decRevInfo.playerId != this.player_id) {
-                    dojo.query(".bgann_declare").removeClass("bgann_hidden");
+                    this.setNodeHidden("declaretable", false);
                     if (Object.keys(decRevInfo.cards).length > 0) {
-                        dojo.query(".bgann_reveal").removeClass("bgann_hidden");
+                        this.setNodeHidden("revealtable", false);
                     }
+                    this.setNodeHidden("bids", false);
                     // Show Revealed cards
                     this.revealedHand.removeAll();
                     this.addCardsToStock(this.revealedHand, decRevInfo.cards);
@@ -611,21 +657,28 @@ function (dojo, declare, domStyle, lang, attr) {
                     this.setNodeHidden("reveal_label", true);
                 } else {
                     this.setNodeHidden("declare_label", false);
-                    if (Object.keys(decRevInfo.cards).length > 0) {
+                    if (didReveal) {
                         this.setNodeHidden("reveal_label", false);
                     }
                 }
+                // Set the name in the banner for the player who declared/revealed
                 playerNameSpan.textContent = decRevInfo.playerName;
                 var playerColor = decRevInfo.playerColor;
                 domStyle.set(playerNameSpan, "color", "#" + playerColor);
+
+                // Put the player's bid in the player table
+                this.showTrickLabels(decRevInfo.playerId, bidValue, didReveal);
+                this.updateValueInNode("bid_" + decRevInfo.playerId, bidValue);
             } else {
                 playerNameSpan.textContent = _("None");
                 domStyle.set(playerNameSpan, "color", "#000000");
-                dojo.query(".bgann_declare").addClass("bgann_hidden");
-                dojo.query(".bgann_reveal").addClass("bgann_hidden");
+                this.setNodeHidden("declaretable", true);
+                this.setNodeHidden("revealtable", true);
                 // Hide Declare and reveal if there isn't a declaring or revealing player
+                this.setNodeHidden("bids", true);
                 this.setNodeHidden("declare_label", true);
                 this.setNodeHidden("reveal_label", true);
+                this.showTrickLabels();
             }
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
         },
@@ -637,8 +690,9 @@ function (dojo, declare, domStyle, lang, attr) {
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
             this.setNodeHidden("declare_label", true);
             this.setNodeHidden("reveal_label", true);
-            dojo.query(".bgann_declare").addClass("bgann_hidden");
-            dojo.query(".bgann_reveal").addClass("bgann_hidden");
+            this.setNodeHidden("declaretable", true);
+            this.setNodeHidden("revealtable", true);
+            this.resetTrickLabels();
         },
 
         giveAllCardsToPlayer: function(args) {
@@ -847,6 +901,7 @@ function (dojo, declare, domStyle, lang, attr) {
             // We received a new full hand of 12 cards.
             this.playerHand.removeAll();
             this.playerBid.removeAll();
+            this.setNodeHidden("bids", true);
             this.updateCurrentBidFromBidStock(this.playerBid, "bidValue");
             this.setNodeHidden("my_bid_container", true);
 

@@ -48,6 +48,14 @@
 
 #middleRow {
     display: flex;
+    justify-content: space-between;
+}
+
+#middleRow > div {
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    transition: 2s all;
 }
 
 .bgann_container {
@@ -70,7 +78,7 @@
 }
 
 .bgann_hidden {
-    display: none;
+    display: none !important;
 }
 
 #declaring_revealing_player_container {
@@ -118,9 +126,17 @@
 
 #playertables {
     position: relative;
-    height: 340px;
-    display: inline-block;
-    min-width: 390px;
+    height: 370px;
+    display: block;
+    min-width: 620px;
+    max-width: 620px;
+    padding: 10px;
+    margin: auto;
+}
+
+/* For 4 players we need more space */
+.player_count_4 #playertables {
+    height: 410px;
 }
 
 .bgann_playertablename {
@@ -131,26 +147,31 @@
     position: absolute;
     text-align: center;
     width: 180px;
-    height: 130px;
+    height: 150px;
+    display: inline-block;
+}
+
+.bgann_playertable_N {
+    margin-left: 210px;
 }
 
 .bgann_playertable_S {
-    left: 50%;
-    bottom: 0px;
-    margin-left: -90px;
+    margin-left: 210px;
+    margin-top: 200px;
+}
+
+/* For 4 players we need more space */
+.player_count_4 .bgann_playertable_S {
+    margin-top: 240px;
 }
 
 .bgann_playertable_W {
-    left: 0px;
-    top: 50%;
-    margin-top: -155px;
+    margin-top: 100px;
 }
 
 .bgann_playertable_E {
-    left: 100%;
-    top: 50%;
-    margin-top: -155px;
-    margin-left: -180px;
+    margin-top: 100px;
+    margin-left: 420px;
 }
 
 .bgann_playertablecard {
@@ -162,34 +183,50 @@
 }
 
 #trumpContainer {
-    left: 100%;
-    bottom: 0px;
-    margin-left: -75px;
-    position: absolute;
     width: 120px;
     text-align: center;
     font-size: 16px;
     font-weight: bold;
+    margin-left: 240px;
+    height: 60px;
+}
+
+/* For 4 players we need more space */
+.player_count_4 #trumpContainer {
+    margin-top: 190px;
+    height: 40px;
+    font-size: 12px;
+}
+
+.player_count_4 #trumpContainer > div {
+    display: inline;
 }
 
 .bgann_dealerindicator {
     color: black;
 }
 
-.bgann_tricks {
-    color: black;
+.bgann_playertable_tricks {
+    display: block;
+    width: auto;
+    margin-top: 10px;
 }
 
-.bgann_playertable > .bgann_tricks {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
+.bgann_playertable_tricks_declare {
+    color: red;
+}
+
+.bgann_playertable_tricks_reveal {
+    font-weight: bold;
+}
+
+.bgann_tricks {
 }
 
 .bgann_firstplayer {
     border: 2px black dashed;
     width: 176px;
-    height: 126px;
+    height: 146px;
 }
 
 /* Declare / Reveal styles */
@@ -200,13 +237,15 @@
 }
 
 .bgann_declare {
+    color: red;
 }
 
 .bgann_reveal {
-    height: 130px;
+    font-weight: bold;
 }
 
 #revealtable {
+    height: 130px;
     font-size: 14px;
     font-weight: bold;
     min-width: 230px;
@@ -291,17 +330,23 @@
 
 .bgann_trump_red {
     color: red;
-    font-size: 40px;
 }
 
 .bgann_trump_black {
     color: black;
-    font-size: 40px;
 }
 
 .bgann_trump_none {
     color: black;
-    font-size: 16px;
+}
+
+.bgann_trump_suit {
+    font-size: 40px;
+}
+
+.player_count_4 #trumpSuit {
+    font-size: 24px;
+    line-height: 0.7;
 }
 
 /*** for notifications ***/
@@ -395,6 +440,5 @@
 #bids {
     width: 100%;
     margin-left: 100px;
-    display: flex;
 }
 
