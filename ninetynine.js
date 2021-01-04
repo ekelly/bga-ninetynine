@@ -634,6 +634,22 @@ function (dojo, declare, domStyle, lang, attr) {
             }
         },
 
+        animateBidVisibility: function(visible, reveal) {
+            if (visible) {
+                dojo.addClass("bids", "bgann_showbid");
+                // this delay should match the transition delay in the CSS
+                var that = this;
+                setTimeout(function() {
+                    that.setNodeHidden("declaretable", false);
+                    if (reveal) {
+                        that.setNodeHidden("revealtable", false);
+                    }
+                }, 2000);
+            } else {
+                dojo.removeClass("bids", "bgann_showbid");
+            }
+        },
+
         setNodeInvisible: function(nodeId, hidden) {
             if (hidden) {
                 dojo.addClass(nodeId, "bgann_invisible");
@@ -673,11 +689,7 @@ function (dojo, declare, domStyle, lang, attr) {
                 var bidValue = this.getBidValueFromCards(clientCards);
                 var didReveal = Object.keys(decRevInfo.cards).length > 0;
                 if (decRevInfo.playerId != this.player_id) {
-                    this.setNodeHidden("declaretable", false);
-                    if (Object.keys(decRevInfo.cards).length > 0) {
-                        this.setNodeHidden("revealtable", false);
-                    }
-                    this.setNodeHidden("bids", false);
+                    this.animateBidVisibility(true, didReveal);
                     // Show Revealed cards
                     this.revealedHand.removeAll();
                     this.addCardsToStock(this.revealedHand, decRevInfo.cards);
@@ -704,12 +716,13 @@ function (dojo, declare, domStyle, lang, attr) {
             } else {
                 playerNameSpan.textContent = _("None");
                 domStyle.set(playerNameSpan, "color", "#000000");
-                this.setNodeHidden("declaretable", true);
-                this.setNodeHidden("revealtable", true);
+                this.animateBidVisibility(false);
+                // this.setNodeHidden("declaretable", true);
+                // this.setNodeHidden("revealtable", true);
                 // Hide Declare and reveal if there isn't a declaring or revealing player
-                this.setNodeHidden("bids", true);
-                this.setNodeHidden("declare_label", true);
-                this.setNodeHidden("reveal_label", true);
+                // this.setNodeHidden("bids", true);
+                // this.setNodeHidden("declare_label", true);
+                // this.setNodeHidden("reveal_label", true);
                 this.showTrickLabels();
             }
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
@@ -720,10 +733,11 @@ function (dojo, declare, domStyle, lang, attr) {
             this.declaredBid.removeAll();
             this.revealedHand.removeAll();
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
-            this.setNodeHidden("declare_label", true);
-            this.setNodeHidden("reveal_label", true);
-            this.setNodeHidden("declaretable", true);
-            this.setNodeHidden("revealtable", true);
+            this.animateBidVisibility(false);
+            //this.setNodeHidden("declare_label", true);
+            //this.setNodeHidden("reveal_label", true);
+            //this.setNodeHidden("declaretable", true);
+            //this.setNodeHidden("revealtable", true);
             this.clearTricksWon();
         },
 
@@ -934,7 +948,8 @@ function (dojo, declare, domStyle, lang, attr) {
             // We received a new full hand of 12 cards.
             this.playerHand.removeAll();
             this.playerBid.removeAll();
-            this.setNodeHidden("bids", true);
+            //this.setNodeHidden("bids", true);
+            this.animateBidVisibility(false);
             this.clearTricksWon();
             this.updateSelfBid();
             this.setNodeHidden("my_bid_container", true);
