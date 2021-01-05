@@ -64,8 +64,8 @@
         <div id="bids" class="">
             <div id="declaretable" class="whiteblock bgann_bid_container">
                 <h3 id="declared_label" class="bgann_decrev_label">{DECLARED_BID_LABEL}<span id="declaredBidValue"></span>
-                    <span class="bgann_tricks"> / {TRICKS_WON_LABEL}</span>
-                    <span id="declaredTricksWon" class="bgann_tricks">0</span>
+                    <!--<span class="bgann_tricks"> / {TRICKS_WON_LABEL}</span>
+                    <span id="declaredTricksWon" class="bgann_tricks">0</span>-->
                 </h3>
                 <div id="declaredBid"></div>
             </div>
