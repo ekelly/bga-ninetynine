@@ -42,6 +42,8 @@ function (dojo, declare, domStyle, lang, attr) {
             this.cardwidth = 72;
             this.cardheight = 96;
             this.roundScoreCtrl = {};
+
+            this.playForcedCardFuture = null;
         },
 
         /*
@@ -99,7 +101,7 @@ function (dojo, declare, domStyle, lang, attr) {
             // Cards in player's hand
             this.addCardsToStock(this.playerHand, this.gamedatas.hand);
             this.unmarkUnplayableCards();
-            this.markCardsUnplayable(this.gamedatas.playableCards);
+            this.handlePlayableCards(this.gamedatas.playableCards);
 
             // Player bid
             this.playerBid = this.setupCardStocks('mybid');
@@ -156,6 +158,29 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         ///////////////////////////////////////////////////
+        //// Utility functions for game preferences
+
+        shouldAddCardHoverEffect: function() {
+            return this.prefs[100].value == 2;
+        },
+
+        shouldSortCardsInHeartsOrder: function() {
+            return this.prefs[101].value == 2;
+        },
+
+        shouldHighlightTrump: function() {
+            return this.prefs[102].value == 1;
+        },
+
+        shouldHighlightPlayableCards: function() {
+            return this.prefs[103].value == 1;
+        },
+
+        shouldPlayForcedCards: function() {
+            return this.prefs[104].value == 1;
+        },
+
+        ///////////////////////////////////////////////////
         //// Game & client states
 
         // onEnteringState: this method is called each time we are entering into a new game state.
@@ -173,8 +198,9 @@ function (dojo, declare, domStyle, lang, attr) {
                     if (this.getActivePlayerId() != null) {
                         this.showCurrentPlayer(this.getActivePlayerId());
                     }
-                    // TODO: This is probably the place where we want to
-                    // automatically play the card, as opposed to notif_yourTurn
+                    if (args && args.args && args.args._private && args.args._private.playableCards) {
+                        this.handlePlayableCards(args.args._private.playableCards);
+                    }
                     break;
 
                 case 'bidding':
@@ -236,6 +262,20 @@ function (dojo, declare, domStyle, lang, attr) {
             return this.getCardUniqueId(color, rank);
         },
 
+        handlePlayableCards: function(playableCards) {
+            this.markCardsUnplayable(playableCards);
+            if (!this.shouldPlayForcedCards()) {
+                return;
+            }
+            var playableCardArray = Object.entries(playableCards).map(entry => entry[1])
+            if (playableCardArray.length == 1) {
+                var that = this;
+                this.playForcedCardFuture = setTimeout(function() {
+                    that.playCard(playableCardArray[0]);
+                }, 500);
+            }
+        },
+
         serverCardsToClientCards: function(serverCards) {
             var that = this;
             return Object.entries(serverCards).map(function(serverCard) {
@@ -285,7 +325,7 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         addHoverEffectToCards: function(containingId, enable) {
-            if (enable && this.prefs[100].value == 2) {
+            if (enable && this.shouldAddCardHoverEffect()) {
                 dojo.addClass(containingId, "bgann_cardhover");
             } else {
                 dojo.removeClass(containingId, "bgann_cardhover");
@@ -293,8 +333,7 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         highlightTrump: function(enable, trumpSuit) {
-            if (this.prefs[102].value == 1) {
-                console.log("Not highlighting trump");
+            if (!this.shouldHighlightTrump()) {
                 return;
             }
             var allCards = this.playerHand.getAllItems();
@@ -582,7 +621,7 @@ function (dojo, declare, domStyle, lang, attr) {
         // This is the order that cards are sorted
         // Order of color: ["club", "diamond", "spade", "heart"] (passed to this function as an int)
         getCardWeight: function(color, value) {
-            var heartsOrder = this.prefs[101].value == 2;
+            var heartsOrder = this.shouldSortCardsInHeartsOrder();
             var adjustedColor = color;
             if (!heartsOrder) {
                 adjustedColor = (color + 3) % 4;
@@ -752,8 +791,10 @@ function (dojo, declare, domStyle, lang, attr) {
                 // card and replace it with one that has a different id.
                 var node = dojo.byId('cardontable_'+player_id);
                 var newnode = lang.clone(node);
-                attr.set(newnode, "id", 'cardfromtable_'+player_id);
-                dojo.place(newnode, 'playertablecard_'+player_id);
+                if (newnode) {
+                    attr.set(newnode, "id", 'cardfromtable_'+player_id);
+                    dojo.place(newnode, 'playertablecard_'+player_id);
+                }
                 dojo.destroy(node);
 
                 var anim;
@@ -819,6 +860,7 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         playCard: function(card) {
+            clearTimeout(this.playForcedCardFuture);
             this.ajaxcall("/ninetynine/ninetynine/playCard.html", {
                 id: card.id,
                 lock: true
@@ -911,8 +953,6 @@ function (dojo, declare, domStyle, lang, attr) {
             dojo.subscribe('bidCards', this, "notif_bidCards");
             dojo.subscribe('biddingComplete' , this, "notif_biddingComplete");
             dojo.subscribe('biddingCompleteState' , this, "notif_biddingCompleteState");
-
-            dojo.subscribe('yourTurn' , this, "notif_yourTurn");
         },
 
         // From this point and below, you can write your game notifications handling methods
@@ -1012,19 +1052,6 @@ function (dojo, declare, domStyle, lang, attr) {
         notif_biddingCompleteState: function(notif) {
             this.showActiveDeclareOrReveal(notif.args.declareReveal);
             this.informUsersPlayerDeclaredOrRevealed(notif.args.declareReveal);
-        },
-
-        notif_yourTurn: function(notif) {
-            console.log("Playable cards");
-            console.log(notif.args.playableCards);
-            this.markCardsUnplayable(notif.args.playableCards);
-            var playableCardArray = Object.entries(notif.args.playableCards).map(entry => entry[1])
-            if (playableCardArray.length == 1) {
-                var that = this;
-                setTimeout(function() {
-                    that.playCard(playableCardArray[0]);
-                }, 500);
-            }
         }
    });
 });

@@ -109,7 +109,7 @@ $game_preferences = array(
 			  'needReload' => true, // after user changes this preference game interface would auto-reload
 			  'values' => array(
             1 => array('name' => totranslate('None')),
-            2 => array('name' => totranslate('Raise card'), 'cssPref' => 'bgann_card_highlight')
+            2 => array('name' => totranslate('Raise card'), 'cssPref' => 'bgann_cardhover')
 			  )
     ),
     101 => array(
@@ -124,8 +124,24 @@ $game_preferences = array(
 			  'name' => totranslate('Highlight trump'),
 			  'needReload' => true, // after user changes this preference game interface would auto-reload
 			  'values' => array(
-            1 => array('name' => totranslate('No')),
-            2 => array('name' => totranslate('Yes'), 'cssPref' => 'bgann_highlight_trump')
+            1 => array('name' => totranslate('Enabled'), 'cssPref' => 'bgann_highlight_trump'),
+            2 => array('name' => totranslate('Disabled'))
+			  )
+  	),
+    103 => array(
+			  'name' => totranslate('Highlight playable cards'),
+			  'needReload' => true, // after user changes this preference game interface would auto-reload
+			  'values' => array(
+            1 => array('name' => totranslate('Enabled'), 'cssPref' => 'bgann_highlight_playable'),
+            2 => array('name' => totranslate('Disabled'))
+			  )
+  	),
+    104 => array(
+			  'name' => totranslate('Play forced cards'),
+			  'needReload' => false,
+			  'values' => array(
+            1 => array('name' => totranslate('Enabled')),
+            2 => array('name' => totranslate('Disabled'))
 			  )
   	)
 );

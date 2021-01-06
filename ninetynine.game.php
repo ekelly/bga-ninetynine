@@ -1220,7 +1220,6 @@ class NinetyNine extends Table {
                 // End of the hand
                 $this->gamestate->nextState("endHand");
             } else {
-                $this->informNextTurn($winningPlayer);
                 // End of the trick
                 $this->gamestate->nextState("nextTrick");
             }
@@ -1234,16 +1233,18 @@ class NinetyNine extends Table {
             ));
             self::giveExtraTime($player_id);
             $this->gamestate->nextState('nextPlayer');
-            $this->informNextTurn($player_id);
         }
     }
 
-    function informNextTurn($player_id) {
-        // Notify the current player that it is their turn, and let them know
-        // which cards are valid to play
-        self::notifyPlayer($player_id, "yourTurn", "", array(
-            'playableCards' => $this->getPlayableCards($player_id)
-        ));
+    function argPlayableCards() {
+        $player_id = self::getActivePlayerId();
+        return array(
+            '_private' => array(
+                'active' => array(
+                    'playableCards' => self::getPlayableCards($player_id)
+                )
+            )
+        );
     }
 
     function stEndHand() {

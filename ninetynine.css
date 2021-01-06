@@ -467,7 +467,7 @@
     width: 100%;
 }
 
-/** Add hover effect to cards in hand or bid **/
+/** Add hover effect to cards in hand **/
 .notouch-device .bgann_cardhover .stockitem:hover:not(.bgann_unplayable) {
     margin-top: -16px !important;
 }
@@ -476,7 +476,7 @@
     transition: margin-top 200ms linear;
 }
 
-.bgann_card_highlight .stockitem.bgann_unplayable {
+.bgann_highlight_playable .stockitem.bgann_unplayable {
     filter: brightness(.8);
 }
 
