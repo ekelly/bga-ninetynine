@@ -80,7 +80,7 @@
 }
 
 #declaring_revealing_player_container {
-    margin-left: 420px;
+    float: right;
 }
 
 /** Player Score Area **/
@@ -124,7 +124,7 @@
 
 #playertables {
     position: relative;
-    height: 370px;
+    height: 300px;
     display: block;
     min-width: 620px;
     max-width: 620px;
@@ -155,7 +155,7 @@
 
 .bgann_playertable_S {
     margin-left: 210px;
-    margin-top: 200px;
+    margin-top: 130px;
 }
 
 /* For 4 players we need more space */
@@ -164,12 +164,21 @@
 }
 
 .bgann_playertable_W {
+    margin-top: 0px;
+}
+
+/* For 4 players we need more space */
+.player_count_4 .bgann_playertable_W {
     margin-top: 100px;
 }
 
 .bgann_playertable_E {
-    margin-top: 100px;
+    margin-top: 0px;
     margin-left: 420px;
+}
+
+.player_count_4 .bgann_playertable_E {
+    margin-top: 100px;
 }
 
 .bgann_playertablecard {
@@ -235,6 +244,7 @@
     max-height: 140px;
     width: 240px; /* 240px actual size */
     padding: 10px;
+    float: right;
 }
 
 .bgann_declare {
@@ -252,6 +262,7 @@
     max-height: 140px;
     width: 230px; /* 230px actual size */
     padding: 10px;
+    float: right;
 }
 
 /* For animating the declare/reveal stuff */
@@ -455,6 +466,7 @@
     min-width: 240px;
     height: 130px;
     margin-left: 10px;
+    margin-right: 10px;
 }
 
 .spectatorMode #my_bid_container {

@@ -675,17 +675,17 @@ function (dojo, declare, domStyle, lang, attr) {
 
         animateBidVisibility: function(visible, reveal) {
             if (visible) {
+                this.setNodeInvisible("revealtable", !reveal);
+                this.setNodeInvisible("declaretable", false);
                 dojo.addClass("bids", "bgann_showbid");
-                // this delay should match the transition delay in the CSS
-                var that = this;
-                setTimeout(function() {
-                    that.setNodeHidden("declaretable", false);
-                    if (reveal) {
-                        that.setNodeHidden("revealtable", false);
-                    }
-                }, 2000);
             } else {
                 dojo.removeClass("bids", "bgann_showbid");
+                var that = this;
+                // This timeout should match the transition speed of #bids
+                setTimeout(function() {
+                    that.setNodeInvisible("revealtable", true);
+                    that.setNodeInvisible("declaretable", true);
+                }, 1500);
             }
         },
 
@@ -824,38 +824,38 @@ function (dojo, declare, domStyle, lang, attr) {
 
         onPlayerHandSelectionChanged: function() {
             var items = this.playerHand.getSelectedItems();
-
-            if (items.length > 0) {
-                if (this.checkAction('playCard', true)) {
+            if (!this.isCurrentPlayerActive()) {
+                console.log("Not your turn. Unselecting card");
+                this.playerHand.unselectAll();
+            }
+            if (this.checkAction('playCard', true)) {
+                if (items.length > 0) {
                     // Can play a card
                     this.playCard(items[0]);
-                } else if (this.checkAction('submitBid', true)) {
-                    var that = this;
-                    if (items.length > 3) {
-                        // Disallow adding more than three cards to the bid
-                        var excessiveItems = items.slice(3);
-                        excessiveItems.forEach(function(item) {
-                            console.log("Unselecting:" + item.id);
-                            that.playerHand.unselectItem(item.id);
-                        });
-                        return;
-                    }
-
-                    // Add the proper tooltips
-                    items.forEach(function(item) {
-                        that.clearTooltipFromCard(that.playerHand, item);
-                        that.addTooltipToCard(that.playerHand, item, _('Remove from bid'));
-                    });
-                    this.playerHand.getUnselectedItems().forEach(function(item) {
-                        that.clearTooltipFromCard(that.playerHand, item);
-                        that.addTooltipToCard(that.playerHand, item, _('Add to bid'));
-                    })
-
-                    this.updateSelfBid();
                 }
             } else if (this.checkAction('submitBid', true)) {
+                var that = this;
+                if (items.length > 3) {
+                    // Disallow adding more than three cards to the bid
+                    var excessiveItems = items.slice(3);
+                    excessiveItems.forEach(function(item) {
+                        console.log("Unselecting:" + item.id);
+                        that.playerHand.unselectItem(item.id);
+                    });
+                    return;
+                }
                 // We still need to update the bid if we unselect all our cards
                 this.updateSelfBid();
+
+                // Add the proper tooltips
+                items.forEach(function(item) {
+                    that.clearTooltipFromCard(that.playerHand, item);
+                    that.addTooltipToCard(that.playerHand, item, _('Remove from bid'));
+                });
+                this.playerHand.getUnselectedItems().forEach(function(item) {
+                    that.clearTooltipFromCard(that.playerHand, item);
+                    that.addTooltipToCard(that.playerHand, item, _('Add to bid'));
+                });
             }
         },
 
