@@ -46,6 +46,15 @@
 
 /** General Styles **/
 
+/* Smallest Content width: 910px */
+/* Smallest Overall size: 1157 */
+/* Overall size: 910 + 240 ? */
+/* There is an unexplained 7px somewhere... */
+
+/* Screens that are less than 1156 px */
+@media screen and (max-width: 1156px) {
+}
+
 #middleRow {
     display: flex;
     justify-content: space-between;
@@ -293,6 +302,27 @@
     opacity: 1;
     transition: opacity 500ms ease;
     transition-delay: 1500ms;
+}
+
+/* Screens that are less than 1156 px should wrap the declared / revealed cards and animate vertically */
+@media screen and (max-width: 1156px) {
+    #bids {
+        width: 520px; /* small screens animate height, not width */
+        height: 0;
+        margin-right: 0px;
+        transition: height 1500ms linear;
+        min-width: 520px;
+    }
+    #bids.bgann_showbid {
+        height: 150px;
+    }
+    #declaretable {
+        float: left;
+    }
+    #revealtable {
+        float: left;
+        margin-left: 10px;
+    }
 }
 
 /*** cards on table ***/
