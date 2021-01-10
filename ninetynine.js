@@ -376,6 +376,7 @@ function (dojo, declare, domStyle, lang, attr) {
             var stock = new ebg.stock();
             stock.create(this, $(id), this.cardwidth, this.cardheight);
             stock.image_items_per_row = 13;
+            stock.autowidth = true;
             if (selectionChangeFunctionName != undefined && selectionChangeFunctionName.length > 0) {
                 stock.setSelectionMode(2);
                 stock.setSelectionAppearance('class');
