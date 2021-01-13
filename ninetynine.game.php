@@ -196,6 +196,8 @@ class NinetyNine extends Table {
             $result['players'][intval($player['id'])] = $player;
         }
 
+        $result['directions'] = $this->getPlayersToDirection();
+
         // Cards in player hand
         $result['hand'] = $this->cards->getPlayerHand($player_id);
         $result['playableCards'] = $this->getPlayableCards($player_id);
@@ -840,7 +842,11 @@ class NinetyNine extends Table {
 
         $current_player = self::getCurrentPlayerId();
 
-        $directions = array('S', 'W', 'E');
+        if (count($players) == 4) {
+            $directions = array('S', 'W', 'N', 'E');
+        } else {
+            $directions = array('S', 'W', 'E');
+        }
 
         if (!isset($nextPlayer[$current_player])) {
             // Spectator mode: take any player for south
