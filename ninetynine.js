@@ -661,7 +661,6 @@ function (dojo, declare, domStyle, lang, attr) {
                     this.playerHand.removeFromStockById(card_id);
                 }
             }
-
             // In any case: move it to its final destination
             this.slideToObject('cardontable_'+player_id, 'playertablecard_'+player_id).play();
         },
@@ -798,6 +797,12 @@ function (dojo, declare, domStyle, lang, attr) {
                 }
                 dojo.destroy(node);
 
+                this.moveCardToWinner(winner_id, player_id);
+            }
+        },
+
+        moveCardToWinner: function(player_id, player_card_id) {
+          /*
                 var anim;
                 if (winner_id == this.player_id && dojo.byId("maingameview_menufooter")) {
                     anim = this.slideToObject('cardfromtable_'+player_id, "maingameview_menufooter");
@@ -806,7 +811,68 @@ function (dojo, declare, domStyle, lang, attr) {
                 }
                 dojo.connect(anim, 'onEnd', function(node) { dojo.destroy(node);});
                 anim.play();
+         */ // Old logic
+
+            var winnerPosition = dojo.position("playertable_" + player_id);
+            var tablePosition = dojo.position("table");
+            var maxX = window.innerWidth;
+            var centerX = tablePosition.x + (tablePosition.w / 2); // maxX / 2;
+            var maxY = window.innerHeight;
+            var centerY = winnerPosition.y + (winnerPosition.h / 2); // maxY / 2;
+            var xDirections = { N: centerX, E: maxX, W: -maxX, S: centerX };
+            var yDirections = { N: -maxY, E: centerY, W: centerY, S: maxY };
+            var winnerDirection = this.gamedatas.directions[player_id];
+            var x = xDirections[winnerDirection];
+            var y = yDirections[winnerDirection];
+
+            // var anim = this.slideToObjectPos('cardontable_'+player_id, 'playertable_'+player_id, x, y);
+            var anim = this.slideToPoint('cardfromtable_'+player_card_id, x, y);
+            dojo.connect(anim, 'onEnd', function(node) { dojo.destroy(node);});
+            anim.play();
+            // this.slideToObject('cardontable_'+player_id, 'playertablecard_'+player_id).play();
+        },
+
+        slideToPoint: function (source, x, y) {
+            if (source === null) {
+                console.error("slideToObjectPos: mobile obj is null");
             }
+            if (x === null) {
+                console.error("slideToObjectPos: target x is null");
+            }
+            if (y === null) {
+                console.error("slideToObjectPos: target y is null");
+            }
+
+            if (typeof source == "string") {
+                var srcNode = $(source);
+            } else {
+                var srcNode = source;
+            }
+
+            var duration = 5000;
+            var delay = 0;
+            var disable3D = this.disable3dIfNeeded();
+            var srcPos = dojo.position(srcNode);
+            var coords = {
+                x: toint(x) - (srcPos.w / 2),
+                y: toint(y) - (srcPos.h / 2)
+            };
+            this.enable3dIfNeeded(disable3D);
+            var animPrefs = {
+                node: srcNode,
+                top: coords.y,
+                left: coords.x,
+                delay: delay,
+                duration: duration,
+                easing: dojo.fx.easing.cubicInOut,
+                unit: "px"
+            };
+            console.log("Moving " + source + " to " + coords.x + ", " + coords.y);
+            var anim = dojo.fx.slideTo(animPrefs);
+            if (disable3D !== null) {
+                anim = this.transformSlideAnimTo3d(anim, animPrefs.node, animPrefs.duration, animPrefs.delay, coords.x, coords.y);
+            }
+            return anim;
         },
 
         ///////////////////////////////////////////////////
