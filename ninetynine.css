@@ -311,6 +311,8 @@
         width: 520px; /* small screens animate height, not width */
         height: 0;
         margin-right: 0px;
+        margin-left: 10px;
+        margin-bottom: 10px;
         transition: height 1500ms linear;
         min-width: 520px;
     }
@@ -333,6 +335,7 @@
     width: 72px;
     height: 96px;
     background-image: url('img/cards.jpg');
+    z-index: 100;
 }
 
 .bgann_suit_spade {
@@ -475,12 +478,20 @@
 .my_cards {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 #my_hand_container {
     display: flex;
     min-width: fit-content;
     flex-grow: 1;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 10px;
+    border-top: 1px solid black;
 }
 
 .spectatorMode #my_hand_container {
@@ -496,8 +507,8 @@
 #my_bid_container {
     min-width: 240px;
     height: 130px;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin: 0px;
+    border-top: 1px solid black;
 }
 
 .spectatorMode #my_bid_container {
@@ -528,4 +539,14 @@
     border: 0px !important;
 }
 
-
+.stockitem_selected::before {
+    content: "";
+    display: block;
+    background-color: red;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    position: relative;
+    top: -15px;
+    left: 30px;
+}

@@ -43,6 +43,17 @@ function (dojo, declare, domStyle, lang, attr) {
             this.cardheight = 96;
             this.roundScoreCtrl = {};
 
+            // Globals
+            this.shouldGiveCardsToWinner = false;
+
+            // Timeouts
+            this.trickWinDelay = 500;
+            this.winnerTakeDuration = 500;
+            this.fadeOutDuration = 500;
+            this.playCardDuration = 500;
+            this.animateBidVisibilityDuration = 1500;
+            this.playForcedCardDelay = 100;
+
             this.playForcedCardFuture = null;
         },
 
@@ -61,6 +72,7 @@ function (dojo, declare, domStyle, lang, attr) {
         setup: function(gamedatas) {
             dojo.destroy('debug_output');
 
+            // For debugging purposes
             window.keleric = this;
 
             // Setting up player boards
@@ -272,7 +284,7 @@ function (dojo, declare, domStyle, lang, attr) {
                 var that = this;
                 this.playForcedCardFuture = setTimeout(function() {
                     that.playCard(playableCardArray[0]);
-                }, 500);
+                }, this.playForcedCardDelay);
             }
         },
 
@@ -635,7 +647,6 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         playCardOnTable: function(player_id, suit, value, card_id) {
-
             dojo.place(
                 this.format_block('jstpl_cardontable', {
                     card_id: card_id,
@@ -685,7 +696,7 @@ function (dojo, declare, domStyle, lang, attr) {
                 setTimeout(function() {
                     that.setNodeInvisible("revealtable", true);
                     that.setNodeInvisible("declaretable", true);
-                }, 1500);
+                }, this.animateBidVisibilityDuration);
             }
         },
 
@@ -756,12 +767,7 @@ function (dojo, declare, domStyle, lang, attr) {
                 playerNameSpan.textContent = _("None");
                 domStyle.set(playerNameSpan, "color", "#000000");
                 this.animateBidVisibility(false);
-                // this.setNodeHidden("declaretable", true);
-                // this.setNodeHidden("revealtable", true);
                 // Hide Declare and reveal if there isn't a declaring or revealing player
-                // this.setNodeHidden("bids", true);
-                // this.setNodeHidden("declare_label", true);
-                // this.setNodeHidden("reveal_label", true);
                 this.showTrickLabels();
             }
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
@@ -773,10 +779,6 @@ function (dojo, declare, domStyle, lang, attr) {
             this.revealedHand.removeAll();
             this.updateCurrentBidFromBidStock(this.declaredBid, "declaredBidValue");
             this.animateBidVisibility(false);
-            //this.setNodeHidden("declare_label", true);
-            //this.setNodeHidden("reveal_label", true);
-            //this.setNodeHidden("declaretable", true);
-            //this.setNodeHidden("revealtable", true);
             this.clearTricksWon();
         },
 
@@ -792,8 +794,8 @@ function (dojo, declare, domStyle, lang, attr) {
                 var node = dojo.byId('cardontable_'+player_id);
                 var newnode = lang.clone(node);
                 if (newnode) {
-                    attr.set(newnode, "id", 'cardfromtable_'+player_id);
-                    dojo.place(newnode, 'playertablecard_'+player_id);
+                   attr.set(newnode, "id", 'cardfromtable_'+player_id);
+                   dojo.place(newnode, 'playertablecard_'+player_id);
                 }
                 dojo.destroy(node);
 
@@ -801,8 +803,9 @@ function (dojo, declare, domStyle, lang, attr) {
             }
         },
 
-        moveCardToWinner: function(player_id, player_card_id) {
-          /*
+        moveCardToWinner: function(winner_id, player_id) {
+            if (this.shouldGiveCardsToWinner) {
+                // Animate cards to the winner player off screen
                 var anim;
                 if (winner_id == this.player_id && dojo.byId("maingameview_menufooter")) {
                     anim = this.slideToObject('cardfromtable_'+player_id, "maingameview_menufooter");
@@ -811,27 +814,15 @@ function (dojo, declare, domStyle, lang, attr) {
                 }
                 dojo.connect(anim, 'onEnd', function(node) { dojo.destroy(node);});
                 anim.play();
-         */ // Old logic
-
-            var winnerPosition = dojo.position("playertable_" + player_id);
-            var tablePosition = dojo.position("table");
-            var maxX = window.innerWidth;
-            var centerX = tablePosition.x + (tablePosition.w / 2); // maxX / 2;
-            var maxY = window.innerHeight;
-            var centerY = winnerPosition.y + (winnerPosition.h / 2); // maxY / 2;
-            var xDirections = { N: centerX, E: maxX, W: -maxX, S: centerX };
-            var yDirections = { N: -maxY, E: centerY, W: centerY, S: maxY };
-            var winnerDirection = this.gamedatas.directions[player_id];
-            var x = xDirections[winnerDirection];
-            var y = yDirections[winnerDirection];
-
-            // var anim = this.slideToObjectPos('cardontable_'+player_id, 'playertable_'+player_id, x, y);
-            var anim = this.slideToPoint('cardfromtable_'+player_card_id, x, y);
-            dojo.connect(anim, 'onEnd', function(node) { dojo.destroy(node);});
-            anim.play();
-            // this.slideToObject('cardontable_'+player_id, 'playertablecard_'+player_id).play();
+            } else {
+                // Animate cards to the card which won, not the player
+                var anim = this.slideToObject('cardfromtable_' + player_id, 'playertablecard_' + winner_id, this.winnerTakeDuration);
+                dojo.connect(anim, 'onEnd', this, 'fadeOutAndDestroy');
+                anim.play();
+            }
         },
 
+        // This method is brokan and unused. I kept it here in case I want to try tinkering with it in the future
         slideToPoint: function (source, x, y) {
             if (source === null) {
                 console.error("slideToObjectPos: mobile obj is null");
@@ -849,28 +840,29 @@ function (dojo, declare, domStyle, lang, attr) {
                 var srcNode = source;
             }
 
-            var duration = 5000;
+            var duration = 30000;
             var delay = 0;
             var disable3D = this.disable3dIfNeeded();
-            var srcPos = dojo.position(srcNode);
+            var srcPos = dojo.getMarginBox(srcNode);
+            console.log("" + source + " node is at " + srcPos.l + ", " + srcPos.t);
             var coords = {
-                x: toint(x) - (srcPos.w / 2),
-                y: toint(y) - (srcPos.h / 2)
+                left: toint(x) - srcPos.l,
+                top: toint(y) - srcPos.t
             };
             this.enable3dIfNeeded(disable3D);
             var animPrefs = {
                 node: srcNode,
-                top: coords.y,
-                left: coords.x,
+                top: coords.top,
+                left: coords.left,
                 delay: delay,
                 duration: duration,
                 easing: dojo.fx.easing.cubicInOut,
                 unit: "px"
             };
-            console.log("Moving " + source + " to " + coords.x + ", " + coords.y);
+            console.log("Moving " + source + " to " + coords.left + ", " + coords.top);
             var anim = dojo.fx.slideTo(animPrefs);
             if (disable3D !== null) {
-                anim = this.transformSlideAnimTo3d(anim, animPrefs.node, animPrefs.duration, animPrefs.delay, coords.x, coords.y);
+                anim = this.transformSlideAnimTo3d(anim, animPrefs.node, animPrefs.duration, animPrefs.delay, coords.left, coords.top);
             }
             return anim;
         },
@@ -975,7 +967,6 @@ function (dojo, declare, domStyle, lang, attr) {
                     that.playerBid.addToStockWithId(item.type, item.id, divId);
                     that.playerHand.removeFromStockById(item.id);
                     that.clearTooltipFromCard(that.playerHand, item);
-                    that.addTooltipToCard(that.playerBid, items[0], _('Remove from bid'));
                 });
                 this.playerHand.unselectAll();
 
@@ -1012,9 +1003,10 @@ function (dojo, declare, domStyle, lang, attr) {
             dojo.subscribe('newHand', this, "notif_newHand");
             dojo.subscribe('newHandState', this, "notif_newHandState");
             dojo.subscribe('playCard', this, "notif_playCard");
+            this.notifqueue.setSynchronous('playCard', (this.playCardDuration));
             dojo.subscribe('currentPlayer', this, "notif_currentPlayer");
             dojo.subscribe('trickWin', this, "notif_trickWin");
-            this.notifqueue.setSynchronous('trickWin', 1500);
+            this.notifqueue.setSynchronous('trickWin', (this.trickWinDelay + this.winnerTakeDuration + this.fadeOutDuration));
             dojo.subscribe('points', this, "notif_points");
             dojo.subscribe('newScores', this, "notif_newScores");
             dojo.subscribe('bidCards', this, "notif_bidCards");
@@ -1087,7 +1079,7 @@ function (dojo, declare, domStyle, lang, attr) {
             var that = this;
             setTimeout(function() {
                 that.giveAllCardsToPlayer(notif.args);
-            }, 1500);
+            }, this.trickWinDelay);
         },
 
         notif_points: function(notif) {
