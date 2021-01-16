@@ -42,6 +42,7 @@ function (dojo, declare, domStyle, lang, attr) {
             this.cardwidth = 72;
             this.cardheight = 96;
             this.roundScoreCtrl = {};
+            this.lastItemsSelected = [];
 
             // Globals
             this.shouldGiveCardsToWinner = false;
@@ -886,6 +887,7 @@ function (dojo, declare, domStyle, lang, attr) {
             if (!this.isCurrentPlayerActive()) {
                 console.log("Not your turn. Unselecting card");
                 this.playerHand.unselectAll();
+                this.lastItemsSelected = [];
             }
             if (this.checkAction('playCard', true)) {
                 if (items.length > 0) {
@@ -896,13 +898,17 @@ function (dojo, declare, domStyle, lang, attr) {
                 var that = this;
                 if (items.length > 3) {
                     // Disallow adding more than three cards to the bid
-                    var excessiveItems = items.slice(3);
-                    excessiveItems.forEach(function(item) {
-                        console.log("Unselecting:" + item.id);
-                        that.playerHand.unselectItem(item.id);
+                    // var excessiveItems = items.slice(3);
+                    // excessiveItems.forEach(function(item) {
+                    items.forEach(function(item) {
+                        if (!that.lastItemsSelected.includes(item)) {
+                            console.log("Unselecting:" + item.id);
+                            that.playerHand.unselectItem(item.id);
+                        }
                     });
                     return;
                 }
+                this.lastItemsSelected = items;
                 // We still need to update the bid if we unselect all our cards
                 this.updateSelfBid();
 
@@ -969,6 +975,7 @@ function (dojo, declare, domStyle, lang, attr) {
                     that.clearTooltipFromCard(that.playerHand, item);
                 });
                 this.playerHand.unselectAll();
+                this.lastItemsSelected = [];
 
                 // Give these 3 cards
                 var to_give = '';
