@@ -167,7 +167,24 @@ function (dojo, declare, domStyle, lang, attr) {
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
 
+            dojo.connect(window, "onresize", this, dojo.hitch(this, "adaptViewportSize"));
+
             this.ensureSpecificImageLoading(['../common/point.png']);
+        },
+
+        adaptViewportSize: function() {
+            this.adjustCardOverlapToAvailableSpace();
+        },
+
+        adjustCardOverlapToAvailableSpace: function() {
+            var bodycoords = dojo.marginBox("my_hand_container");
+            var numberOfCardsWhichWrap = 0;
+            var contentWidth = bodycoords.w - 20; // Minus 10 pixels of padding on either side
+            var cardCountInHand = this.playerHand.getAllItems().length;
+            var fullSize = cardCountInHand * 76 + (cardCountInHand / 2); // plus a little extra padding
+            var cardsThatCanFit = contentWidth / 77;
+            numberOfCardsWhichWrap = Math.max(0, cardCountInHand - cardsThatCanFit);
+            this.playerHand.setOverlap(100 - Math.min(90, numberOfCardsWhichWrap * 10));
         },
 
         ///////////////////////////////////////////////////
@@ -964,6 +981,7 @@ function (dojo, declare, domStyle, lang, attr) {
                     that.clearTooltipFromCard(that.playerHand, item);
                 });
                 this.playerHand.unselectAll();
+                this.adjustCardOverlapToAvailableSpace();
                 this.lastItemsSelected = [];
 
                 // Give these 3 cards
@@ -1043,7 +1061,6 @@ function (dojo, declare, domStyle, lang, attr) {
             // We received a new full hand of 12 cards.
             this.playerHand.removeAll();
             this.playerBid.removeAll();
-            //this.setNodeHidden("bids", true);
             this.animateBidVisibility(false);
             this.clearTricksWon();
             this.updateSelfBid();
@@ -1055,6 +1072,7 @@ function (dojo, declare, domStyle, lang, attr) {
                 var value = card.type_arg;
                 this.playerHand.addToStockWithId(this.getCardUniqueId(color, value), card.id);
             }
+            this.adjustCardOverlapToAvailableSpace();
         },
 
         notif_playCard: function(notif) {
