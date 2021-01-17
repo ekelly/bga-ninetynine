@@ -56,6 +56,12 @@ class action_ninetynine extends APP_GameAction {
         self::ajaxResponse();
     }
 
+    public function undoBid() {
+        self::setAjaxMode();
+        $this->game->undoBid();
+        self::ajaxResponse();
+    }
+
     private function base64url_decode($data) {
         return base64_decode(str_replace(array('-', '_'), array('+', '/'), $data));
     }

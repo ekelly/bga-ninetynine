@@ -265,12 +265,19 @@ function (dojo, declare, domStyle, lang, attr) {
         //                        action status bar (ie: the HTML links in the status bar).
         //
         onUpdateActionButtons: function(stateName, args) {
+            console.log("Updating action buttons with state: " + stateName + ". Current player active? " + this.isCurrentPlayerActive());
             if (this.isCurrentPlayerActive()) {
                 switch (stateName) {
                     case 'bidding':
                         this.addActionButton('reveal_button', _('Reveal'), 'onReveal');
                         this.addActionButton('declare_button', _('Declare'), 'onDeclare');
                         this.addActionButton('none_button', _('Neither'), 'onNoDeclare');
+                        break;
+                }
+            } else if (!this.isSpectator) {
+                switch (stateName) {
+                    case 'bidding':
+                        this.addActionButton('undo_button', _('Undo bid'), 'onUndoBid');
                         break;
                 }
             }
@@ -932,11 +939,7 @@ function (dojo, declare, domStyle, lang, attr) {
 
         playCard: function(card) {
             clearTimeout(this.playForcedCardFuture);
-            this.ajaxcall("/ninetynine/ninetynine/playCard.html", {
-                id: card.id,
-                lock: true
-            }, this, function(result) {}, function(is_error) {});
-
+            this.ajaxCallWrapper('playCard', { id: card.id });
             this.playerHand.unselectAll();
         },
 
@@ -959,6 +962,28 @@ function (dojo, declare, domStyle, lang, attr) {
                                     dojo.hitch(this, function() {
                 this.submitBid(2);
             }));
+        },
+
+        onUndoBid: function() {
+            this.ajaxcallwrapper("undoBid", {}, true);
+
+            // Move bid cards back to the hand
+            var items = this.playerBid.getAllItems();
+            var that = this;
+            items.forEach(function(item) {
+                var divId = that.playerBid.getItemDivId(item.id);
+                that.playerHand.addToStockWithId(item.type, item.id, divId);
+                that.playerBid.removeFromStockById(item.id);
+            });
+            this.playerHand.getAllItems().forEach(function(item) {
+                that.clearTooltipFromCard(that.playerHand, item);
+                that.addTooltipToCard(that.playerHand, item, _('Add to bid'));
+            });
+            this.setNodeHidden("my_bid_container", true);
+
+            this.adjustCardOverlapToAvailableSpace();
+            this.lastItemsSelected = [];
+            this.updateSelfBid();
         },
 
         // decrev should be 0 = none, 1 = declare, 2 = reveal
@@ -990,13 +1015,22 @@ function (dojo, declare, domStyle, lang, attr) {
                 for (var i in items) {
                     to_give += items[i].id+';';
                 }
-                this.ajaxcall("/ninetynine/ninetynine/submitBid.html", {
+                this.ajaxcallwrapper('submitBid', {
                     cards: to_give,
                     declareOrReveal: decrev,
-                    lock: true
-                }, this, function (result) {
-                }, function(is_error) {
                 });
+            }
+        },
+
+        ajaxcallwrapper: function(action, args, skipActionCheck, handler) {
+            if (!args) {
+                args = [];
+            }
+            args.lock = true;
+
+            if (skipActionCheck || this.checkAction(action)) {
+                this.ajaxcall("/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+                              args, this, (result) => {}, handler);
             }
         },
 

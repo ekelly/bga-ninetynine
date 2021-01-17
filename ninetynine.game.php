@@ -443,6 +443,12 @@ class NinetyNine extends Table {
     }
 
     // Clear all player bids
+    function undoPlayerBid($playerId) {
+        $sql = "UPDATE player SET player_bid=0 WHERE player_id='$playerId'";
+        $this->DbQuery($sql);
+    }
+
+    // Clear all player bids
     function clearBids() {
         $sql = "UPDATE player SET player_bid=0 WHERE 1";
         $this->DbQuery($sql);
@@ -462,6 +468,12 @@ class NinetyNine extends Table {
     // Persist the player's declare/reveal request to the database
     function persistPlayerDeclareRevealRequest($playerId, $decRev) {
         $sql = "UPDATE player SET player_declare_reveal_request=$decRev WHERE player_id='$playerId'";
+        $this->DbQuery($sql);
+    }
+
+    // Undo a player's declare or reveal request
+    function undoPlayerDeclareOrReveal($playerId) {
+        $sql = "UPDATE player SET player_declare_reveal_request=0 WHERE player_id='$playerId'";
         $this->DbQuery($sql);
     }
 
@@ -926,6 +938,16 @@ class NinetyNine extends Table {
         $playerId = self::getCurrentPlayerId();
 
         $this->persistPlayerDeclareRevealRequest($playerId, $declareOrReveal);
+    }
+
+    // Undo the bid action
+    function undoBid() {
+        $this->gamestate->checkPossibleAction('undoBid');
+        $player_id = $this->getCurrentPlayerId();
+        $this->cards->moveAllCardsInLocation('bid', 'hand', $player_id, $player_id);
+        $this->undoPlayerBid($player_id);
+        $this->undoPlayerDeclareOrReveal($player_id);
+        $this->gamestate->setPlayersMultiactive(array($player_id), 'error', false);
     }
 
     // Play a card from the active player's hand

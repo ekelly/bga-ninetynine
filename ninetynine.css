@@ -89,16 +89,16 @@
     display: none !important;
 }
 
-.bgann_gap {
-    margin-right: 10px;
-}
-
 #declaring_revealing_player_container {
     float: right;
 }
 
 .gamestate_bidding #declaring_revealing_player_container {
     display: none;
+}
+
+#undo_button {
+    color: white;
 }
 
 /** Player Score Area **/
