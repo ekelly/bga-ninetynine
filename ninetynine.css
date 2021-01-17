@@ -89,6 +89,10 @@
     display: none !important;
 }
 
+.bgann_gap {
+    margin-right: 10px;
+}
+
 #declaring_revealing_player_container {
     float: right;
 }
@@ -489,6 +493,23 @@
     z-index: -1;
 }
 
+.bgann_highlight_selected .stockitem_selected {
+    z-index: 0;
+    border: 0px !important;
+}
+
+.bgann_highlight_selected .stockitem_selected::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: blue;
+    opacity: 0.2;
+    z-index: -1;
+}
+
 /*** hand layout ***/
 
 .my_cards {
@@ -496,16 +517,14 @@
     flex-direction: row;
     flex-wrap: wrap;
     margin-left: 10px;
-    margin-right: 10px;
+    margin-right: 0px;
 }
 
 #my_hand_container {
     display: flex;
     min-width: fit-content;
     flex-grow: 1;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    margin-left: 0px;
+    margin: 0px;
     margin-right: 10px;
     border-top: 1px solid black;
 }
@@ -524,6 +543,7 @@
     min-width: 240px;
     height: 130px;
     margin: 0px;
+    margin-right: 10px;
     border-top: 1px solid black;
 }
 
@@ -550,12 +570,12 @@
     filter: brightness(.8);
 }
 
-.stockitem_selected {
+.bgann_raise_selected .stockitem_selected {
     margin-top: -16px !important;
     border: 0px !important;
 }
 
-.stockitem_selected::before {
+.bgann_raise_selected .stockitem_selected::before {
     content: "";
     display: block;
     background-color: red;

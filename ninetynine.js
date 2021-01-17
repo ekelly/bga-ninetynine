@@ -973,6 +973,7 @@ function (dojo, declare, domStyle, lang, attr) {
 
                 // Move those items to the bid
                 this.setNodeHidden("my_bid_container", false);
+
                 var that = this;
                 items.forEach(function(item) {
                     var divId = that.playerHand.getItemDivId(item.id);
