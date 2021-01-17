@@ -46,13 +46,13 @@
 
 /** General Styles **/
 
-/* Smallest Content width: 910px */
-/* Smallest Overall size: 1157 */
+/* Smallest Content width: 940px */
+/* Smallest Overall size: 1186 */
 /* Overall size: 910 + 240 ? */
 /* There is an unexplained 7px somewhere... */
 
-/* Screens that are less than 1156 px */
-@media screen and (max-width: 1156px) {
+/* Screens that are less than 1186 px */
+@media screen and (max-width: 1186px) {
 }
 
 #middleRow {
@@ -144,8 +144,8 @@
     position: relative;
     height: 300px;
     display: block;
-    min-width: 620px;
-    max-width: 620px;
+    min-width: 650px;
+    max-width: 650px;
     padding: 10px;
     margin: auto;
 }
@@ -162,17 +162,17 @@
 .bgann_playertable {
     position: absolute;
     text-align: center;
-    width: 180px;
+    width: 190px;
     height: 150px;
     display: inline-block;
 }
 
 .bgann_playertable_N {
-    margin-left: 210px;
+    margin-left: 220px;
 }
 
 .bgann_playertable_S {
-    margin-left: 210px;
+    margin-left: 220px;
     margin-top: 130px;
 }
 
@@ -192,7 +192,7 @@
 
 .bgann_playertable_E {
     margin-top: 0px;
-    margin-left: 420px;
+    margin-left: 440px;
 }
 
 .player_count_4 .bgann_playertable_E {
@@ -208,7 +208,8 @@
 }
 
 #trumpContainer {
-    width: 120px;
+    min-width: 120px;
+    max-width: 150px;
     text-align: center;
     font-size: 16px;
     font-weight: bold;
@@ -262,7 +263,7 @@
 
 .bgann_firstplayer {
     border: 2px black dashed;
-    width: 176px;
+    width: 186px;
     height: 146px;
 }
 
@@ -290,7 +291,7 @@
     font-size: 14px;
     font-weight: bold;
     max-height: 140px;
-    width: 230px; /* 230px actual size */
+    min-width: 240px; /* 230px actual size */
     padding: 10px;
     float: right;
 }
@@ -325,16 +326,16 @@
     transition-delay: 1500ms;
 }
 
-/* Screens that are less than 1156 px should wrap the declared / revealed cards and animate vertically */
-@media screen and (max-width: 1156px) {
+/* Screens that are less than 1186 px should wrap the declared / revealed cards and animate vertically */
+@media screen and (max-width: 1186px) {
     #bids {
-        width: 520px; /* small screens animate height, not width */
+        width: 540px; /* small screens animate height, not width */
         height: 0;
         margin-right: 0px;
         margin-left: 10px;
         margin-bottom: 10px;
         transition: height 1500ms linear;
-        min-width: 520px;
+        min-width: 540px;
     }
     #bids.bgann_showbid {
         height: 150px;
@@ -529,6 +530,11 @@
     border-top: 1px solid black;
 }
 
+#reveal_label {
+    margin-left: 5px;
+    color: red;
+}
+
 .spectatorMode #my_hand_container {
     display: none;
 }
@@ -545,6 +551,11 @@
     margin: 0px;
     margin-right: 10px;
     border-top: 1px solid black;
+}
+
+#declare_label {
+    margin-left: 5px;
+    color: red;
 }
 
 .spectatorMode #my_bid_container {

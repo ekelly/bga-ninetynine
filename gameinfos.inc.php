@@ -38,13 +38,13 @@ $gameinfos = array(
 'bgg_id' => 6688,
 
 // Players configuration that can be played (ex: 2 to 4 players)
-'players' => array(3),
+'players' => array(3, 4),
 
 // Suggest players to play with this number of players. Must be null if there is no such advice, or if there is only one possible player configuration.
-'suggest_player_number' => null,
+'suggest_player_number' => 3,
 
 // Discourage players to play with these numbers of players. Must be null if there is no such advice.
-'not_recommend_player_number' => null,
+'not_recommend_player_number' => array(4),
 // 'not_recommend_player_number' => array( 2, 3 ),      // <= example: this is not recommended to play this game with 2 or 3 players
 
 // Estimated game duration, in minutes (used only for the launch, afterward the real duration is computed)
@@ -99,7 +99,7 @@ $gameinfos = array(
     //  default: 740
     //  maximum possible value: 740 (ie: your game interface should fit with a 740px width (correspond to a 1024px screen)
     //  minimum possible value: 320 (the lowest value you specify, the better the display is on mobile)
-    'min' => 660,
+    'min' => 680,
 
     // Maximum width
     //  default: null (ie: no limit, the game interface is as big as the player's screen allows it).

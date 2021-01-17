@@ -80,7 +80,7 @@
         <div class="bgann_section" style="flex-grow: 1;">
             <div style="width: auto; display: flex">
                 <h3 id="myhandlabel" class="">{MY_HAND_LABEL}</h3>
-                <h3 id="reveal_label" class="bgann_hidden" style="margin-left: 5px;color: red;">({REVEALED_LABEL})</h3>
+                <h3 id="reveal_label" class="bgann_hidden">({REVEALED_LABEL})</h3>
             </div>
             <div id="myhand"></div>
         </div>
@@ -89,7 +89,7 @@
         <h3>
             <span class="" style="display: inline-block;">{MY_BID_LABEL}</span>
             <span id="bidValue"></span>
-            <span id="declare_label" class="bgann_hidden" style="margin-left: 5px;color: red;">({DECLARED_LABEL})</span>
+            <span id="declare_label" class="bgann_hidden">({DECLARED_LABEL})</span>
         </h3>
         <div id="mybid"></div>
     </div>

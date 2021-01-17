@@ -133,6 +133,9 @@ class NinetyNine extends Table {
     // All used statistics have to be initialized.
     function initializeStatistics() {
         self::initStat("table", "handCount", 0);
+        if ($this->getPlayerCount() == 4) {
+            self::initStat("table", "total4WinnerHands", 0);
+        }
         self::initStat("table", "total3WinnerHands", 0);
         self::initStat("table", "total2WinnerHands", 0);
         self::initStat("table", "total1WinnerHands", 0);
@@ -159,9 +162,14 @@ class NinetyNine extends Table {
         // $suits = array( "club", "diamond", "spade", "heart" );
         for ($suit_id = 0; $suit_id < 4; $suit_id++) {
             // 2, 3, 4, ... K, A
-            // Except we're starting with 6, as the array shows.
-            // TODO: This needs to change for a 4 player game
-            for ($value = 6; $value <= 14; $value++) {
+            if ($this->getPlayerCount() == 4) {
+                $startingCard = 2;
+            } else {
+                // Except we start with 6 for a 3 player game
+                $startingCard = 6;
+            }
+
+            for ($value = $startingCard; $value <= 14; $value++) {
                 $cards[] = array('type' => $suit_id, 'type_arg' => $value, 'nbr' => 1);
             }
         }
@@ -181,7 +189,7 @@ class NinetyNine extends Table {
         _ when a player refresh the game page (F5)
     */
     protected function getAllDatas() {
-        $result = array( 'players' => array() );
+        $result = array('players' => array());
 
         // !! We must only return informations visible by this player !!
         $player_id = self::getCurrentPlayerId();
@@ -266,7 +274,9 @@ class NinetyNine extends Table {
             $maxScore = max($maxScore, $score);
         }
 
-        return (33 * $this->getCurrentRound()) + min(33, ($maxScore / 3)) + 1;
+        $roundPercentage = (int) (100 / $this->getPlayerCount());
+        $extra = 100 - ($this->getPlayerCount() * $roundPercentage);
+        return ($roundPercentage * $this->getCurrentRound()) + min($roundPercentage, ($maxScore / $this->getPlayerCount())) + $extra;
     }
 
 
@@ -280,8 +290,8 @@ class NinetyNine extends Table {
         At this place, you can put any utility methods useful for your game logic
     */
 
-    // 1 = 3 rounds with round bonuses,
-    // 2 = 3 rounds with no round bonuses
+    // 1 = 1 round per player with round bonuses,
+    // 2 = 1 round per player with no round bonuses
     // 3 = First to 3 rounds
     // 4 = 9 hands
     function getScoringVariant() {
@@ -289,7 +299,7 @@ class NinetyNine extends Table {
     }
 
     // 1 = Junk the Joker
-    // 2 = Junk the Joker (no starting trump_
+    // 2 = Junk the Joker (no starting trump)
     // 3 = Standard (trump chosen randomly)
     function getGameStyle() {
         return $this->gamestate->table_globals[100];
@@ -736,7 +746,7 @@ class NinetyNine extends Table {
         $players = self::loadPlayersBasicInfos();
         foreach ($players as $playerId => $player) {
             $cardsWon = $this->cards->countCardInLocation('cardswon', $playerId);
-            $tricksWon[$playerId] = $cardsWon / 3;
+            $tricksWon[$playerId] = $cardsWon / $this->getPlayerCount();
         }
         return $tricksWon;
     }
@@ -784,7 +794,7 @@ class NinetyNine extends Table {
             }
         }
         $prevWinnerCount = self::getGameStateValue("previousHandWinnerCount");
-        if ($prevWinnerCount < 0 || $prevWinnerCount > 3) {
+        if ($prevWinnerCount < 0 || $prevWinnerCount > $this->getPlayerCount()) {
             if ($this->doesGameUseDiamondsAsDefaultStartingTrump()) {
                 return 1;
             } else {
@@ -854,7 +864,7 @@ class NinetyNine extends Table {
 
         $current_player = self::getCurrentPlayerId();
 
-        if (count($players) == 4) {
+        if ($this->getPlayerCount() == 4) {
             $directions = array('S', 'W', 'N', 'E');
         } else {
             $directions = array('S', 'W', 'E');
@@ -1042,7 +1052,7 @@ class NinetyNine extends Table {
         // This is the end of the trick
         $cardsOnTable = $this->cards->getCardsInLocation('cardsontable');
 
-        if (count($cardsOnTable) != 3) {
+        if (count($cardsOnTable) != $this->getPlayerCount()) {
             throw new feException(_("Invalid trick card count"));
         }
 
@@ -1113,8 +1123,13 @@ class NinetyNine extends Table {
         // Take back all cards (from any location => null) to deck
         $this->cards->moveAllCardsInLocation(null, "deck");
         $this->cards->shuffle('deck');
-        // Deal 12 cards to each players
-        // Create deck, shuffle it and give 12 initial cards
+        // Deal cards to each players
+        // Create deck, shuffle it and give initial cards
+        if ($this->getPlayerCount() == 3) {
+            $cardsToDeal = 12;
+        } else {
+            $cardsToDeal = 13;
+        }
         $players = self::loadPlayersBasicInfos();
         $dealer = $this->getDealer();
         $firstPlayer = $this->getPlayerAfter($dealer);
@@ -1122,7 +1137,7 @@ class NinetyNine extends Table {
         $trump = $this->getCurrentHandTrump();
         $usesRounds = $this->doesScoringVariantUseRounds();
         foreach ($players as $player_id => $player) {
-            $cards = $this->cards->pickCards(12, 'deck', $player_id);
+            $cards = $this->cards->pickCards($cardsToDeal, 'deck', $player_id);
             // Notify player about his cards
             self::notifyPlayer($player_id, 'newHand', '', array(
               'cards' => $cards,
@@ -1215,7 +1230,7 @@ class NinetyNine extends Table {
 
     function stNextPlayer() {
         // Active next player OR end the trick and go to the next trick OR end the hand
-        if ($this->cards->countCardInLocation('cardsontable') == 3) {
+        if ($this->cards->countCardInLocation('cardsontable') == $this->getPlayerCount()) {
             $winningCard = $this->getTrickWinner();
             $winningPlayer = $winningCard['location_arg'];
 
@@ -1230,6 +1245,9 @@ class NinetyNine extends Table {
             $this->cards->moveAllCardsInLocation('cardsontable', 'cardswon', null, $winningPlayer);
 
             $trickCounts = $this->getTrickCounts();
+
+            // We need to know if the player who won is the declare/reveal
+            // player so we can update the UI for their trick win information
             $declareReveal = $this->getDeclareOrRevealInfo();
             $decRevPlayerId = $declareReveal['playerId'];
 
@@ -1281,7 +1299,7 @@ class NinetyNine extends Table {
         $madeBidCount = $handScoreInfo['correctBidCount'];
         $this->setHandWinnerCount($madeBidCount);
 
-        // Record statistics for how many hands had 0/1/2/3 winners
+        // Record statistics for how many hands had 0/1/2/3/4 winners
         self::incStat(1, "total{$madeBidCount}WinnerHands");
 
         // Count and score points, then end the round / game or go to the next hand.
@@ -1558,6 +1576,7 @@ class NinetyNine extends Table {
     function generateScoreInfo() {
         $players = self::loadPlayersBasicInfos();
         $playerBids = array();
+        $playerBidsStr = array();
         $playerNames = array();
         $roundScore = array();
         $tricksWon = $this->getTrickCounts();
@@ -1590,12 +1609,20 @@ class NinetyNine extends Table {
         foreach ($bid as $playerId => $playerBid) {
             $result['bid'][$playerId] = intval($playerBid);
         }
+        $result['bidStr'] = array();
+        foreach ($bid as $playerId => $playerBid) {
+            if ($this->getPlayerCount() == 4 && $playerBid == 0) {
+                $result['bidStr'][$playerId] = "0/10";
+            } else {
+                $result['bidStr'][$playerId] = strval($playerBid);
+            }
+        }
         $madeBid = array();
         $result['tricks'] = array();
         foreach ($tricks as $playerId => $trickCount) {
             $result['tricks'][$playerId] = $trickCount;
             $total[$playerId] = $trickCount;
-            if ($trickCount == $bid[$playerId]) {
+            if ($this->didPlayerMakeBid($trickCount, $bid[$playerId])) {
                 $madeBid[] = $playerId;
             }
         }
@@ -1603,7 +1630,7 @@ class NinetyNine extends Table {
         $handBonus = 40 - (count($madeBid) * 10);
         $result['bonus'] = array();
         foreach ($tricks as $playerId => $trickCount) {
-            if ($trickCount == $bid[$playerId]) {
+            if ($this->didPlayerMakeBid($trickCount, $bid[$playerId])) {
                 $result['bonus'][$playerId] = $handBonus;
                 $total[$playerId] += $handBonus;
             } else {
@@ -1612,7 +1639,8 @@ class NinetyNine extends Table {
         }
         if ($decRevPlayer != null) {
             $result['decrev'] = array();
-            $madeBid = $tricks[$decRevPlayer] == $bid[$decRevPlayer];
+            $madeBid = $this->didPlayerMakeBid($tricks[$decRevPlayer],
+                $bid[$decRevPlayer]);
             $pointSwing = 30;
             if ($decRev == 2) {
                 $pointSwing = 60;
@@ -1643,6 +1671,11 @@ class NinetyNine extends Table {
         return $result;
     }
 
+    function didPlayerMakeBid($trickCount, $bid) {
+        return ($trickCount == $bid) ||
+            ($trickCount == 0 &&$this->getPlayerCount() == 4 && $bid == 0);
+    }
+
     /**
         Given the hand score information, create a table to display the
         scores.
@@ -1660,7 +1693,7 @@ class NinetyNine extends Table {
 
         $bidRow = array(clienttranslate("Bid"));
         foreach ($players as $player_id => $player) {
-            $bidRow[] = $scoreInfo['bid'][$player_id];
+            $bidRow[] = $scoreInfo['bidStr'][$player_id];
         }
         $table[] = $bidRow;
 
@@ -1691,7 +1724,7 @@ class NinetyNine extends Table {
         $table[] = $totalRow;
 
         // Having a separater between hand total and round total is nice
-        $table[] = array('', '', '', '');
+        $table[] = $this->createEmptyScoringRow();
 
         if ($this->doesScoringVariantUseRounds()) {
             $roundScoreRow = array(clienttranslate("Round Score"));
@@ -1830,7 +1863,7 @@ class NinetyNine extends Table {
         $round = $this->getCurrentRound();
 
         // Add a blank link to separate the hand information from the round info
-        $table[] = array('', '', '', '');
+        $table[] = $this->createEmptyScoringRow();
 
         for ($i = 0; $i < $round + 1; $i++) {
             $roundName = $i + 1;
@@ -1868,6 +1901,17 @@ class NinetyNine extends Table {
         }
         $table[] = $totalRow;
         return $table;
+    }
+
+    function createEmptyScoringRow() {
+        $players = self::loadPlayersBasicInfos();
+
+        // Add a blank link to separate the hand information from the round info
+        $emptyRow = array('');
+        foreach ($players as $player_id => $player) {
+            $emptyRow[] = '';
+        }
+        return $emptyRow;
     }
 
     // Calculates the statistics and records them

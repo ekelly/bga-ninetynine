@@ -293,6 +293,10 @@ function (dojo, declare, domStyle, lang, attr) {
 
         */
 
+        getPlayerCount: function() {
+            return this.gamedatas.playerorder.length;
+        },
+
         getCardType: function(serverCard) {
             var color = serverCard.type;
             var rank = serverCard.type_arg;
@@ -533,6 +537,9 @@ function (dojo, declare, domStyle, lang, attr) {
                 var bidValue = this.getBidValueFromSuit(suit);
                 bid += bidValue;
             }
+            if (this.getPlayerCount() == 4 && bid == 0) {
+                return "0/10";
+            }
             return bid;
         },
 
@@ -562,6 +569,9 @@ function (dojo, declare, domStyle, lang, attr) {
             console.log("Resetting trick labels");
             // No labels should be declared or revealed
             dojo.query(".bgann_playertable_tricks").removeClass("bgann_declare bgann_reveal");
+            // Hide declare/reveal label for myself
+            this.setNodeHidden("declare_label", true);
+            this.setNodeHidden("reveal_label", true);
 
             // All bids should be reset to ?
             dojo.query(".bgann_bid_value").forEach(function(node) {
@@ -594,7 +604,6 @@ function (dojo, declare, domStyle, lang, attr) {
 
         clearTricksWon: function() {
             console.log("Clearing tricks won");
-            // dojo.query("#my_bid_container .bgann_tricks").addClass("bgann_hidden");
             this.updateValueInNode("myTricksWon", "0");
             for (var playerId in this.gamedatas.players) {
                 this.updateValueInNode("tricks_" + playerId, "0");
@@ -965,7 +974,7 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         onUndoBid: function() {
-            this.ajaxcallwrapper("undoBid", {}, true);
+            this.ajaxCallWrapper("undoBid", {}, true);
 
             // Move bid cards back to the hand
             var items = this.playerBid.getAllItems();
@@ -1015,14 +1024,14 @@ function (dojo, declare, domStyle, lang, attr) {
                 for (var i in items) {
                     to_give += items[i].id+';';
                 }
-                this.ajaxcallwrapper('submitBid', {
+                this.ajaxCallWrapper('submitBid', {
                     cards: to_give,
                     declareOrReveal: decrev,
                 });
             }
         },
 
-        ajaxcallwrapper: function(action, args, skipActionCheck, handler) {
+        ajaxCallWrapper: function(action, args, skipActionCheck, handler) {
             if (!args) {
                 args = [];
             }
