@@ -525,8 +525,6 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         showTrickLabels: function(playerId, bidValue, reveal) {
-            dojo.query(".bgann_tricks").removeClass("bgann_hidden");
-            dojo.query(".bgann_playertable_tricks").removeClass("bgann_hidden");
             if (playerId) {
                 this.updateValueInNode("bid_" + playerId, bidValue);
                 dojo.addClass("trick_info_" + playerId, "bgann_declare");
@@ -540,15 +538,6 @@ function (dojo, declare, domStyle, lang, attr) {
             console.log("Resetting trick labels");
             // No labels should be declared or revealed
             dojo.query(".bgann_playertable_tricks").removeClass("bgann_declare bgann_reveal");
-
-            // Make sure our tricks are visible
-            this.setNodeHidden("trick_info_" + this.player_id, false);
-
-            // Other players should be hidden
-            var queryStr = ":not(#trick_info_" + this.player_id + ").bgann_playertable_tricks";
-            dojo.query(queryStr).forEach(function(node) {
-                node.classList.add("bgann_hidden");
-            });
 
             // All bids should be reset to ?
             dojo.query(".bgann_bid_value").forEach(function(node) {
@@ -581,7 +570,7 @@ function (dojo, declare, domStyle, lang, attr) {
 
         clearTricksWon: function() {
             console.log("Clearing tricks won");
-            dojo.query("#my_bid_container .bgann_tricks").addClass("bgann_hidden");
+            // dojo.query("#my_bid_container .bgann_tricks").addClass("bgann_hidden");
             this.updateValueInNode("myTricksWon", "0");
             for (var playerId in this.gamedatas.players) {
                 this.updateValueInNode("tricks_" + playerId, "0");

@@ -47,7 +47,7 @@
                 </div>
                 <div class="bgann_playertablecard" id="playertablecard_{PLAYER_ID}">
                 </div>
-                <span class="bgann_hidden bgann_playertable_tricks" id="trick_info_{PLAYER_ID}">
+                <span class="bgann_playertable_tricks" id="trick_info_{PLAYER_ID}">
                     <span class="">Tricks taken: </span>
                     <span id="tricks_{PLAYER_ID}">0</span>
                     <span class="bgann_bid"> | Bid: </span>
@@ -64,8 +64,6 @@
         <div id="bids" class="">
             <div id="declaretable" class="whiteblock bgann_invisible bgann_bid_container">
                 <h3 id="declared_label" class="bgann_decrev_label">{DECLARED_BID_LABEL}<span id="declaredBidValue"></span>
-                    <!--<span class="bgann_tricks"> / {TRICKS_WON_LABEL}</span>
-                    <span id="declaredTricksWon" class="bgann_tricks">0</span>-->
                 </h3>
                 <div id="declaredBid"></div>
             </div>
@@ -91,8 +89,6 @@
         <h3>
             <span class="" style="display: inline-block;">{MY_BID_LABEL}</span>
             <span id="bidValue"></span>
-            <!--<span class="bgann_tricks bgann_hidden"> / {TRICKS_WON_LABEL}</span>
-            <span id="myTricksWon" class="bgann_tricks bgann_hidden"></span>-->
             <span id="declare_label" class="bgann_hidden" style="margin-left: 5px;color: red;">({DECLARED_LABEL})</span>
         </h3>
         <div id="mybid"></div>

@@ -93,6 +93,10 @@
     float: right;
 }
 
+.gamestate_bidding #declaring_revealing_player_container {
+    display: none;
+}
+
 /** Player Score Area **/
 
 .bgann_round_score {
@@ -238,6 +242,18 @@
 }
 
 .bgann_tricks {
+}
+
+.gamestate_bidding .bgann_playertable_E .bgann_playertable_tricks {
+    display: none;
+}
+
+.gamestate_bidding .bgann_playertable_W .bgann_playertable_tricks {
+    display: none;
+}
+
+.gamestate_bidding .bgann_playertable_N .bgann_playertable_tricks {
+    display: none;
 }
 
 .bgann_firstplayer {
