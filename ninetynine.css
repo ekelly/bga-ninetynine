@@ -333,12 +333,13 @@
         height: 0;
         margin-right: 0px;
         margin-left: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 0px;
         transition: height 1500ms linear;
         min-width: 540px;
     }
     #bids.bgann_showbid {
         height: 150px;
+        margin-bottom: 10px;
     }
     #declaretable {
         float: left;
