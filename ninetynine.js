@@ -207,7 +207,7 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         shouldPlayForcedCards: function() {
-            return this.prefs[104].value == 1;
+            return this.prefs[104].value == 1 && !this.isReadOnly();
         },
 
         ///////////////////////////////////////////////////
@@ -293,6 +293,11 @@ function (dojo, declare, domStyle, lang, attr) {
 
         */
 
+        // Returns true for spectators, instant replay (during game), archive mode (after game end)
+        isReadOnly: function () {
+            return this.isSpectator || typeof g_replayFrom != 'undefined' || g_archive_mode;
+        },
+
         getPlayerCount: function() {
             return this.gamedatas.playerorder.length;
         },
@@ -301,6 +306,22 @@ function (dojo, declare, domStyle, lang, attr) {
             var color = serverCard.type;
             var rank = serverCard.type_arg;
             return this.getCardUniqueId(color, rank);
+        },
+
+        isCardSame: function(cardOne, cardTwo) {
+            return cardOne.id == cardTwo.id && cardOne.type == cardTwo.type;
+        },
+
+        isCardInStock: function(stock, card) {
+            var foundCard = false;
+            var that = this;
+            stock.getAllItems().forEach(function(stockCard) {
+                if (that.isCardSame(stockCard, card)) {
+                    foundCard = true;
+                    return;
+                }
+            });
+            return foundCard;
         },
 
         handlePlayableCards: function(playableCards) {
@@ -332,7 +353,6 @@ function (dojo, declare, domStyle, lang, attr) {
 
         addCardsToStock: function(stock, cards) {
             this.serverCardsToClientCards(cards).forEach(function(card) {
-                // addToStockWithId(type, id)
                 stock.addToStockWithId(card.type, card.id);
             });
         },
@@ -678,8 +698,8 @@ function (dojo, declare, domStyle, lang, attr) {
                     player_id: player_id
                 }), 'playertablecard_'+player_id);
 
-            if (player_id != this.player_id) {
-                // Some opponent played a card
+            if (player_id != this.player_id || this.isSpectator) {
+                // Some opponent played a card (or spectator is observing)
                 if ($('revealedHand_item_'+card_id)) {
                     this.placeOnObject('cardontable_'+player_id, 'revealedHand_item_'+card_id);
                     this.revealedHand.removeFromStockById(card_id);
@@ -714,12 +734,17 @@ function (dojo, declare, domStyle, lang, attr) {
                 dojo.addClass("bids", "bgann_showbid");
             } else {
                 dojo.removeClass("bids", "bgann_showbid");
-                var that = this;
-                // This timeout should match the transition speed of #bids
-                setTimeout(function() {
-                    that.setNodeInvisible("revealtable", true);
-                    that.setNodeInvisible("declaretable", true);
-                }, this.animateBidVisibilityDuration);
+                if (this.isReadOnly()) {
+                    this.setNodeInvisible("revealtable", true);
+                    this.setNodeInvisible("declaretable", true);
+                } else {
+                    // This timeout should match the transition speed of #bids
+                    var that = this;
+                    setTimeout(function() {
+                        that.setNodeInvisible("revealtable", true);
+                        that.setNodeInvisible("declaretable", true);
+                    }, this.animateBidVisibilityDuration);
+                }
             }
         },
 
@@ -737,7 +762,7 @@ function (dojo, declare, domStyle, lang, attr) {
             }
             var reveal = Object.keys(decRevInfo.cards).length > 0;
             var message;
-            if (decRevInfo.playerId != this.player_id) {
+            if (decRevInfo.playerId != this.player_id || this.isSpectator) {
                 // Someone else declared or revealed
                 if (reveal) {
                     message = decRevInfo.playerName + _(" has revealed");
@@ -1005,6 +1030,9 @@ function (dojo, declare, domStyle, lang, attr) {
                     return;
                 }
 
+                // TODO: Should I call updateBidState here?
+
+                /*
                 // Move those items to the bid
                 this.setNodeHidden("my_bid_container", false);
 
@@ -1018,6 +1046,7 @@ function (dojo, declare, domStyle, lang, attr) {
                 this.playerHand.unselectAll();
                 this.adjustCardOverlapToAvailableSpace();
                 this.lastItemsSelected = [];
+                */
 
                 // Give these 3 cards
                 var to_give = '';
@@ -1029,6 +1058,23 @@ function (dojo, declare, domStyle, lang, attr) {
                     declareOrReveal: decrev,
                 });
             }
+        },
+
+        updateBidState: function(bidCards) {
+            // Move those items to the bid
+            this.setNodeHidden("my_bid_container", false);
+
+            var that = this;
+            this.serverCardsToClientCards(bidCards).forEach(function(card) {
+                var divId = that.playerHand.getItemDivId(card.id);
+                that.playerBid.addToStockWithId(card.type, card.id, divId);
+                that.playerHand.removeFromStockById(card.id);
+                that.clearTooltipFromCard(that.playerHand, card);
+            });
+            this.updateSelfBid();
+            this.playerHand.unselectAll();
+            this.adjustCardOverlapToAvailableSpace();
+            this.lastItemsSelected = [];
         },
 
         ajaxCallWrapper: function(action, args, skipActionCheck, handler) {
@@ -1102,6 +1148,11 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         notif_newHand: function(notif) {
+            if (this.isReadOnly()) {
+                // Dismiss any score dialogs
+                dojo.byId("close_btn").click();
+            }
+
             // We received a new full hand of 12 cards.
             this.playerHand.removeAll();
             this.playerBid.removeAll();
@@ -1133,11 +1184,15 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         notif_trickWin: function(notif) {
-            // The timeout allows players to view the cards that are played before they're gone.
-            var that = this;
-            setTimeout(function() {
-                that.giveAllCardsToPlayer(notif.args);
-            }, this.trickWinDelay);
+            if (this.isReadOnly()) {
+                this.giveAllCardsToPlayer(notif.args);
+            } else {
+                // The timeout allows players to view the cards that are played before they're gone.
+                var that = this;
+                setTimeout(function() {
+                    that.giveAllCardsToPlayer(notif.args);
+                }, this.trickWinDelay);
+            }
         },
 
         notif_points: function(notif) {
@@ -1163,7 +1218,8 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         notif_biddingComplete: function(notif) {
-            // This may not be a useful function
+            var bidCards = notif.args.bid.cards;
+            this.updateBidState(bidCards);
         },
 
         notif_biddingCompleteState: function(notif) {
