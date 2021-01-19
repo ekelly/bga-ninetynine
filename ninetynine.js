@@ -154,7 +154,8 @@ function (dojo, declare, domStyle, lang, attr) {
 
             // Set trick counts
             this.updateTrickCounts(this.gamedatas.trickCounts,
-                                   this.gamedatas.declareReveal.playerId);
+                                   this.gamedatas.declareReveal.playerId,
+                                   false);
 
             // Set scores
             this.updateRoundScores(this.gamedatas.roundScores);
@@ -210,6 +211,10 @@ function (dojo, declare, domStyle, lang, attr) {
             return this.prefs[104].value == 1 && !this.isReadOnly();
         },
 
+        shouldHighlightTrickWins: function() {
+            return this.prefs[106].value == 1 && !this.isReadOnly();
+        },
+
         ///////////////////////////////////////////////////
         //// Game & client states
 
@@ -256,6 +261,7 @@ function (dojo, declare, domStyle, lang, attr) {
                     this.clearTooltipsFromCards(this.playerBid);
                     this.addHoverEffectToCards("myhand", false);
                     this.showTrickLabels();
+                    dojo.byId("tricks_" + this.player_id).textContent = "0";
                     this.playerHand.setSelectionMode(1);
                     break;
             }
@@ -524,12 +530,10 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         updateSelfBid: function() {
-            var cards = null;
-            if (this.checkAction('submitBid', true)) {
+            var cards = this.playerBid.getAllItems();
+            if (cards.length == 0) {
                 // If we still need to submit our bid
                 cards = this.playerHand.getSelectedItems();
-            } else {
-                cards = this.playerBid.getAllItems();
             }
             this.updateCurrentBidFromCards(cards, "bidValue");
             this.updateCurrentBidFromCards(cards, "bid_" + this.player_id);
@@ -563,11 +567,12 @@ function (dojo, declare, domStyle, lang, attr) {
             return bid;
         },
 
-        updateTrickCounts: function(trickCounts, declaringPlayerId) {
+        updateTrickCounts: function(trickCounts, declaringPlayerId, animate) {
             for (var playerId in trickCounts) {
                 this.updateCurrentTricksWon(playerId,
                                             trickCounts[playerId],
-                                            trickCounts[declaringPlayerId]);
+                                            trickCounts[declaringPlayerId],
+                                            animate);
             }
         },
 
@@ -602,17 +607,45 @@ function (dojo, declare, domStyle, lang, attr) {
             dojo.byId("bid_" + this.player_id).textContent = "?";
         },
 
-        updateCurrentTricksWon: function(playerId, tricksWon, declaringPlayerTricks) {
+        updateCurrentTricksWon: function(playerId, tricksWon, declaringPlayerTricks, animate) {
             if (this.checkAction('submitBid', true)) {
                 // We should skip this if we're bidding
                 return;
             }
+            // Only animate if the user has set their preferences to do so
+            shouldAnimate = animate && this.shouldHighlightTrickWins();
 
             if (playerId == this.player_id) {
-                this.updateValueInNode("myTricksWon", tricksWon);
+                if (shouldAnimate) {
+                    this.animateScoreDisplay("myTricksWon", tricksWon);
+                } else {
+                    this.updateValueInNode("myTricksWon", tricksWon);
+                }
             }
-            this.updateValueInNode("declaredTricksWon", declaringPlayerTricks);
-            this.updateValueInNode("tricks_" + playerId, tricksWon);
+            if (shouldAnimate) {
+                this.animateScoreDisplay("declaredTricksWon", declaringPlayerTricks);
+                this.animateScoreDisplay("tricks_"+playerId, tricksWon);
+            } else {
+                this.updateValueInNode("declaredTricksWon", declaringPlayerTricks);
+                this.updateValueInNode("tricks_" + playerId, tricksWon);
+            }
+        },
+
+        animateScoreDisplay: function(nodeId, score) {
+            if (dojo.byId(nodeId) != null) {
+                var content = this.getValueFromNode(nodeId);
+                if (content != score) {
+                    this.displayScoring(nodeId, "ff0000", '+1', 750);
+                    var that = this;
+                    setTimeout(function() {
+                        that.updateValueInNode(nodeId, score);
+                    }, 800);
+                }
+            }
+        },
+
+        getValueFromNode: function(nodeId) {
+            return dojo.attr(dojo.byId(nodeId), 'innerHTML');
         },
 
         updateValueInNode: function(nodeId, value) {
@@ -833,7 +866,7 @@ function (dojo, declare, domStyle, lang, attr) {
         giveAllCardsToPlayer: function(args) {
             // Move all cards on table to given table, then destroy them
             var winner_id = args.player_id;
-            this.updateTrickCounts(args.playerTrickCounts, args.decRevPlayerId);
+            this.updateTrickCounts(args.playerTrickCounts, args.decRevPlayerId, true);
 
             for (var player_id in this.gamedatas.players) {
                 // There's a race condition between cards leaving the table and cards
@@ -1032,6 +1065,7 @@ function (dojo, declare, domStyle, lang, attr) {
 
                 // TODO: Should I call updateBidState here?
 
+                this.updateBidState(items);
                 /*
                 // Move those items to the bid
                 this.setNodeHidden("my_bid_container", false);
@@ -1061,16 +1095,26 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         updateBidState: function(bidCards) {
+            console.log("Updating bid state");
             // Move those items to the bid
             this.setNodeHidden("my_bid_container", false);
 
-            var that = this;
-            this.serverCardsToClientCards(bidCards).forEach(function(card) {
-                var divId = that.playerHand.getItemDivId(card.id);
-                that.playerBid.addToStockWithId(card.type, card.id, divId);
-                that.playerHand.removeFromStockById(card.id);
-                that.clearTooltipFromCard(that.playerHand, card);
-            });
+            if (this.playerBid.getAllItems().length != 3) {
+                this.playerBid.removeAll();
+                var that = this;
+                bidCards.forEach(function(card) {
+                    console.log("Bid card: " + card.id + "," + card.type);
+                    var divId = that.playerHand.getItemDivId(card.id);
+                    if (divId) {
+                        that.playerBid.addToStockWithId(card.type, card.id, divId);
+                    } else {
+                        that.playerBid.addToStockWithId(card.type, card.id);
+                    }
+                    that.playerHand.removeFromStockById(card.id);
+                    that.clearTooltipFromCard(that.playerHand, card);
+                });
+            }
+            console.log("updating bid value");
             this.updateSelfBid();
             this.playerHand.unselectAll();
             this.adjustCardOverlapToAvailableSpace();
@@ -1219,7 +1263,7 @@ function (dojo, declare, domStyle, lang, attr) {
 
         notif_biddingComplete: function(notif) {
             var bidCards = notif.args.bid.cards;
-            this.updateBidState(bidCards);
+            this.updateBidState(this.serverCardsToClientCards(bidCards));
         },
 
         notif_biddingCompleteState: function(notif) {

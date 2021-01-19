@@ -152,5 +152,13 @@ $game_preferences = array(
             2 => array('name' => totranslate('Highlight card'), 'cssPref' => 'bgann_highlight_selected')
 			  )
     ),
+    106 => array(
+			  'name' => totranslate('Accentuate trick wins'),
+			  'needReload' => true, // after user changes this preference game interface would auto-reload
+			  'values' => array(
+            1 => array('name' => totranslate('Animate score increase')),
+            2 => array('name' => totranslate('None'))
+			  )
+    ),
 );
 
