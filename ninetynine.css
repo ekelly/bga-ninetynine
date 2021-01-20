@@ -495,12 +495,15 @@
     z-index: -1;
 }
 
-.bgann_highlight_selected .stockitem_selected {
-    z-index: 0;
+.stockitem_selected {
     border: 0px !important;
 }
 
-.bgann_highlight_selected .stockitem_selected::after {
+.bgann_highlight_selected .gamestate_bidding .stockitem_selected {
+    z-index: 0;
+}
+
+.bgann_highlight_selected .gamestate_bidding .stockitem_selected::after {
     content: '';
     position: absolute;
     top: 0;
@@ -582,12 +585,11 @@
     filter: brightness(.8);
 }
 
-.bgann_raise_selected .stockitem_selected {
+.bgann_raise_selected .gamestate_bidding .stockitem_selected {
     margin-top: -16px !important;
-    border: 0px !important;
 }
 
-.bgann_raise_selected .stockitem_selected::before {
+.bgann_raise_selected .gamestate_bidding .stockitem_selected::before {
     content: "";
     display: block;
     background-color: red;

@@ -1201,18 +1201,6 @@ class NinetyNine extends Table {
             $bidCardIds = $this->cards->getCardsInLocation('bid', $playerId);
             $cardIds = $this->cards->getPlayerHand($playerId);
             $bid = $this->getPlayerBid($playerId);
-
-            // Update everyone with current cards & visibility
-            // Notify the player so we can make these cards disapear
-            self::notifyPlayer($playerId, "biddingComplete", "", array(
-                "cards" => $cardIds,
-                "bid" => array(
-                    "cards" => $bidCardIds,
-                    "bid" => $bid,
-                    "declare" => $declaring,
-                    "reveal" => $revealing
-                )
-            ));
         }
 
         // Update everyone with current cards & visibility
