@@ -583,6 +583,7 @@
 
 .bgann_highlight_playable .stockitem.bgann_unplayable {
     filter: brightness(.8);
+    pointer-events: none;
 }
 
 .bgann_raise_selected .gamestate_bidding .stockitem_selected {
