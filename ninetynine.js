@@ -1174,7 +1174,7 @@ function (dojo, declare, domStyle, lang, attr) {
 
         // Display the last score table
         displayLastScore: function() {
-            this.ajaxCallWrapper("displayScore");
+            this.ajaxCallWrapper("displayScore", {}, true);
         },
 
         // Wrap making AJAX calls to the backend

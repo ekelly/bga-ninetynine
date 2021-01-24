@@ -52,10 +52,12 @@ class NinetyNine extends Table {
     }
 
     function upgradeTableDb($from_version) {
-        if ($from_version <= '2012141856') { // where your CURRENT version in production has number YYMMDD-HHMM
+        $sqlColumnCheck = "SHOW TABLES LIKE 'gamestate'";
+        $row = self::getObjectFromDB($sqlColumnCheck);
+        if (empty($row)) {
             // You DB schema update request.
             // Note: all tables names should be prefixed by "DBPREFIX_" to be compatible with the applyDbUpgradeToAllDB method you should use below
-            $sql = "CREATE TABLE DBPREFIX_gamestate (`id` int(10) unsigned NOT NULL AUTO_INCREMENT, `scoretable` varchar(1024) default NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;";
+            $sql = "CREATE TABLE DBPREFIX_gamestate (id int(10) unsigned NOT NULL AUTO_INCREMENT, scoretable varchar(1024) default NULL, PRIMARY KEY(id));";
             // The method below is applying your DB schema update request to all tables, including the BGA framework utility tables like "zz_replayXXXX" or "zz_savepointXXXX".
             // You should really use this request, in conjunction with "DBPREFIX_" in your $sql, so ALL tables are updated. All utility tables MUST have the same schema than the main table, otherwise the game may be blocked.
             self::applyDbUpgradeToAllDB($sql);
@@ -458,18 +460,21 @@ class NinetyNine extends Table {
         self::setGameStateValue("currentRound", $roundNum);
     }
 
+    // Allow a player to request showing the last score table
     function displayLastScoreTable() {
         $lastScoreInfo = $this->getLatestScoreTable();
-        if ($lastScoreInfo == null) {
-            return;
-        }
         $playerId = self::getCurrentPlayerId();
-        $this->notifyPlayer($playerId, "tableWindow", '', array(
-            "id" => 'scoreView',
-            "title" => clienttranslate("Last hand"),
-            "table" => $lastScoreInfo,
-            "closing" => clienttranslate("Continue")
-        ) );
+        if ($lastScoreInfo == null) {
+            $this->notifyPlayer($playerId, 'scoreDisplayRequest',
+                clienttranslate("No score to display"), array());
+        } else {
+            $this->notifyPlayer($playerId, "tableWindow", '', array(
+                "id" => 'scoreView',
+                "title" => clienttranslate("Last hand"),
+                "table" => $lastScoreInfo,
+                "closing" => clienttranslate("Continue")
+            ));
+        }
     }
 
 /************** End Game State helper functions ****************/
@@ -494,6 +499,9 @@ class NinetyNine extends Table {
             return null;
         }
         $scoreTable = json_decode($jsonScore);
+        if (!is_array($scoreTable)) {
+            return null;
+        }
         return $scoreTable;
     }
 
@@ -795,9 +803,13 @@ class NinetyNine extends Table {
     function getTrickCounts() {
         $tricksWon = array();
         $players = self::loadPlayersBasicInfos();
+        $playerCount = 3;
+        if (count($players) == 4) {
+            $playerCount = 4;
+        }
         foreach ($players as $playerId => $player) {
             $cardsWon = $this->cards->countCardInLocation('cardswon', $playerId);
-            $tricksWon[$playerId] = $cardsWon / $this->getPlayerCount();
+            $tricksWon[$playerId] = $cardsWon / $playerCount;
         }
         return $tricksWon;
     }
