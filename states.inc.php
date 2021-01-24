@@ -92,7 +92,7 @@ $machinestates = array(
                 "descriptionmyturn" => clienttranslate("You must choose 3 cards and a type of bid"),
                 "type" => "multipleactiveplayer",
                 "action" => "stBidding",
-                "possibleactions" => array("submitBid", "undoBid"),
+                "possibleactions" => array("submitBid", "undoBid", "displayScore"),
                 "updateGameProgression" => false,
                 "transitions" => array("biddingDone" => 16)
         ),
@@ -113,7 +113,7 @@ $machinestates = array(
                 "descriptionmyturn" => clienttranslate('${you} must play a card'),
                 "args" => "argPlayableCards",
                 "type" => "activeplayer",
-                "possibleactions" => array("playCard"),
+                "possibleactions" => array("playCard", "displayScore"),
                 "transitions" => array("playCard" => 32)
         ),
         32 => array(

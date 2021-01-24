@@ -90,7 +90,11 @@ function (dojo, declare, domStyle, lang, attr) {
                     counter.create(targetId);
                     this.roundScoreCtrl[player_id] = counter;
                 }
-                this.addTooltipToClass("bgann_round_score", _("Round Score"), '');
+                this.addTooltipToClass("bgann_round_score", _("Round Score"), _('See last score'));
+                var displayLastScore = dojo.hitch(this, this.displayLastScore);
+                dojo.query(".bgann_round_score").forEach(function(node) {
+                    node.onclick = displayLastScore;
+                });
 
                 // Show round number
                 this.setNodeInvisible("round_name_container", false);
@@ -163,7 +167,11 @@ function (dojo, declare, domStyle, lang, attr) {
 
             this.addTooltip("declaretable", _("Opponent's declared bid"), '');
             this.addTooltip("revealtable", _("Opponent's revealed hand"), '');
-            this.addTooltipToClass("player_score", _("Game Score"), '');
+            this.addTooltipToClass("player_score", _("Game Score"), _('See last score'));
+            var displayLastScore = dojo.hitch(this, this.displayLastScore);
+            dojo.query(".player_score").forEach(function(node) {
+                node.onclick = displayLastScore;
+            });
 
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
@@ -1164,10 +1172,15 @@ function (dojo, declare, domStyle, lang, attr) {
             }
         },
 
+        // Display the last score table
+        displayLastScore: function() {
+            this.ajaxCallWrapper("displayScore");
+        },
+
         // Wrap making AJAX calls to the backend
         ajaxCallWrapper: function(action, args, skipActionCheck, handler) {
             if (!args) {
-                args = [];
+                args = {};
             }
             args.lock = true;
 

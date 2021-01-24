@@ -38,6 +38,7 @@ class NinetyNine extends Table {
                          "currentDealer" => 16,
                          "handCount" => 17,
                          "playerCount" => 18,
+                         "lastScoreInfo" => 19,
                          "gameStyle" => 100,
                          "scoringStyle" => 101
         ));
@@ -48,6 +49,17 @@ class NinetyNine extends Table {
 
     protected function getGameName() {
         return "ninetynine";
+    }
+
+    function upgradeTableDb($from_version) {
+        if ($from_version <= '2012141856') { // where your CURRENT version in production has number YYMMDD-HHMM
+            // You DB schema update request.
+            // Note: all tables names should be prefixed by "DBPREFIX_" to be compatible with the applyDbUpgradeToAllDB method you should use below
+            $sql = "CREATE TABLE DBPREFIX_gamestate (`id` int(10) unsigned NOT NULL AUTO_INCREMENT, `scoretable` varchar(1024) default NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;";
+            // The method below is applying your DB schema update request to all tables, including the BGA framework utility tables like "zz_replayXXXX" or "zz_savepointXXXX".
+            // You should really use this request, in conjunction with "DBPREFIX_" in your $sql, so ALL tables are updated. All utility tables MUST have the same schema than the main table, otherwise the game may be blocked.
+            self::applyDbUpgradeToAllDB($sql);
+        }
     }
 
     /*
@@ -274,9 +286,13 @@ class NinetyNine extends Table {
             $maxScore = max($maxScore, $score);
         }
 
-        $roundPercentage = (int) (100 / $this->getPlayerCount());
-        $extra = 100 - ($this->getPlayerCount() * $roundPercentage);
-        return ($roundPercentage * $this->getCurrentRound()) + min($roundPercentage, ($maxScore / $this->getPlayerCount())) + $extra;
+        $playerCount = 3;
+        if ($this->getPlayerCount() == 4) {
+            $playerCount = 4;
+        }
+        $roundPercentage = (int) (100 / $playerCount);
+        $extra = 100 - ($playerCount * $roundPercentage);
+        return ($roundPercentage * $this->getCurrentRound()) + min($roundPercentage, ($maxScore / $playerCount)) + $extra;
     }
 
 
@@ -442,9 +458,44 @@ class NinetyNine extends Table {
         self::setGameStateValue("currentRound", $roundNum);
     }
 
+    function displayLastScoreTable() {
+        $lastScoreInfo = $this->getLatestScoreTable();
+        if ($lastScoreInfo == null) {
+            return;
+        }
+        $playerId = self::getCurrentPlayerId();
+        $this->notifyPlayer($playerId, "tableWindow", '', array(
+            "id" => 'scoreView',
+            "title" => clienttranslate("Last hand"),
+            "table" => $lastScoreInfo,
+            "closing" => clienttranslate("Continue")
+        ) );
+    }
+
 /************** End Game State helper functions ****************/
 
 /************** Database access helper functions ****************/
+
+    // Cache the score table to the DB
+    function saveCurrentScoreTable($scoreTable) {
+        $jsonscore = json_encode($scoreTable);
+        $rowId = $this->getUniqueValueFromDB("SELECT id FROM gamestate");
+        if ($rowId == null) {
+            $this->DbQuery("INSERT INTO gamestate (scoretable) VALUES ('$jsonscore')");
+        } else {
+            $this->DbQuery("UPDATE gamestate SET scoretable='$jsonscore' WHERE id='$rowId'");
+        }
+    }
+
+    // Get latest scoretable from the DB
+    function getLatestScoreTable() {
+        $jsonScore = $this->getUniqueValueFromDB("SELECT scoretable FROM gamestate");
+        if ($jsonScore == null) {
+            return null;
+        }
+        $scoreTable = json_decode($jsonScore);
+        return $scoreTable;
+    }
 
     // Persist the player's bid to the players table
     function persistPlayerBid($playerId, $bid) {
@@ -1728,6 +1779,7 @@ class NinetyNine extends Table {
 
     // Display the score
     function notifyScore($table, $message) {
+        $this->saveCurrentScoreTable($table);
         $this->notifyAllPlayers("tableWindow", '', array(
             "id" => 'scoreView',
             "title" => $message,

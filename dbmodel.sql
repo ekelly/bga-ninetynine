@@ -42,6 +42,12 @@ ALTER TABLE `player` ADD `player_declare_reveal` int(11) DEFAULT 0;
 --     Valid options: 0 (none), 1 (declare), 2 (reveal)
 ALTER TABLE `player` ADD `player_declare_reveal_request` int(11) DEFAULT 0;
 
+CREATE TABLE IF NOT EXISTS `gamestate` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `scoretable` varchar(1024) default NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS `round_scores` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `round_number` int(10) unsigned NOT NULL,
