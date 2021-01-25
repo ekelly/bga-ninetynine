@@ -107,6 +107,7 @@ $game_preferences = array(
     100 => array(
 			  'name' => totranslate('Card hover effect'),
 			  'needReload' => true, // after user changes this preference game interface would auto-reload
+        'default' => 1,
 			  'values' => array(
             1 => array('name' => totranslate('None')),
             2 => array('name' => totranslate('Raise card'), 'cssPref' => 'bgann_cardhover')
@@ -115,6 +116,7 @@ $game_preferences = array(
     101 => array(
 			  'name' => totranslate('Card sort order'),
 			  'needReload' => true, // after user changes this preference game interface would auto-reload
+        'default' => 1,
 			  'values' => array(
             1 => array('name' => totranslate('Bid Value Order')),
             2 => array('name' => totranslate('Hearts Order'))
@@ -123,6 +125,7 @@ $game_preferences = array(
     102 => array(
 			  'name' => totranslate('Highlight trump'),
 			  'needReload' => true, // after user changes this preference game interface would auto-reload
+        'default' => 1,
 			  'values' => array(
             1 => array('name' => totranslate('Enabled'), 'cssPref' => 'bgann_highlight_trump'),
             2 => array('name' => totranslate('Disabled'))
@@ -131,6 +134,7 @@ $game_preferences = array(
     103 => array(
 			  'name' => totranslate('Highlight playable cards'),
 			  'needReload' => true, // after user changes this preference game interface would auto-reload
+        'default' => 1,
 			  'values' => array(
             1 => array('name' => totranslate('Enabled'), 'cssPref' => 'bgann_highlight_playable'),
             2 => array('name' => totranslate('Disabled'))
@@ -139,6 +143,7 @@ $game_preferences = array(
     104 => array(
 			  'name' => totranslate('Play forced cards'),
 			  'needReload' => false,
+        'default' => 1,
 			  'values' => array(
             1 => array('name' => totranslate('Enabled')),
             2 => array('name' => totranslate('Disabled'))
@@ -147,6 +152,7 @@ $game_preferences = array(
     105 => array(
 			  'name' => totranslate('Bid selection effect'),
 			  'needReload' => true, // after user changes this preference game interface would auto-reload
+        'default' => 1,
 			  'values' => array(
             1 => array('name' => totranslate('Raise card'), 'cssPref' => 'bgann_raise_selected'),
             2 => array('name' => totranslate('Highlight card'), 'cssPref' => 'bgann_highlight_selected')
@@ -155,6 +161,7 @@ $game_preferences = array(
     106 => array(
 			  'name' => totranslate('Accentuate trick wins'),
 			  'needReload' => true, // after user changes this preference game interface would auto-reload
+        'default' => 1,
 			  'values' => array(
             1 => array('name' => totranslate('Animate score increase')),
             2 => array('name' => totranslate('None'))

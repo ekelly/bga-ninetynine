@@ -41,6 +41,9 @@ $stats_type = array(
                              "name" => totranslate("Number of hands"),
                              "type" => "int"),
 
+        "total4WinnerHands" => array("id" => 15,
+                                     "name" => totranslate("Four winner hands"),
+                                     "type" => "int"),
         "total3WinnerHands" => array("id" => 11,
                                      "name" => totranslate("Three winner hands"),
                                      "type" => "int"),
@@ -52,9 +55,6 @@ $stats_type = array(
                                      "type" => "int"),
         "total0WinnerHands" => array("id" => 14,
                                      "name" => totranslate("No winner hands"),
-                                     "type" => "int"),
-        "total4WinnerHands" => array("id" => 15,
-                                     "name" => totranslate("Four winner hands"),
                                      "type" => "int")
 
     ),
