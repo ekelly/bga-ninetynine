@@ -109,8 +109,8 @@ $game_preferences = array(
 			  'needReload' => true, // after user changes this preference game interface would auto-reload
         'default' => 1,
 			  'values' => array(
-            1 => array('name' => totranslate('None')),
-            2 => array('name' => totranslate('Raise card'), 'cssPref' => 'bgann_cardhover')
+            1 => array('name' => totranslate('Raise card'), 'cssPref' => 'bgann_cardhover'),
+            2 => array('name' => totranslate('None'))
 			  )
     ),
     101 => array(

@@ -578,7 +578,7 @@
 }
 
 .notouch-device .bgann_cardhover .stockitem:not(.bgann_unplayable) {
-    transition: margin-top 200ms linear;
+    transition: margin-top 100ms linear;
 }
 
 .bgann_highlight_playable .stockitem.bgann_unplayable {
