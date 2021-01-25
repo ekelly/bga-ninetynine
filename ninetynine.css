@@ -51,8 +51,8 @@
 /* Overall size: 910 + 240 ? */
 /* There is an unexplained 7px somewhere... */
 
-/* Screens that are less than 1186 px */
-@media screen and (max-width: 1186px) {
+/* Screens that are less than 1236 px */
+@media screen and (max-width: 1236px) {
 }
 
 #middleRow {
@@ -144,8 +144,8 @@
     position: relative;
     height: 300px;
     display: block;
-    min-width: 650px;
-    max-width: 650px;
+    min-width: 698px;
+    max-width: 698px;
     padding: 10px;
     margin: auto;
 }
@@ -162,17 +162,17 @@
 .bgann_playertable {
     position: absolute;
     text-align: center;
-    width: 190px;
+    width: 206px;
     height: 150px;
     display: inline-block;
 }
 
 .bgann_playertable_N {
-    margin-left: 220px;
+    margin-left: 236px;
 }
 
 .bgann_playertable_S {
-    margin-left: 220px;
+    margin-left: 236px;
     margin-top: 130px;
 }
 
@@ -192,7 +192,7 @@
 
 .bgann_playertable_E {
     margin-top: 0px;
-    margin-left: 440px;
+    margin-left: 472px;
 }
 
 .player_count_4 .bgann_playertable_E {
@@ -213,7 +213,7 @@
     text-align: center;
     font-size: 16px;
     font-weight: bold;
-    margin-left: 240px;
+    margin-left: 264px;
     height: 60px;
 }
 
@@ -263,7 +263,7 @@
 
 .bgann_firstplayer {
     border: 2px black dashed;
-    width: 186px;
+    width: 202px;
     height: 146px;
 }
 
@@ -326,8 +326,8 @@
     transition-delay: 1500ms;
 }
 
-/* Screens that are less than 1186 px should wrap the declared / revealed cards and animate vertically */
-@media screen and (max-width: 1186px) {
+/* Screens that are less than 1236 px should wrap the declared / revealed cards and animate vertically */
+@media screen and (max-width: 1236px) {
     #bids {
         width: 540px; /* small screens animate height, not width */
         height: 0;

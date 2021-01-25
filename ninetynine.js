@@ -651,7 +651,7 @@ function (dojo, declare, domStyle, lang, attr) {
                 var bidValue = this.getBidValueFromSuit(suit);
                 bid += bidValue;
             }
-            if (this.getPlayerCount() == 4 && bid == 0) {
+            if (this.getPlayerCount() == 4 && bid == 0 && cardList.length == 3) {
                 return "0/10";
             }
             return bid;
