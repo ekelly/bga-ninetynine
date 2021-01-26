@@ -46,6 +46,7 @@ function (dojo, declare, domStyle, lang, attr) {
 
             // Globals
             this.shouldGiveCardsToWinner = false;
+            this.autoplay = false;
 
             // Timeouts
             this.trickWinDelay = 500;
@@ -473,7 +474,7 @@ function (dojo, declare, domStyle, lang, attr) {
                 return;
             }
             var playableCardArray = Object.entries(playableCards).map(entry => entry[1])
-            if (playableCardArray.length == 1) {
+            if (playableCardArray.length == 1 || this.autoplay) {
                 var that = this;
                 this.playForcedCardFuture = setTimeout(function() {
                     that.playCard(playableCardArray[0]);
