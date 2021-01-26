@@ -635,7 +635,9 @@ function (dojo, declare, domStyle, lang, attr) {
         updateCurrentBidFromCards: function(cardList, divId) {
             var bid = this.getBidValueFromCards(cardList);
             var bidValueSpan = dojo.byId(divId);
-            bidValueSpan.textContent = bid;
+            if (bidValueSpan) {
+                bidValueSpan.textContent = bid;
+            }
         },
 
         // Return the string representation of the value of a particular
