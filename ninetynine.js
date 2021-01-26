@@ -926,7 +926,8 @@ function (dojo, declare, domStyle, lang, attr) {
                     player_id: player_id
                 }), 'playertablecard_'+player_id);
 
-            if (player_id != this.player_id || this.isSpectator) {
+            var cardCameFromSomeoneElse = player_id != this.player_id || this.isSpectator;
+            if (cardCameFromSomeoneElse) {
                 // Some opponent played a card (or spectator is observing)
                 if ($('revealedHand_item_'+card_id)) {
                     this.placeOnObject('cardontable_'+player_id, 'revealedHand_item_'+card_id);
@@ -945,6 +946,11 @@ function (dojo, declare, domStyle, lang, attr) {
             }
             // In any case: move it to its final destination
             this.slideToObject('cardontable_'+player_id, 'playertablecard_'+player_id).play();
+
+            // Adjust card overlap now that there are fewer cards in hand
+            if (!cardCameFromSomeoneElse) {
+                this.adjustCardOverlapToAvailableSpace();
+            }
         },
 
         // Move all the cards currently played on the table to the trick winner
@@ -1158,9 +1164,6 @@ function (dojo, declare, domStyle, lang, attr) {
                     return;
                 }
 
-                // Update all client UI related to bidding
-                // this.updateBidState(items);
-
                 // Give these 3 cards
                 var to_give = '';
                 for (var i in items) {
@@ -1261,6 +1264,17 @@ function (dojo, declare, domStyle, lang, attr) {
                 this.playerHand.addToStockWithId(this.getCardUniqueId(color, value), card.id);
             }
             this.adjustCardOverlapToAvailableSpace();
+
+            if (this.autoplay) {
+                var that = this;
+                setTimeout(function() {
+                    var cards = that.playerHand.getAllItems();
+                    that.playerHand.selectItem(cards[0].id);
+                    that.playerHand.selectItem(cards[1].id);
+                    that.playerHand.selectItem(cards[2].id);
+                    that.onNoDeclare();
+                }, 500);
+            }
         },
 
         // A new hand is starting
