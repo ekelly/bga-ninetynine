@@ -1163,12 +1163,6 @@ class NinetyNine extends Table {
                 'round_num' => $currentRoundName,
                 'firstPlayer' => $firstPlayer
             ));
-        } else {
-            self::notifyAllPlayers('newRound', '', array(
-                'dealer' => $dealer,
-                'hand_num' => $this->getHandCount(),
-                'firstPlayer' => $firstPlayer
-            ));
         }
         $this->gamestate->nextState();
     }
@@ -1178,6 +1172,16 @@ class NinetyNine extends Table {
         $this->incrementHandCount();
 
         $handCount = $this->getHandCount();
+
+        if (!$this->doesScoringVariantUseRounds()) {
+            $dealer = $this->getDealer();
+            $firstPlayer = $this->getPlayerAfter($dealer);
+            self::notifyAllPlayers('newRound', clienttranslate('Starting hand ${hand_num}'), array(
+                'dealer' => $dealer,
+                'hand_num' => $this->getHandCount(),
+                'firstPlayer' => $firstPlayer
+            ));
+        }
 
         if ($this->doesGameUseRandomCardDrawToDetermineTrump()) {
             $this->setRandomTrump();
