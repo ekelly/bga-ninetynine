@@ -423,14 +423,14 @@ class NinetyNine extends Table {
     // Valid suits include 0-3, with -1 indicating no suit (which is also considered valid)
     function validateSuit($suit) {
         if ($suit > 3 || $suit < -1) {
-            throw new feException(sprintf(_("Invalid suit: %d"), $suit));
+            throw new feException(sprintf(self::_("Invalid suit: %d"), $suit));
         }
     }
 
     // Validate that the playerNum is within the number of valid players
     function validatePlayerNum($playerNum) {
         if ($playerNum < 0 || $playerNum > $this->getPlayerCount()) {
-            throw new feException(sprintf(_("Invalid player num: %d"), $playerNum));
+            throw new feException(sprintf(self::_("Invalid player num: %d"), $playerNum));
         }
     }
 
@@ -586,7 +586,7 @@ class NinetyNine extends Table {
     **/
     function dbGetRoundScores($round) {
         if ($round < 0) {
-            throw new feException(_("Invalid round"));
+            throw new feException(self::_("Invalid round"));
         }
         $roundScores = $this->getCollectionFromDB("SELECT player_id, score FROM round_scores WHERE round_number='$round'", true);
         $result = array();
@@ -686,7 +686,7 @@ class NinetyNine extends Table {
         $output = array();
         $result = $this->getCollectionFromDB("SELECT player_id id, player_name name, player_declare_reveal decrev FROM player WHERE player_declare_reveal != 0");
         if (count($result) > 1) {
-            throw new feException(_("Invalid game state - multiple declaring or revealing players"));
+            throw new feException(self::_("Invalid game state - multiple declaring or revealing players"));
         } else if (count($result) == 1) {
             $playerId = array_keys($result)[0];
             $playerName = $result[$playerId]['name'];
@@ -715,7 +715,7 @@ class NinetyNine extends Table {
             case 3:
                 return 2;
             default:
-                throw new feException(sprintf(_("Unknown suit: %s"), $card['type']));
+                throw new feException(sprintf(self::_("Unknown suit: %s"), $card['type']));
         }
     }
 
@@ -835,7 +835,7 @@ class NinetyNine extends Table {
             }
         }
 
-        throw new feException(sprintf(_("Incorrect calculation of dealer: %d"), $actualDealerPosition));
+        throw new feException(sprintf(self::_("Incorrect calculation of dealer: %d"), $actualDealerPosition));
     }
 
     /**
@@ -1004,7 +1004,7 @@ class NinetyNine extends Table {
 
     function declareOrReveal($declareOrReveal) {
         if ($declareOrReveal < 0 || $declareOrReveal > 2) {
-            throw new feException(sprintf(_("Invalid declare or reveal: %d"), $declareOrReveal));
+            throw new feException(sprintf(self::_("Invalid declare or reveal: %d"), $declareOrReveal));
         }
 
         // Check that the cards are actually in the current user's hands.
@@ -1060,7 +1060,7 @@ class NinetyNine extends Table {
             }
         }
         if (!$cardIsInPlayerHand) {
-            throw new feException(_("This card is not in your hand"));
+            throw new feException(self::_("This card is not in your hand"));
         }
 
         if ($firstCardOfTrick) {
@@ -1116,7 +1116,7 @@ class NinetyNine extends Table {
         $cardsOnTable = $this->cards->getCardsInLocation('cardsontable');
 
         if (count($cardsOnTable) != $this->getPlayerCount()) {
-            throw new feException(_("Invalid trick card count"));
+            throw new feException(self::_("Invalid trick card count"));
         }
 
         $bestValue = 0;
