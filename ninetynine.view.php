@@ -39,6 +39,7 @@
 
         /*********** Place your code below:  ************/
 
+        $this->tpl['PLAYER_COUNT'] = $players_nbr;
 
         // Arrange players so that I am on south
         $player_to_dir = $this->game->getPlayersToDirection();

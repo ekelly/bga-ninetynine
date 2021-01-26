@@ -46,8 +46,25 @@
 
 /** General Styles **/
 
+/* Smallest Content width: 940px */
+/* Smallest Overall size: 1186 */
+/* Overall size: 910 + 240 ? */
+/* There is an unexplained 7px somewhere... */
+
+/* Screens that are less than 1236 px */
+@media screen and (max-width: 1236px) {
+}
+
 #middleRow {
     display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    min-height: 340px;
+    margin-bottom: 10px;
+}
+
+#middleRow > div {
+    flex-basis: auto;
 }
 
 .bgann_container {
@@ -70,11 +87,19 @@
 }
 
 .bgann_hidden {
-    display: none;
+    display: none !important;
 }
 
 #declaring_revealing_player_container {
-    margin-left: 420px;
+    float: right;
+}
+
+.gamestate_bidding #declaring_revealing_player_container {
+    display: none;
+}
+
+#undo_button {
+    color: white;
 }
 
 /** Player Score Area **/
@@ -118,9 +143,17 @@
 
 #playertables {
     position: relative;
-    height: 340px;
-    display: inline-block;
-    min-width: 390px;
+    height: 300px;
+    display: block;
+    min-width: 698px;
+    max-width: 698px;
+    padding: 10px;
+    margin: auto;
+}
+
+/* For 4 players we need more space */
+.player_count_4 #playertables {
+    height: 410px;
 }
 
 .bgann_playertablename {
@@ -130,27 +163,41 @@
 .bgann_playertable {
     position: absolute;
     text-align: center;
-    width: 180px;
-    height: 130px;
+    width: 206px;
+    height: 150px;
+    display: inline-block;
+}
+
+.bgann_playertable_N {
+    margin-left: 236px;
 }
 
 .bgann_playertable_S {
-    left: 50%;
-    bottom: 0px;
-    margin-left: -90px;
+    margin-left: 236px;
+    margin-top: 130px;
+}
+
+/* For 4 players we need more space */
+.player_count_4 .bgann_playertable_S {
+    margin-top: 240px;
 }
 
 .bgann_playertable_W {
-    left: 0px;
-    top: 50%;
-    margin-top: -155px;
+    margin-top: 0px;
+}
+
+/* For 4 players we need more space */
+.player_count_4 .bgann_playertable_W {
+    margin-top: 100px;
 }
 
 .bgann_playertable_E {
-    left: 100%;
-    top: 50%;
-    margin-top: -155px;
-    margin-left: -180px;
+    margin-top: 0px;
+    margin-left: 472px;
+}
+
+.player_count_4 .bgann_playertable_E {
+    margin-top: 100px;
 }
 
 .bgann_playertablecard {
@@ -162,40 +209,63 @@
 }
 
 #trumpContainer {
-    left: 100%;
-    bottom: 0px;
-    margin-left: -75px;
-    position: absolute;
-    width: 120px;
+    min-width: 120px;
+    max-width: 150px;
     text-align: center;
     font-size: 16px;
     font-weight: bold;
+    margin-left: 264px;
+    height: 60px;
 }
 
-#my_bid_container{
-    position: absolute;
-    right: 0%;
-    bottom: 25.4%;
+/* For 4 players we need more space */
+.player_count_4 #trumpContainer {
+    margin-top: 190px;
+    height: 20px;
+    font-size: 16px;
+}
+
+.player_count_4 #trumpContainer > div {
+    display: inline;
 }
 
 .bgann_dealerindicator {
     color: black;
 }
 
-.bgann_tricks {
-    color: black;
+.bgann_playertable_tricks {
+    display: block;
+    width: auto;
+    margin-top: 10px;
 }
 
-.bgann_playertable > .bgann_tricks {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
+.bgann_playertable_tricks_declare {
+    color: red;
+}
+
+.bgann_playertable_tricks_reveal {
+    font-weight: bold;
+}
+
+.bgann_tricks {
+}
+
+.gamestate_bidding .bgann_playertable_E .bgann_playertable_tricks {
+    display: none;
+}
+
+.gamestate_bidding .bgann_playertable_W .bgann_playertable_tricks {
+    display: none;
+}
+
+.gamestate_bidding .bgann_playertable_N .bgann_playertable_tricks {
+    display: none;
 }
 
 .bgann_firstplayer {
     border: 2px black dashed;
-    width: 176px;
-    height: 126px;
+    width: 202px;
+    height: 146px;
 }
 
 /* Declare / Reveal styles */
@@ -203,19 +273,82 @@
 #declaretable {
     font-size: 14px;
     font-weight: bold;
+    max-height: 140px;
+    width: 240px; /* 240px actual size */
+    padding: 10px;
+    float: right;
 }
 
 .bgann_declare {
+    color: red;
 }
 
 .bgann_reveal {
-    height: 130px;
+    font-weight: bold;
 }
 
 #revealtable {
+    height: 130px;
     font-size: 14px;
     font-weight: bold;
-    min-width: 230px;
+    max-height: 140px;
+    min-width: 240px; /* 230px actual size */
+    padding: 10px;
+    float: right;
+}
+
+/* For animating the declare/reveal stuff */
+
+#bids {
+    max-width: 260px; /* Actual size 260px */
+    overflow: hidden;
+    transition: width 1500ms linear;
+    width: 0;
+    display: block;
+}
+
+#bids.bgann_showbid {
+    width: 260px; /* Actual size 260px */
+    visibility: visible;
+    opacity: 1;
+    margin-right: 10px;
+}
+
+#bids .bgann_decrev_label {
+    opacity: 0;
+    height: 16px;
+    transition: opacity 500ms linear;
+    transition-delay: 0s;
+}
+
+#bids.bgann_showbid .bgann_decrev_label {
+    opacity: 1;
+    transition: opacity 500ms ease;
+    transition-delay: 1500ms;
+}
+
+/* Screens that are less than 1236 px should wrap the declared / revealed cards and animate vertically */
+@media screen and (max-width: 1236px) {
+    #bids {
+        width: 540px; /* small screens animate height, not width */
+        height: 0;
+        margin-right: 0px;
+        margin-left: 10px;
+        margin-bottom: 0px;
+        transition: height 1500ms linear;
+        min-width: 540px;
+    }
+    #bids.bgann_showbid {
+        height: 150px;
+        margin-bottom: 10px;
+    }
+    #declaretable {
+        float: left;
+    }
+    #revealtable {
+        float: left;
+        margin-left: 10px;
+    }
 }
 
 /*** cards on table ***/
@@ -225,6 +358,7 @@
     width: 72px;
     height: 96px;
     background-image: url('img/cards.jpg');
+    z-index: 100;
 }
 
 .bgann_suit_spade {
@@ -310,6 +444,15 @@
     font-size: 16px;
 }
 
+.player_count_3 .bgann_trump_suit.bgann_trump_none {
+    line-height: 3;
+}
+
+.player_count_4 #trumpSuit:not(.bgann_trump_none) {
+    font-size: 24px;
+    line-height: 0.7;
+}
+
 /*** for notifications ***/
 .bgann_icon {
     background: no-repeat;
@@ -337,7 +480,69 @@
     background-image: url("img/diamond-icon.png");
 }
 
+.bgann_highlight_trump .bgann_trump {
+    z-index: 0;
+}
+
+.bgann_highlight_trump .bgann_trump::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: yellow;
+    opacity: 0.2;
+    z-index: -1;
+}
+
+.stockitem_selected {
+    border: 0px !important;
+}
+
+.bgann_highlight_selected .gamestate_bidding .stockitem_selected {
+    z-index: 0;
+}
+
+.bgann_highlight_selected .gamestate_bidding .stockitem_selected::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: blue;
+    opacity: 0.2;
+    z-index: -1;
+}
+
 /*** hand layout ***/
+
+.my_cards {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-left: 10px;
+    margin-right: 0px;
+}
+
+#my_hand_container {
+    display: flex;
+    min-width: fit-content;
+    flex-grow: 1;
+    margin: 0px;
+    margin-right: 10px;
+    border-top: 1px solid black;
+}
+
+#reveal_label {
+    margin-left: 5px;
+    color: red;
+}
+
+.spectatorMode #my_hand_container {
+    display: none;
+}
 
 #myhand {
     position: relative;
@@ -345,13 +550,21 @@
     width: 100%;
 }
 
-/** Add hover effect to cards in hand or bid **/
-.bgann_cardhover > .stockitem:hover {
-    border: 1px red solid;
+#my_bid_container {
+    min-width: 240px;
+    height: 130px;
+    margin: 0px;
+    margin-right: 10px;
+    border-top: 1px solid black;
 }
 
-.bgann_preselect {
-    border: 1px black solid;
+#declare_label {
+    margin-left: 5px;
+    color: red;
+}
+
+.spectatorMode #my_bid_container {
+    display: none;
 }
 
 #mybid {
@@ -360,14 +573,32 @@
     width: 100%;
 }
 
-.bgann_bid_container {
-    min-width: 240px;
-    height: 130px;
+/** Add hover effect to cards in hand **/
+.notouch-device .bgann_cardhover .stockitem:hover:not(.bgann_unplayable) {
+    margin-top: -16px !important;
 }
 
-#bids {
-    width: 100%;
-    margin-left: 100px;
-    display: flex;
+.notouch-device .bgann_cardhover .stockitem:not(.bgann_unplayable) {
+    transition: margin-top 100ms linear;
 }
 
+.bgann_highlight_playable .stockitem.bgann_unplayable {
+    filter: brightness(.8);
+    pointer-events: none;
+}
+
+.bgann_raise_selected .gamestate_bidding .stockitem_selected {
+    margin-top: -16px !important;
+}
+
+.bgann_raise_selected .gamestate_bidding .stockitem_selected::before {
+    content: "";
+    display: block;
+    background-color: red;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    position: relative;
+    top: -15px;
+    left: 30px;
+}

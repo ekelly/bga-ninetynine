@@ -22,7 +22,7 @@
 
     See your "view" PHP file to check how to set variables and control blocks
 -->
-<div id="table">
+<div id="table" class="player_count_{PLAYER_COUNT}">
     <div id="declarerevealtable">
         <h3 class="whiteblock">
             <span id="round_name_container" class="bgann_invisible">
@@ -47,49 +47,52 @@
                 </div>
                 <div class="bgann_playertablecard" id="playertablecard_{PLAYER_ID}">
                 </div>
-                <span class="bgann_tricks bgann_hidden">(<span id="tricks_{PLAYER_ID}" class="bgann_tricks bgann_hidden">0</span>)</span>
+                <span class="bgann_playertable_tricks" id="trick_info_{PLAYER_ID}">
+                    <span class="">Tricks taken: </span>
+                    <span id="tricks_{PLAYER_ID}">0</span>
+                    <span class="bgann_bid"> | Bid: </span>
+                    <span id="bid_{PLAYER_ID}" class="bgann_bid bgann_bid_value">?</span>
+                </span>
             </div>
             <!-- END player -->
 
             <div class="whiteblock" id="trumpContainer">
                 <div class="">{TRUMP_LABEL}</div>
-                <div class="" id="trumpSuit">{NONE}</div>
+                <div class="bgann_trump_suit" id="trumpSuit">{NONE}</div>
             </div>
         </div>
-        <div id="bids">
-            <div id="declaretable" class="whiteblock bgann_bid_container bgann_declare bgann_hidden">
-                <h3 class="">{DECLARED_BID_LABEL}<span id="declaredBidValue"></span>
-                    <span class="bgann_tricks"> / {TRICKS_WON_LABEL}</span>
-                    <span id="declaredTricksWon" class="bgann_tricks">0</span>
+        <div id="bids" class="">
+            <div id="declaretable" class="whiteblock bgann_invisible bgann_bid_container">
+                <h3 id="declared_label" class="bgann_decrev_label">{DECLARED_BID_LABEL}<span id="declaredBidValue"></span>
                 </h3>
                 <div id="declaredBid"></div>
             </div>
-            <div id="revealtable" class="whiteblock bgann_reveal bgann_hidden">
-                <h3 id="revealed_label" class="">{REVEALED_HAND_LABEL}</h3>
+            <div id="revealtable" class="whiteblock bgann_invisible">
+                <h3 id="revealed_label" class="bgann_decrev_label">{REVEALED_HAND_LABEL}</h3>
                 <div id="revealedHand"></div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="whiteblock bgann_container" id="my_hand_container">
-    <div class="bgann_section" style="flex-grow: 1;">
-        <div style="width: auto; display: flex">
-            <h3 id="myhandlabel" class="">{MY_HAND_LABEL}</h3>
-            <h3 id="reveal_label" class="bgann_hidden" style="margin-left: 5px;color: red;">({REVEALED_LABEL})</h3>
+<div class="my_cards">
+    <div class="whiteblock bgann_container" id="my_hand_container">
+        <div class="bgann_section" style="flex-grow: 1;">
+            <div style="width: auto; display: flex">
+                <h3 id="myhandlabel" class="">{MY_HAND_LABEL}</h3>
+                <h3 id="reveal_label" class="bgann_hidden">({REVEALED_LABEL})</h3>
+            </div>
+            <div id="myhand"></div>
         </div>
-        <div id="myhand"></div>
     </div>
-</div>
-<div id="my_bid_container" class="bgann_section whiteblock bgann_bid_container">
-    <h3>
-        <span class="" style="display: inline-block;">{MY_BID_LABEL}</span>
-        <span id="bidValue"></span>
-        <span class="bgann_tricks bgann_hidden"> / {TRICKS_WON_LABEL}</span>
-        <span id="myTricksWon" class="bgann_tricks bgann_hidden"></span>
-        <span id="declare_label" class="bgann_hidden" style="margin-left: 5px;color: red;">({DECLARED_LABEL})</span>
-    </h3>
-    <div id="mybid"></div>
+    <div id="my_bid_container" class="bgann_section whiteblock bgann_bid_container bgann_hidden">
+        <h3>
+            <span class="" style="display: inline-block;">{MY_BID_LABEL}</span>
+            <span id="bidValue"></span>
+            <span id="declare_label" class="bgann_hidden">({DECLARED_LABEL})</span>
+        </h3>
+        <div id="mybid"></div>
+    </div>
 </div>
 
 

@@ -49,13 +49,13 @@ $game_options = array(
                 1 => array(
                     array(
                         'type' => 'maxplayers',
-                        'value' => 3,
-                        'message' => totranslate('This game is only available for 3 players.')
+                        'value' => 4,
+                        'message' => totranslate('This game has a maximum of 4 players.')
                     ),
                     array(
                         'type' => 'minplayers',
                         'value' => 3,
-                        'message' => totranslate('This game is only available for 3 players.')
+                        'message' => totranslate('This game requires at least 3 players.')
                     )
                 ),
             ),
@@ -64,14 +64,14 @@ $game_options = array(
             'name' => totranslate('Scoring style'),
             'values' => array(
                 1 => array(
-                    'name' => totranslate('3 Rounds (with end of round bonuses)'),
-                    'tmdisplay' => totranslate('3 Rounds (with end of round bonuses)'),
-                    'description' => totranslate('A game consists of 3 rounds. Rounds end when at least one player reaches 100 points. Bonus points are awarded to the player(s) that reach or pass 100 (30, 20, or 10 points depending on number of players).')
+                    'name' => totranslate('1 Round per player (with end of round bonuses)'),
+                    'tmdisplay' => totranslate('1 Round per player (with end of round bonuses)'),
+                    'description' => totranslate('A game consists of rounds. Rounds end when at least one player reaches 100 points. Bonus points are awarded to the player(s) that reach or pass 100 (30, 20, or 10 points depending on number of players).')
                 ),
                 2 => array(
-                    'name' => totranslate('3 Rounds (no round bonuses)'),
-                    'tmdisplay' => totranslate('3 Rounds (no round bonuses)'),
-                    'description' => totranslate('A game consists of 3 rounds. Rounds end when at least one player reaches 100 points. No bonus points are awarded at end of round.')
+                    'name' => totranslate('1 Round per player (no round bonuses)'),
+                    'tmdisplay' => totranslate('1 Round per player (no round bonuses)'),
+                    'description' => totranslate('A game consists of rounds. Rounds end when at least one player reaches 100 points. No bonus points are awarded at end of round.')
                 ),
                 3 => array(
                     'name' => totranslate('First to 3 rounds'),
@@ -89,13 +89,13 @@ $game_options = array(
                 1 => array(
                     array(
                         'type' => 'maxplayers',
-                        'value' => 3,
-                        'message' => totranslate('This game is only available for 3 players.')
+                        'value' => 4,
+                        'message' => totranslate('This game has a maximum of 4 players.')
                     ),
                     array(
                         'type' => 'minplayers',
                         'value' => 3,
-                        'message' => totranslate('This game is only available for 3 players.')
+                        'message' => totranslate('This game requires at least 3 players.')
                     )
                 ),
             ),
@@ -107,18 +107,65 @@ $game_preferences = array(
     100 => array(
 			  'name' => totranslate('Card hover effect'),
 			  'needReload' => true, // after user changes this preference game interface would auto-reload
+        'default' => 1,
 			  'values' => array(
-            1 => array('name' => totranslate('None')),
-            2 => array('name' => totranslate('Highlight'), 'cssPref' => 'bgann_card_highlight')
+            1 => array('name' => totranslate('Raise card'), 'cssPref' => 'bgann_cardhover'),
+            2 => array('name' => totranslate('None'))
 			  )
     ),
     101 => array(
 			  'name' => totranslate('Card sort order'),
 			  'needReload' => true, // after user changes this preference game interface would auto-reload
+        'default' => 1,
 			  'values' => array(
             1 => array('name' => totranslate('Bid Value Order')),
             2 => array('name' => totranslate('Hearts Order'))
 			  )
-  	)
+    ),
+    102 => array(
+			  'name' => totranslate('Highlight trump'),
+			  'needReload' => true, // after user changes this preference game interface would auto-reload
+        'default' => 1,
+			  'values' => array(
+            1 => array('name' => totranslate('Enabled'), 'cssPref' => 'bgann_highlight_trump'),
+            2 => array('name' => totranslate('Disabled'))
+			  )
+  	),
+    103 => array(
+			  'name' => totranslate('Highlight playable cards'),
+			  'needReload' => true, // after user changes this preference game interface would auto-reload
+        'default' => 1,
+			  'values' => array(
+            1 => array('name' => totranslate('Enabled'), 'cssPref' => 'bgann_highlight_playable'),
+            2 => array('name' => totranslate('Disabled'))
+			  )
+  	),
+    104 => array(
+			  'name' => totranslate('Play forced cards'),
+			  'needReload' => false,
+        'default' => 1,
+			  'values' => array(
+            1 => array('name' => totranslate('Enabled')),
+            2 => array('name' => totranslate('Disabled'))
+			  )
+  	),
+    105 => array(
+			  'name' => totranslate('Bid selection effect'),
+			  'needReload' => true, // after user changes this preference game interface would auto-reload
+        'default' => 1,
+			  'values' => array(
+            1 => array('name' => totranslate('Raise card'), 'cssPref' => 'bgann_raise_selected'),
+            2 => array('name' => totranslate('Highlight card'), 'cssPref' => 'bgann_highlight_selected')
+			  )
+    ),
+    106 => array(
+			  'name' => totranslate('Accentuate trick wins'),
+			  'needReload' => true, // after user changes this preference game interface would auto-reload
+        'default' => 1,
+			  'values' => array(
+            1 => array('name' => totranslate('Animate score increase')),
+            2 => array('name' => totranslate('None'))
+			  )
+    ),
 );
 

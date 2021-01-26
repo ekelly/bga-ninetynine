@@ -21,8 +21,7 @@
  *
  */
 
-  class action_ninetynine extends APP_GameAction
-  {
+class action_ninetynine extends APP_GameAction {
    	public function __default() {
   	    if (self::isArg('notifwindow')) {
             $this->view = "common_notifwindow";
@@ -56,6 +55,22 @@
         $this->game->submitBid($cards, $decrev);
         self::ajaxResponse();
     }
-  }
+
+    public function undoBid() {
+        self::setAjaxMode();
+        $this->game->undoBid();
+        self::ajaxResponse();
+    }
+
+    public function displayScore() {
+        self::setAjaxMode();
+        $this->game->displayLastScoreTable();
+        self::ajaxResponse();
+    }
+
+    private function base64url_decode($data) {
+        return base64_decode(str_replace(array('-', '_'), array('+', '/'), $data));
+    }
+}
 
 
