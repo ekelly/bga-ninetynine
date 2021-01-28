@@ -48,6 +48,9 @@ function (dojo, declare, domStyle, lang, attr) {
             this.shouldGiveCardsToWinner = false;
             this.autoplay = false;
 
+            // Cached values
+            this.cachedTrump = null;
+
             // Timeouts
             this.trickWinDelay = 500;
             this.winnerTakeDuration = 500;
@@ -1005,6 +1008,7 @@ function (dojo, declare, domStyle, lang, attr) {
         // Input: [0 = clubs ... 3 = hearts]
         // If the input is anything other than 0..3, 'None' is displayed
         showTrump: function(trumpSuit) {
+            this.cachedTrump = trumpSuit;
             var trumpSuitSpan = dojo.byId("trumpSuit");
             if (trumpSuit != undefined &&
                 trumpSuit != null &&
@@ -1149,6 +1153,10 @@ function (dojo, declare, domStyle, lang, attr) {
                 that.addTooltipToCard(that.playerHand, item, _('Add to bid'));
             });
             this.setNodeHidden("my_bid_container", true);
+
+            // If any cards in the bid were trump, we need to
+            // highlight that card again
+            this.showTrump(this.cachedTrump);
 
             this.adjustCardOverlapToAvailableSpace();
             this.lastItemsSelected = [];
