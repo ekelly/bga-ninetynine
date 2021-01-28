@@ -229,7 +229,7 @@ function (dojo, declare, domStyle, lang, attr) {
         //// Utility functions for game preferences
 
         shouldAddCardHoverEffect: function() {
-            return this.prefs[100].value == 2;
+            return this.prefs[100].value == 1;
         },
 
         shouldSortCardsInHeartsOrder: function() {
@@ -245,7 +245,7 @@ function (dojo, declare, domStyle, lang, attr) {
         },
 
         shouldPlayForcedCards: function() {
-            return this.prefs[104].value == 1 && !this.isReadOnly();
+            return false; // this.prefs[104].value == 1 && !this.isReadOnly();
         },
 
         shouldHighlightTrickWins: function() {

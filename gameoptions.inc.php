@@ -140,15 +140,15 @@ $game_preferences = array(
             2 => array('name' => totranslate('Disabled'))
 			  )
   	),
-    104 => array(
-			  'name' => totranslate('Play forced cards'),
-			  'needReload' => false,
-        'default' => 1,
-			  'values' => array(
-            1 => array('name' => totranslate('Enabled')),
-            2 => array('name' => totranslate('Disabled'))
-			  )
-  	),
+//    104 => array(
+//			  'name' => totranslate('Play forced cards'),
+//			  'needReload' => false,
+//        'default' => 1,
+//			  'values' => array(
+//            1 => array('name' => totranslate('Enabled')),
+//            2 => array('name' => totranslate('Disabled'))
+// 			  )
+//   	),
     105 => array(
 			  'name' => totranslate('Bid selection effect'),
 			  'needReload' => true, // after user changes this preference game interface would auto-reload
