@@ -377,7 +377,8 @@ class NinetyNine extends Table {
 
     // Gets the current player whose turn it is to play a card
     function getPlayerCount() {
-        return self::getGameStateValue("playerCount");
+        $players = self::loadPlayersBasicInfos();
+        return count($players);
     }
 
     // Gets the current player whose turn it is to play a card
